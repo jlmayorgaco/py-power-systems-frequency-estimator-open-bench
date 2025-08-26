@@ -1,0 +1,19 @@
+name: openfreqbench
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - pywavelets
+  - numba
+  - opendssdirect
+  - jupyter
+  - tqdm
+  - pip
+  - pip:
+      - ssqueezepy
+      - plotly
+      - joblib
