@@ -9,7 +9,6 @@ dependencies:
   - matplotlib
   - pywavelets
   - numba
-  - opendssdirect
   - jupyter
   - tqdm
   - pip
@@ -17,3 +16,5 @@ dependencies:
       - ssqueezepy
       - plotly
       - joblib
+      - opendssdirect.py
+      - brokenaxes
