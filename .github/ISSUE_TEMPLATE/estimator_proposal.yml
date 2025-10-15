@@ -1,0 +1,16 @@
+name: "📈 New Estimator Proposal"
+description: "Propose a new algorithm implementation"
+labels: [estimator, enhancement]
+body:
+  - type: input
+    attributes:
+      label: Algorithm name (e.g., EKF, PLL, Prony)
+  - type: textarea
+    attributes:
+      label: Reference / Paper link
+  - type: textarea
+    attributes:
+      label: Expected inputs / outputs
+  - type: textarea
+    attributes:
+      label: Implementation plan
