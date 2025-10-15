@@ -1,0 +1,29 @@
+# macOS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+
+# Tools & caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+coverage.xml
+htmlcov/
+
+# Our centralized project cache
+.ofb/
+
+# Old paths (if they existed before)
+_inspect/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
