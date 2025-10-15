@@ -1,37 +1,37 @@
-# OpenFreqBench : Open Benchmark of Power-System Frequency Estimators
+<!-- Logo / Title -->
+<p align="center">
+  <img src="docs/assets/openfreqbench_logo.svg" alt="OpenFreqBench logo" width="180">
+</p>
+
 <h1 align="center">OpenFreqBench</h1>
 <p align="center"><i>Open Benchmark of Power-System Frequency Estimators</i></p>
 
-<p align="center">
-  <img src="docs/assets/openfreqbench_logo.png" alt="OpenFreqBench" width="260" />
-</p>
-
+<!-- Badges (single row, no duplicates) -->
 <p align="center">
   <a href="https://github.com/IngJorgeLuisMayorga/py-openfreqbench/actions/workflows/tests.yml">
-    <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/IngJorgeLuisMayorga/py-openfreqbench/tests.yml?label=CI&logo=github" />
+    <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/IngJorgeLuisMayorga/py-openfreqbench/tests.yml?label=CI&logo=github">
   </a>
-  <img alt="Python" src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white" />
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" /></a>
-  <a href="https://zenodo.org/doi/TBD"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.TBD.svg" /></a>
-  <img alt="OS" src="https://img.shields.io/badge/OS-macOS%20|%20Linux-lightgrey" />
+  <img alt="Python" src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white">
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
+  <a href="https://zenodo.org/doi/TBD"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.TBD.svg"></a>
+  <img alt="OS" src="https://img.shields.io/badge/OS-macOS%20%7C%20Linux-lightgrey">
+  <!-- Optional when you submit to JOSS:
+  <a href="https://joss.theoj.org/papers/TBD"><img alt="JOSS" src="https://joss.theoj.org/papers/TBD/status.svg"></a>
+  -->
 </p>
 
-
-<p align="center">
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.11+-blue)]()
-[![Build Status](https://github.com/IngJorgeLuisMayorga/py-openfreqbench/actions/workflows/tests.yml/badge.svg)]()
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.TBD.svg)]()
-[![JOSS](https://joss.theoj.org/papers/TBD/status.svg)]()
-</p>
-
-
+<!-- Quick Nav -->
 <p align="center">
   <a href="#-overview">Overview</a> •
   <a href="docs/">Docs</a> •
   <a href="#-getting-started">Install</a> •
   <a href="#-quick-example">Run</a> •
   <a href="#-citation">Cite</a>
+</p>
+
+<!-- (Optional) hero/diagram; comment out if not ready -->
+<p align="center">
+  <img src="docs/assets/architecture_diagram.svg" alt="Architecture overview" width="760">
 </p>
 
 ---
