@@ -29,6 +29,8 @@
   <a href="#-citation">Cite</a>
 </p>
 
+📖 [Developer Docs](docs/) • 🧠 [Research Wiki](https://github.com/IngJorgeLuisMayorga/py-openfreqbench/wiki)
+
 
 ---
 
