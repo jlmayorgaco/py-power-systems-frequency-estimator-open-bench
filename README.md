@@ -24,13 +24,13 @@
   <a href="#-citation">Cite</a>
 </p>
 
-
+<p align="center">
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue)]()
 [![Build Status](https://github.com/IngJorgeLuisMayorga/py-openfreqbench/actions/workflows/tests.yml/badge.svg)]()
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.TBD.svg)]()
 [![JOSS](https://joss.theoj.org/papers/TBD/status.svg)]()
-
+</p>
 
 ---
 
