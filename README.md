@@ -1,5 +1,4 @@
-# OpenFreqBench  
-**Open Benchmark of Power-System Frequency Estimators**
+# OpenFreqBench : Open Benchmark of Power-System Frequency Estimators
 
 <p align="center">
   <img src="docs/assets/openfreqbench_logo.svg" alt="OpenFreqBench" width="160" />
