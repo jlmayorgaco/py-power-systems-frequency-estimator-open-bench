@@ -218,5 +218,5 @@ See CONTRIBUTING.md for guidelines and open issues.
 
 <p align="center">
   <sub>Crafted with ⚙️ precision and ❤️ passion by  
-  <a href="https://github.com/IngJorgeLuisMayorga"><b> © 2025 - Jorge Luis Mayorga Taborda</b></a></sub>
+   © 2025 - <a href="https://github.com/IngJorgeLuisMayorga"><b>Jorge Luis Mayorga Taborda</b></a></sub>
 </p>
