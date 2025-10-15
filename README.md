@@ -29,10 +29,6 @@
   <a href="#-citation">Cite</a>
 </p>
 
-<!-- (Optional) hero/diagram; comment out if not ready -->
-<p align="center">
-  <img src="docs/assets/architecture_diagram.svg" alt="Architecture overview" width="760">
-</p>
 
 ---
 
