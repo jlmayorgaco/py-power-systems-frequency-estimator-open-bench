@@ -24,9 +24,6 @@
   <a href="#-citation">Cite</a>
 </p>
 
-<p align="center">
-  <img src="docs/assets/architecture_diagram.svg" alt="Architecture" width="720" />
-</p>
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue)]()
