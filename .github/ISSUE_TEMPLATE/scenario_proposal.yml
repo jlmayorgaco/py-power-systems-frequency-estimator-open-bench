@@ -1,0 +1,54 @@
+---
+name: "Scenario Proposal"
+about: Propose a new benchmark scenario (Synthetic, OpenDSS, or Real/CSV)
+title: "[Scenario] <short name>"
+labels: scenario, enhancement
+assignees: ""
+---
+
+### Scenario Type
+- [ ] Synthetic (Python)
+- [ ] OpenDSS (IEEE feeder)
+- [ ] Real/CSV (measured)
+
+### Scenario ID (folder name)
+`sX_<short-id>`
+
+### Overview
+What does this scenario test and why?
+
+### Signal / Simulation Spec
+- fs, duration, channels
+- noise, harmonics
+- events (steps/ramps/faults/taps), timing
+
+### OpenDSS Details (if applicable)
+Feeder, DSS files, faults/taps, export points, resampling strategy.
+
+### Ground Truth Definition
+Analytic truth / DSS source profile / reference PMU; include uncertainty.
+
+### Outputs
+- data/raw/<scenario>/…
+- data/truth/<scenario>/…
+- plots/
+
+### Metrics & Compliance
+Which metrics/envelopes, thresholds, and performance requirements.
+
+### Dependencies & References
+Packages, datasets, papers, licenses.
+
+### Acceptance Criteria
+- [ ] Code under `scenarios/<id>/`
+- [ ] Deterministic seed & reproducible outputs
+- [ ] Truth generated & validated
+- [ ] At least one estimator runs end-to-end
+- [ ] Docs snippet added
+- [ ] CI smoke test
+
+### Complexity (estimate)
+S / M / L
+
+### Notes
+Any risks, limitations, or follow-ups.
