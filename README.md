@@ -2,7 +2,32 @@
 **Open Benchmark of Power-System Frequency Estimators**
 
 <p align="center">
-  <img src="docs/assets/openfreqbench_logo.svg" alt="OpenFreqBench logo" width="180"/>
+  <img src="docs/assets/openfreqbench_logo.svg" alt="OpenFreqBench" width="160" />
+</p>
+
+<h1 align="center">OpenFreqBench</h1>
+<p align="center"><i>Open Benchmark of Power-System Frequency Estimators</i></p>
+
+<p align="center">
+  <a href="https://github.com/IngJorgeLuisMayorga/py-openfreqbench/actions/workflows/tests.yml">
+    <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/IngJorgeLuisMayorga/py-openfreqbench/tests.yml?label=CI&logo=github" />
+  </a>
+  <img alt="Python" src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white" />
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" /></a>
+  <a href="https://zenodo.org/doi/TBD"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.TBD.svg" /></a>
+  <img alt="OS" src="https://img.shields.io/badge/OS-macOS%20|%20Linux-lightgrey" />
+</p>
+
+<p align="center">
+  <a href="#-overview">Overview</a> •
+  <a href="docs/">Docs</a> •
+  <a href="#-getting-started">Install</a> •
+  <a href="#-quick-example">Run</a> •
+  <a href="#-citation">Cite</a>
+</p>
+
+<p align="center">
+  <img src="docs/assets/architecture_diagram.svg" alt="Architecture" width="720" />
 </p>
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
@@ -190,34 +215,7 @@ Contributions are welcome. Please open issues or pull requests for:
 See CONTRIBUTING.md for guidelines and open issues.
 
 
-<p align="center">
-  <img src="docs/assets/openfreqbench_logo.svg" alt="OpenFreqBench" width="160" />
-</p>
 
-<h1 align="center">OpenFreqBench</h1>
-<p align="center"><i>Open Benchmark of Power-System Frequency Estimators</i></p>
-
-<p align="center">
-  <a href="https://github.com/IngJorgeLuisMayorga/py-openfreqbench/actions/workflows/tests.yml">
-    <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/IngJorgeLuisMayorga/py-openfreqbench/tests.yml?label=CI&logo=github" />
-  </a>
-  <img alt="Python" src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white" />
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" /></a>
-  <a href="https://zenodo.org/doi/TBD"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.TBD.svg" /></a>
-  <img alt="OS" src="https://img.shields.io/badge/OS-macOS%20|%20Linux-lightgrey" />
-</p>
-
-<p align="center">
-  <a href="#-overview">Overview</a> •
-  <a href="docs/">Docs</a> •
-  <a href="#-getting-started">Install</a> •
-  <a href="#-quick-example">Run</a> •
-  <a href="#-citation">Cite</a>
-</p>
-
-<p align="center">
-  <img src="docs/assets/architecture_diagram.svg" alt="Architecture" width="720" />
-</p>
 
 
 <p align="center"><i>Developed and maintained with ⚙️ & ❤️ by Jorge Luis Mayorga Taborda</i></p>
