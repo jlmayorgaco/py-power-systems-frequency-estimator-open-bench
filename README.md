@@ -1,6 +1,6 @@
 <!-- Logo / Title -->
 <p align="center">
-  <img src="docs/assets/openfreqbench_logo.svg" alt="OpenFreqBench logo" width="180">
+  <img src="docs/assets/openfreqbench_logo.png" alt="OpenFreqBench logo" width="180">
 </p>
 
 <h1 align="center">OpenFreqBench</h1>
