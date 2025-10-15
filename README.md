@@ -3,7 +3,7 @@
 <p align="center"><i>Open Benchmark of Power-System Frequency Estimators</i></p>
 
 <p align="center">
-  <img src="docs/assets/openfreqbench_logo.png" alt="OpenFreqBench" width="160" />
+  <img src="docs/assets/openfreqbench_logo.png" alt="OpenFreqBench" width="260" />
 </p>
 
 <p align="center">
