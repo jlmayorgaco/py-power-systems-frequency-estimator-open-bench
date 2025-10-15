@@ -1,4 +1,4 @@
-name: "📈 New Estimator Proposal"
+name: "Proposal: 📈 New Estimator Proposal"
 description: "Propose a new algorithm implementation"
 labels: [estimator, enhancement]
 body:
