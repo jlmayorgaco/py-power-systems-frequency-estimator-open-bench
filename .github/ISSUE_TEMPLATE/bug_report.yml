@@ -1,0 +1,14 @@
+name: "🐞 Bug report"
+description: "Report a problem or unexpected behavior"
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: What happened and what did you expect?
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+  - type: textarea
+    attributes:
+      label: Logs or screenshots
