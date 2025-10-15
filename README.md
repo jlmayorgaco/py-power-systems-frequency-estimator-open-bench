@@ -1,11 +1,10 @@
 # OpenFreqBench : Open Benchmark of Power-System Frequency Estimators
+<h1 align="center">OpenFreqBench</h1>
+<p align="center"><i>Open Benchmark of Power-System Frequency Estimators</i></p>
 
 <p align="center">
   <img src="docs/assets/openfreqbench_logo.png" alt="OpenFreqBench" width="160" />
 </p>
-
-<h1 align="center">OpenFreqBench</h1>
-<p align="center"><i>Open Benchmark of Power-System Frequency Estimators</i></p>
 
 <p align="center">
   <a href="https://github.com/IngJorgeLuisMayorga/py-openfreqbench/actions/workflows/tests.yml">
