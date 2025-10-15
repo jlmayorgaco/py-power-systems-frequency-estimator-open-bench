@@ -115,22 +115,24 @@ print("RMSE:", frequency_error(f_hat, truth))
 
 
 ---
+## 🧭 Roadmap
 
-
-🧭 Roadmap
-Stage	Feature	Status
-Core architecture & packaging	pyproject.toml, CLI, base estimator	✅
-Synthetic scenarios (steps, ramps, chirps)	Basic generators	✅
-Evaluation metrics	FE, RFE, RMSE, latency	✅
-IEC/IEEE compliance envelopes	M-class & P-class	🧩 in progress
-OpenDSS integration (13-bus, 39-bus)	Scenario adapters	🧩 in progress
-Advanced estimators (KF, PLL, ML)	Library extension	🚧 planned
-Continuous integration (CI)	GitHub Actions + tests	🚧 planned
-Paper & citation DOI	Zenodo + JOSS submission	🚧 planned
+| Stage | Feature | Status |
+|:------|:---------|:------:|
+| Core architecture & packaging | `pyproject.toml`, CLI, base estimator | ✅ |
+| Synthetic scenarios (steps, ramps, chirps) | Basic generators | ✅ |
+| Evaluation metrics | FE, RFE, RMSE, latency | ✅ |
+| IEC/IEEE compliance envelopes | M-class & P-class | 🧩 *in progress* |
+| OpenDSS integration (13-bus, 39-bus) | Scenario adapters | 🧩 *in progress* |
+| Advanced estimators (KF, PLL, ML) | Library extension | 🚧 *planned* |
+| Continuous integration (CI) | GitHub Actions + tests | 🚧 *planned* |
+| Paper & citation DOI | Zenodo + JOSS submission | 🚧 *planned* |
 
 ---
 
-📁 Reproducibility & Results Layout
+## 📁 Reproducibility & Results Layout
+
+```
 data/results/<timestamp>_<scenario>_<estimator>/
 │
 ├── manifest.json        # run metadata (env, seeds, configs)
@@ -138,6 +140,7 @@ data/results/<timestamp>_<scenario>_<estimator>/
 ├── summary.json         # RMSE, rise/settle, compliance %
 ├── plots/               # Figures (FE/RFE vs time, envelopes)
 └── logs/                # Pipeline logs
+```
 
 ---
 
