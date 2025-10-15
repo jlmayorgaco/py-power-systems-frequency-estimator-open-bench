@@ -1,12 +1,26 @@
 # OpenFreqBench  
-*Open Benchmark of Power-System Frequency Estimators*  
+**Open Benchmark of Power-System Frequency Estimators**
+
+<p align="center">
+  <img src="docs/assets/openfreqbench_logo.svg" alt="OpenFreqBench logo" width="180"/>
+</p>
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11+-blue)]()
+[![Build Status](https://github.com/IngJorgeLuisMayorga/py-openfreqbench/actions/workflows/tests.yml/badge.svg)]()
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.TBD.svg)]()
+[![JOSS](https://joss.theoj.org/papers/TBD/status.svg)]()
+
 
 ---
 
 ## Overview  
 
-**OpenFreqBench** is an open, reproducible Python platform for benchmarking frequency and ROCOF estimation algorithms in electric power systems.  
-It provides a common testbed where classic, modern, and emerging methods are implemented and evaluated under standardized scenarios.  
+**OpenFreqBench** is an open, reproducible platform for benchmarking **frequency and ROCOF estimators** in electric power systems.  
+It provides a **common testbed** where classic, modern, and emerging algorithms are implemented and evaluated under **standardized, IEEE/IEC-aligned scenarios**.
+
+> **Goal:** enable transparent, quantitative comparison of frequency-estimation methods for research, teaching, and industrial applications.
+
 
 The project is designed for research, teaching, and industrial applications, and aligns with **IEEE/IEC standards** (e.g., IEC/IEEE 60255-118-1).  
 All code, scenarios, and results are open and reproducible.  
@@ -49,13 +63,14 @@ All code, scenarios, and results are open and reproducible.
 
 ```
 py-openfreqbench/
-├─ estimators/        # Implemented methods
-├─ scenarios/         # Synthetic + IEEE systems definitions
+├─ estimators/        # Implemented estimators (ZC, IpDFT, KF, PLL, ...)
+├─ scenarios/         # Synthetic + IEEE feeder definitions
 ├─ pipelines/         # Data generation, benchmarking, summaries
-├─ evaluation/        # Metrics, standards compliance, plots
-├─ notebooks/         # Examples and tutorials
-├─ data/              # Generated datasets and results
-└─ docs/              # Documentation
+├─ evaluation/        # Metrics, compliance, plotting utilities
+├─ notebooks/         # Tutorials and reproducible examples
+├─ data/              # Generated results (ignored by Git)
+├─ docs/              # Documentation and figures
+└─ scripts/           # Install / run / clean utilities
 ```
 
 ---
@@ -73,15 +88,18 @@ Clone the repository and install dependencies:
 ```bash
 git clone https://github.com/IngJorgeLuisMayorga/py-openfreqbench.git
 cd py-openfreqbench
-conda env create -f environment.yml
+bash scripts/install.sh
 conda activate openfreqbench
 ```
 
 ### Quick Example  
 
 ```python
+# Add Estimator
 from estimators.basic import ipdft
+# Add Scenarios
 from scenarios.s1_synthetic import make_clean
+# Add Metrics 
 from evaluation.metrics import frequency_error
 
 # Generate synthetic test signal
@@ -94,6 +112,32 @@ f_hat = [est.update(chunk) for chunk in signal]
 # Evaluate accuracy
 print("RMSE:", frequency_error(f_hat, truth))
 ```
+
+
+---
+
+
+🧭 Roadmap
+Stage	Feature	Status
+Core architecture & packaging	pyproject.toml, CLI, base estimator	✅
+Synthetic scenarios (steps, ramps, chirps)	Basic generators	✅
+Evaluation metrics	FE, RFE, RMSE, latency	✅
+IEC/IEEE compliance envelopes	M-class & P-class	🧩 in progress
+OpenDSS integration (13-bus, 39-bus)	Scenario adapters	🧩 in progress
+Advanced estimators (KF, PLL, ML)	Library extension	🚧 planned
+Continuous integration (CI)	GitHub Actions + tests	🚧 planned
+Paper & citation DOI	Zenodo + JOSS submission	🚧 planned
+
+---
+
+📁 Reproducibility & Results Layout
+data/results/<timestamp>_<scenario>_<estimator>/
+│
+├── manifest.json        # run metadata (env, seeds, configs)
+├── metrics.parquet      # per-sample FE/RFE
+├── summary.json         # RMSE, rise/settle, compliance %
+├── plots/               # Figures (FE/RFE vs time, envelopes)
+└── logs/                # Pipeline logs
 
 ---
 
@@ -140,3 +184,6 @@ Contributions are welcome. Please open issues or pull requests for:
 - Additional benchmark scenarios  
 - Improvements in metrics and compliance tests  
 - Documentation and tutorials  
+See CONTRIBUTING.md for guidelines and open issues.
+
+<p align="center"><i>Developed and maintained with ⚙️ & ❤️ by Jorge Luis Mayorga Taborda</i></p>
