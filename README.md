@@ -208,7 +208,15 @@ Contributions are welcome. Please open issues or pull requests for:
 See CONTRIBUTING.md for guidelines and open issues.
 
 
+---
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Made%20with-Python-3776AB?logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Editor-VS%20Code-007ACC?logo=visualstudiocode&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" />
+</p>
 
-
-<p align="center"><i>Developed and maintained with ⚙️ & ❤️ by Jorge Luis Mayorga Taborda</i></p>
+<p align="center">
+  <sub>Crafted with ⚙️ precision and ❤️ passion by  
+  <a href="https://github.com/IngJorgeLuisMayorga"><b> © 2025 - Jorge Luis Mayorga Taborda</b></a></sub>
+</p>
