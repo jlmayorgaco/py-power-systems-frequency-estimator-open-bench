@@ -1,14 +1,38 @@
+# .github/ISSUE_TEMPLATE/bug_report.yml
 name: "🐞 Bug report"
-description: "Report a problem or unexpected behavior"
-labels: [bug]
+description: Report a reproducible problem
+labels: ["type:bug"]
 body:
   - type: textarea
+    id: summary
     attributes:
-      label: Description
-      description: What happened and what did you expect?
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
   - type: textarea
+    id: steps
     attributes:
       label: Steps to reproduce
-  - type: textarea
+      description: Minimal steps + sample config/data if possible
+      placeholder: |
+        1. …
+        2. …
+        Expected: …
+        Actual: …
+    validations:
+      required: true
+  - type: input
+    id: version
     attributes:
-      label: Logs or screenshots
+      label: OpenFreqBench version / commit
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: macOS 14, Python 3.11, MPS/CUDA version…
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / traceback
+      render: shell
