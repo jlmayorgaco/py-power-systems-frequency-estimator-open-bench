@@ -1,0 +1,9 @@
+# .github/ISSUE_TEMPLATE/config.yml
+blank_issues_enabled: false
+contact_links:
+  - name: ❓ Q&A / usage questions
+    url: https://github.com/<org>/<repo>/discussions/categories/q-a
+    about: Ask how-to questions here
+  - name: 🔐 Security vulnerability
+    url: https://github.com/<org>/<repo>/blob/main/SECURITY.md
+    about: Report sensitive issues via security policy
