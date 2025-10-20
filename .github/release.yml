@@ -1,0 +1,11 @@
+# .github/release.yml
+changelog:
+  categories:
+    - title: 🚀 Features
+      labels: ["type:feat"]
+    - title: 🐞 Fixes
+      labels: ["type:fix", "type:bug"]
+    - title: 📚 Docs
+      labels: ["type:docs"]
+    - title: ⚙️ Internal / CI
+      labels: ["type:ci", "type:chore"]
