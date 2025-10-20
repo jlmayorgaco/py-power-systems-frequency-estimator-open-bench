@@ -1,54 +1,261 @@
----
-name: " Proposal : 🧪 Scenario Proposal"
-about: Propose a new benchmark scenario (Synthetic, OpenDSS, or Real/CSV)
-title: "[Scenario] <short name>"
-labels: scenario, enhancement
-assignees: ""
----
+# .github/ISSUE_TEMPLATE/proposal_scenario.yml
+name: "🗺️ New Scenario Proposal"
+description: Propose a new synthetic, co-sim, HIL, or real-world scenario for OpenFreqBench
+title: "scenario: <short-name> — <one-line purpose>"
+labels: ["type:feat", "area:scenarios", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing a scenario! Fill out the details so we can evaluate quality, licensing, and reproducibility.
 
-### Scenario Type
-- [ ] Synthetic (Python)
-- [ ] OpenDSS (IEEE feeder)
-- [ ] Real/CSV (measured)
+  # 1) Summary
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is this scenario and why is it useful?
+      placeholder: |
+        Example: IEEE13 OpenDSS co-sim with IBR penetration 70%, ramp+sag event; targets dynamic estimator stress.
 
-### Scenario ID (folder name)
-`sX_<short-id>`
+    validations:
+      required: true
 
-### Overview
-What does this scenario test and why?
+  # 2) Scenario type & provenance
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Scenario type
+      options:
+        - Synthetic (analytical generator)
+        - Co-simulation (e.g., OpenDSS/Modelica/PSCAD)
+        - HIL (e.g., OPAL-RT, Typhoon)
+        - Real-world capture (PMU/DAQ)
+        - Hybrid
+    validations:
+      required: true
 
-### Signal / Simulation Spec
-- fs, duration, channels
-- noise, harmonics
-- events (steps/ramps/faults/taps), timing
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Provenance & source
+      description: Where does this come from? Include repo/model files, feeder/topology, instrument model, etc.
+      placeholder: |
+        • Feeder: IEEE13; OpenDSS scripts and loadshapes attached
+        • Real: PMU model, GPSDO ref, DAQ chain, calibration docs
 
-### OpenDSS Details (if applicable)
-Feeder, DSS files, faults/taps, export points, resampling strategy.
+  # 3) Signal & event design
+  - type: checkboxes
+    id: channels
+    attributes:
+      label: Channels included
+      options:
+        - label: Va, Vb, Vc (time-domain)
+        - label: Ia, Ib, Ic (time-domain)
+        - label: Synchrophasor stream (|V|, ∠θ)
+        - label: Frequency truth f(t)
+        - label: RoCoF truth df/dt
+        - label: Event annotations
+    validations:
+      required: true
 
-### Ground Truth Definition
-Analytic truth / DSS source profile / reference PMU; include uncertainty.
+  - type: textarea
+    id: sampling
+    attributes:
+      label: Sampling & timing
+      description: Fs, nominal frequency (50/60 Hz), duration, timing references, time zone.
+      placeholder: |
+        Fs = 10 kHz; T = 60 s; nominal = 60 Hz; timestamps = UNIX ms; tz = UTC; GPS lock true; latency markers included.
 
-### Outputs
-- data/raw/<scenario>/…
-- data/truth/<scenario>/…
-- plots/
+  - type: textarea
+    id: event_spec
+    attributes:
+      label: Event taxonomy
+      description: Precisely define events and their timing windows.
+      placeholder: |
+        • Step: +0.3 Hz at t=10.0 s
+        • Ramp: −0.5 Hz over 300 ms (t∈[20.0, 20.3] s)
+        • Sag: 25% depth, 6 cycles at t=30.0 s
+        • Oscillation: 2.3 Hz inter-area, 0.8% damping
 
-### Metrics & Compliance
-Which metrics/envelopes, thresholds, and performance requirements.
+  - type: textarea
+    id: disturbances
+    attributes:
+      label: Disturbances / non-idealities
+      description: Noise model, THD, interharmonics, flicker, outliers, missing data, clock jitter.
+      placeholder: |
+        AWGN 20 dB SNR; THD 5% (3rd, 5th); interharmonics @ 1.2×fs/N; 0.1% random gaps; ±50 ns timestamp jitter.
 
-### Dependencies & References
-Packages, datasets, papers, licenses.
+  # 4) Ground truth
+  - type: dropdown
+    id: truth_source
+    attributes:
+      label: Truth source
+      options:
+        - Analytical (closed-form generator)
+        - Simulator-native (e.g., OpenDSS monitor)
+        - Instrument-grade reference (GPSDO/PLL)
+        - Derived (post-processed, specify method)
+    validations:
+      required: true
 
-### Acceptance Criteria
-- [ ] Code under `scenarios/<id>/`
-- [ ] Deterministic seed & reproducible outputs
-- [ ] Truth generated & validated
-- [ ] At least one estimator runs end-to-end
-- [ ] Docs snippet added
-- [ ] CI smoke test
+  - type: textarea
+    id: truth_details
+    attributes:
+      label: Ground-truth details
+      description: How truth is computed; alignment to samples; precision/uncertainty.
+      placeholder: |
+        f_true(t) from generator; df/dt by analytic derivative; alignment within ≤1 sample; uncertainty ≤0.5 mHz.
 
-### Complexity (estimate)
-S / M / L
+  # 5) File format & schema
+  - type: textarea
+    id: schema
+    attributes:
+      label: Data layout
+      description: Exact files, columns, units, and metadata keys.
+      placeholder: |
+        ├─ scenario.json   # metadata (see schema below)
+        ├─ signals.parquet # columns: t_ns, Va,Vb,Vc[,Ia…]
+        └─ events.csv      # t0,t1,type,params
+        Units: volts RMS (line-neutral), amps, radians, Hz; t_ns = int64 nanoseconds.
 
-### Notes
-Any risks, limitations, or follow-ups.
+  - type: textarea
+    id: metadata_json
+    attributes:
+      label: Metadata JSON (example)
+      description: Provide a minimal sample of your metadata file.
+      placeholder: |
+        {
+          "id": "ieee13_ramp_sag_70ibr",
+          "fs_hz": 10000,
+          "nominal_hz": 60,
+          "duration_s": 60.0,
+          "seed": 1337,
+          "truth": { "has_f": true, "has_dfdt": true },
+          "license": "CC-BY-4.0",
+          "checksum": { "signals.parquet": "sha256:…" }
+        }
+
+  # 6) Size, storage & distribution
+  - type: input
+    id: size_est
+    attributes:
+      label: Size estimate
+      placeholder: "e.g., 1.2 GB uncompressed; 320 MB parquet"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: storage
+    attributes:
+      label: Storage plan
+      options:
+        - Commit to repo (small)
+        - Git LFS
+        - GitHub Release asset
+        - External URL (Zenodo/OSF)
+        - Private link (cannot redistribute)
+    validations:
+      required: true
+
+  - type: input
+    id: checksums
+    attributes:
+      label: Checksums
+      placeholder: "sha256 for each file (required for acceptance)"
+
+  # 7) Licensing, permissions & ethics
+  - type: input
+    id: license
+    attributes:
+      label: Dataset license
+      placeholder: "e.g., CC-BY-4.0 / CC0 / custom (attach)"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: permissions
+    attributes:
+      label: Permissions & restrictions
+      options:
+        - label: Redistribution permitted
+        - label: Anonymized / no PII
+        - label: Institutional approval obtained
+        - label: Usage restricted (describe below)
+
+  - type: textarea
+    id: ethics
+    attributes:
+      label: Ethics / sensitivity notes
+      description: If real-world, note any grid/customer sensitivity and anonymization steps.
+
+  # 8) Reproducibility
+  - type: textarea
+    id: gen_script
+    attributes:
+      label: Generation/retrieval script
+      description: Command or code to generate or fetch the scenario deterministically.
+      placeholder: |
+        python tools/make_ieee13.py --seed 1337 --ibr 0.7 --event ramp --out data/ieee13_ramp
+        # or: scripts/fetch_zenodo.sh <record_id>
+
+    validations:
+      required: true
+
+  - type: textarea
+    id: determinism
+    attributes:
+      label: Determinism & alignment
+      description: Seed strategy, fixed versions, expected byte-identical outputs.
+
+  # 9) Bench integration
+  - type: textarea
+    id: bench_cfg
+    attributes:
+      label: Runner config snippet
+      description: Minimal YAML/JSON to add this scenario to a pipeline.
+      placeholder: |
+        scenarios:
+          - id: ieee13_ramp_sag_70ibr
+            loader: src/scenarios/opendss_ieee13.py
+            params: { ibr: 0.7, ramp_hz: -0.5, ramp_ms: 300 }
+            data: data/ieee13_ramp_sag_70ibr
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: ci_hooks
+    attributes:
+      label: CI/QA hooks
+      options:
+        - label: Schema validation (columns, dtypes, units)
+        - label: Checksums verified
+        - label: Duration & Fs match metadata
+        - label: Event windows present & ordered
+        - label: Determinism check (same seed → same bytes)
+        - label: Small “smoke” subset (<1 MB) available
+
+  # 10) Acceptance criteria
+  - type: textarea
+    id: thresholds
+    attributes:
+      label: Quality gates
+      description: Minimal SNR/THD bounds, timing uncertainty, missing-data policy, etc.
+      placeholder: |
+        SNR ≥ 20 dB; THD ≤ 8%; timestamp jitter ≤ 100 ns RMS; ≤0.1% NaNs with masks provided.
+
+  # 11) Risks & limitations
+  - type: textarea
+    id: risks
+    attributes:
+      label: Known limitations
+      description: Where scenario may not generalize; simulator artifacts; sensor bias, etc.
+
+  # 12) Attachments
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments / links
+      description: Topology diagrams, OpenDSS files, notebooks, plots, sample CSV/Parquet, figures.
+
