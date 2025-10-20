@@ -1,0 +1,246 @@
+# .github/ISSUE_TEMPLATE/proposal_metric.yml
+name: "📏 New Metric Proposal"
+description: Propose a new evaluation metric for OpenFreqBench
+title: "metric: <short-name> — <one-line purpose>"
+labels: ["type:feat", "area:metrics", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a metric! Please complete all required sections so we can review it rigorously and integrate it into the bench.
+
+  # 1) Summary & motivation
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What does this metric measure and why do we need it?
+      placeholder: |
+        Example: Robust RoCoF error under ramps; complements FE by penalizing overshoot/undershoot during fast transients.
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Gaps addressed
+      description: Which shortcomings of current metrics does this fix?
+      placeholder: |
+        • FE ignores transient bias; TVE insensitive to short bursts; need windowed, outlier-robust alternative.
+
+  # 2) Scope & domain
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      options:
+        - Synchrophasor accuracy (TVE/FE/RFE variants)
+        - Phase angle / latency
+        - Dynamic response / transient scoring
+        - Robustness (noise/THD/interharmonics)
+        - Stability / drift / bias
+        - Resource use (CPU/mem/latency)
+        - CRLB proximity / efficiency
+        - Dataset quality / coverage
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: targets
+    attributes:
+      label: Targets (select all that apply)
+      options:
+        - label: Frequency estimate
+        - label: RoCoF estimate
+        - label: Phase / synchrophasor
+        - label: Confidence/quality flags
+        - label: Runtime/latency
+
+  # 3) Formal definition
+  - type: textarea
+    id: definition
+    attributes:
+      label: Mathematical definition
+      description: Provide the exact formula(s), variables, and assumptions.
+      placeholder: |
+        Example:
+        Given ground truth f(t) and estimate \hat f(t),
+        Windowed Robust FE:
+          RFE_τ = median_t∈Wτ ( | \hat f(t) - f(t) | )
+        Aggregation:
+          RFE_p = ( mean_τ RFE_τ^p )^(1/p)
+        Units: Hz (frequency) / Hz/s (RoCoF). Window Wτ = τ·Fs samples.
+    validations:
+      required: true
+  - type: input
+    id: units
+    attributes:
+      label: Units
+      placeholder: "Hz | Hz/s | degrees | % | ms"
+    validations:
+      required: true
+  - type: textarea
+    id: properties
+    attributes:
+      label: Desired properties
+      description: Bias/variance behavior, robustness, invariances, bounds.
+      placeholder: |
+        • Bounded in [0, ∞); outlier-robust (breakdown 50%); scale-equivariant to amplitude; invariant to phase offset.
+
+  # 4) Inputs, outputs & aggregation
+  - type: checkboxes
+    id: inputs
+    attributes:
+      label: Required inputs
+      options:
+        - label: Ground-truth time series
+        - label: Estimator outputs (f̂, r̂, θ̂)
+        - label: Event annotations (steps, ramps, sags/swells)
+        - label: Sampling rate / window length
+        - label: Quality flags / NaN handling policy
+    validations:
+      required: true
+  - type: textarea
+    id: output_schema
+    attributes:
+      label: Output JSON schema
+      description: Exact keys to emit for one run; include per-window & aggregate fields.
+      placeholder: |
+        {
+          "metric_id": "rfe_windowed",
+          "aggregate": { "mean": 0.007, "p95": 0.021 },
+          "by_window": [{ "t0": 0.00, "t1": 0.04, "rfe": 0.005 }, ...]
+        }
+    validations:
+      required: true
+  - type: textarea
+    id: aggregation
+    attributes:
+      label: Aggregation rules
+      description: How to combine per-sample/window/trial values into scenario and global scores.
+      placeholder: |
+        • Per-window median; scenario score = mean across windows; global = weighted mean by event duration.
+
+  # 5) Standards & acceptance thresholds
+  - type: checkboxes
+    id: standards
+    attributes:
+      label: Alignment
+      options:
+        - label: IEEE/IEC 60255-118-1 (P-class)
+        - label: IEEE/IEC 60255-118-1 (M-class)
+        - label: C37.118 (if applicable)
+        - label: No standard alignment (research metric)
+  - type: textarea
+    id: thresholds
+    attributes:
+      label: Suggested pass/fail bands
+      description: Give concrete thresholds for CI gating or badges.
+      placeholder: |
+        • Pass if RFE_p ≤ 0.02 Hz on synthetic_sine@SNR20dB, ≤ 0.05 Hz on ramp_2%.
+
+  # 6) Computation & streaming
+  - type: textarea
+    id: computation
+    attributes:
+      label: Computational plan
+      description: Complexity, memory, streaming-window updates, and latency.
+      placeholder: |
+        O(N) with rolling quantiles; uses t-digest; supports online update per sample with O(log k).
+  - type: checkboxes
+    id: streaming
+    attributes:
+      label: Implementation style
+      options:
+        - label: Batch (post-run)
+        - label: Streaming (online, rolling)
+        - label: Both
+
+  # 7) Validation & tests
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation method
+      description: Synthetic test vectors, known edge cases, statistical tests.
+      placeholder: |
+        • White/pink noise, 5% THD, interharmonics 1.2×fs/N
+        • Step/ramp fixtures with closed-form expected scores
+        • Robustness: contamination ε ∈ {0..0.4}
+    validations:
+      required: true
+  - type: textarea
+    id: fixtures
+    attributes:
+      label: Test fixtures / references
+      description: Links to notebooks, CSVs, or formulas with expected outputs.
+
+  # 8) Integration details (OpenFreqBench)
+  - type: textarea
+    id: integration
+    attributes:
+      label: Runner integration
+      description: Where this plugs in and how it’s configured.
+      placeholder: |
+        metrics:
+          - id: rfe_windowed
+            module: src/metrics/rfe_windowed.py
+            class: RFEWindowed
+            params: { win_cycles: 2, agg: "p95" }
+    validations:
+      required: true
+  - type: checkboxes
+    id: ci
+    attributes:
+      label: CI/QA hooks
+      options:
+        - label: Unit tests (≥90% module)
+        - label: Golden tests with fixed seeds
+        - label: Determinism check (same seed → same result)
+        - label: Perf budget (max runtime per 10^6 samples)
+
+  # 9) Risks & limitations
+  - type: textarea
+    id: risks
+    attributes:
+      label: Known limitations
+      description: Where the metric may mislead or be gamed.
+      placeholder: |
+        • Penalizes brief outliers less; may mask bursty errors unless window ≤2 cycles.
+
+  # 10) Ownership & licensing
+  - type: input
+    id: maintainer
+    attributes:
+      label: Primary maintainer (GitHub handle)
+      placeholder: "@your-handle"
+    validations:
+      required: true
+  - type: checkboxes
+    id: licensing
+    attributes:
+      label: Licensing
+      options:
+        - label: Implementation licensed under repo default
+        - label: Third-party deps reviewed for compatibility
+    validations:
+      required: true
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of Done
+      description: Merge criteria
+      placeholder: |
+        • Reference implementation + docs
+        • Fixtures with expected values
+        • CI passing on macOS/Linux
+        • Release notes entry & labels applied
+    validations:
+      required: true
+
+  # 11) Attachments
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments / links
+      description: Derivations, figures, PDFs, notebooks
+      placeholder: "Drag & drop files here or paste links."
