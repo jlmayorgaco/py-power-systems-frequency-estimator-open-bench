@@ -1,0 +1,215 @@
+# .github/ISSUE_TEMPLATE/proposal_benchmark.yml
+name: "🏁 New Benchmark Proposal"
+description: Propose a new composite benchmark (estimators × scenarios × metrics)
+title: "benchmark: <short-name> — <one-line purpose>"
+labels: ["type:feat", "area:benchmark", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Benchmarks define the *official test suites* used to evaluate estimators and scenarios in OpenFreqBench.
+        Please describe your proposed configuration, motivation, and acceptance criteria.
+
+  # 1) Overview
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: High-level description—what is being benchmarked, and why?
+      placeholder: |
+        Example: “Transient stability benchmark for frequency & RoCoF estimators under mixed inverter-based events.”
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Proposed benchmark ID or version tag
+      placeholder: "e.g., bench_v1.3_transient_stability"
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What research or validation gap does this benchmark close?
+      placeholder: |
+        Existing benchmarks focus on steady-state. This adds ramp + flicker events and RoCoF-specific scoring.
+
+  # 2) Components
+  - type: textarea
+    id: estimators
+    attributes:
+      label: Included estimators
+      description: List of estimators (IDs, versions, or tags) to be included.
+      placeholder: |
+        - trust_weighted_ekf@v1.2
+        - zcd_v2@main
+        - iddft@stable
+    validations:
+      required: true
+
+  - type: textarea
+    id: scenarios
+    attributes:
+      label: Included scenarios
+      description: List of scenario IDs and variants (synthetic, co-sim, or real).
+      placeholder: |
+        - ieee13_ramp_sag_70ibr
+        - synthetic_step_flicker
+        - madrid_blackout_2020
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Metrics set
+      description: Which metrics will be computed and how they are weighted or aggregated.
+      placeholder: |
+        metrics:
+          - tve
+          - fe
+          - rfe_windowed
+          - cpu_latency
+        aggregation: weighted_mean(weights={"tve":0.4, "fe":0.3, "rfe_windowed":0.2, "cpu_latency":0.1})
+    validations:
+      required: true
+
+  # 3) Design & goals
+  - type: textarea
+    id: design
+    attributes:
+      label: Design principles
+      description: Define event types, time windows, and diversity goals.
+      placeholder: |
+        • Include at least one step, one ramp, one oscillatory, and one voltage sag case.
+        • Balance noise levels (SNR ∈ {20, 30, 40 dB}) and THD ∈ {3%, 5%, 8%}.
+        • Each estimator must face 10 runs × 3 seeds.
+
+  - type: textarea
+    id: metrics_objective
+    attributes:
+      label: Performance objective
+      description: What defines a “good” estimator in this benchmark?
+      placeholder: |
+        • Mean TVE < 1%; RFE_p95 < 0.02 Hz/s; CPU time < 1 ms per frame.
+        • Score = (normalized weighted sum) × (robustness penalty).
+
+  # 4) Configuration & reproducibility
+  - type: textarea
+    id: config
+    attributes:
+      label: Benchmark configuration snippet
+      description: Minimal YAML or JSON configuration block.
+      placeholder: |
+        benchmark:
+          id: bench_v1.3_transient_stability
+          estimators: ["trust_weighted_ekf", "zcd", "iddft"]
+          scenarios: ["ieee13_ramp_sag_70ibr", "synthetic_step_flicker"]
+          metrics: ["tve", "fe", "rfe_windowed"]
+          seeds: [42, 1337, 2025]
+          repeats: 3
+          runner:
+            mode: batch
+            output_dir: reports/bench_v1.3
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducibility
+    attributes:
+      label: Reproducibility plan
+      description: Seeds, environment specs, version pinning, CI validation.
+      placeholder: |
+        • Python 3.11, NumPy/SciPy pinned
+        • Deterministic seeds {42, 1337, 2025}
+        • Results hashed & compared on CI
+        • JSON summary stored under /reports/
+
+  # 5) Output & reports
+  - type: textarea
+    id: reports
+    attributes:
+      label: Expected outputs
+      description: JSON schema for results; expected charts or PDF summaries.
+      placeholder: |
+        Output:
+          - reports/bench_v1.3/results.json
+          - reports/bench_v1.3/summary.pdf
+        JSON schema:
+          { "estimator": str, "scenario": str, "metric": str, "value": float, "score": float }
+
+  # 6) Acceptance & comparison
+  - type: textarea
+    id: baselines
+    attributes:
+      label: Baseline(s)
+      description: Reference results or previous benchmarks for comparison.
+      placeholder: |
+        Compare against bench_v1.2 steady-state. Expect 10% higher transient accuracy but +5% CPU time.
+
+  - type: textarea
+    id: thresholds
+    attributes:
+      label: Acceptance thresholds
+      description: Define success bands (TVE, FE, RFE, latency, etc.).
+      placeholder: |
+        Success = mean_score ≥ 0.8; per-metric max deviation ≤10%.
+
+  # 7) CI & automation
+  - type: checkboxes
+    id: ci_hooks
+    attributes:
+      label: Continuous integration integration
+      options:
+        - label: Add to nightly benchmark matrix
+        - label: Include smoke-test subset (<5 MB)
+        - label: Store artifact to GitHub Pages
+        - label: Auto-publish metrics leaderboard JSON
+
+  # 8) Risks & limitations
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks or caveats
+      description: Biases, dataset imbalance, hardware dependencies, etc.
+      placeholder: |
+        GPU acceleration may bias results; synthetic-only dataset may underrepresent flicker events.
+
+  # 9) Ownership
+  - type: input
+    id: maintainer
+    attributes:
+      label: Primary maintainer (GitHub handle)
+      placeholder: "@your-handle"
+    validations:
+      required: true
+
+  - type: input
+    id: review_date
+    attributes:
+      label: Target review date
+      placeholder: "YYYY-MM-DD"
+
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of Done
+      description: Merge criteria
+      placeholder: |
+        • Config validated on CI
+        • Reports generated reproducibly
+        • JSON schema documented
+        • Leaderboard entry added
+        • Labels: type:feat + area:benchmark
+    validations:
+      required: true
+
+  # 10) Attachments
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments / links
+      description: Benchmark scripts, config files, plots, results, references.
+      placeholder: "Drag & drop files here or paste URLs."
