@@ -1,16 +1,249 @@
-name: "Proposal: 📈 New Estimator Proposal"
-description: "Propose a new algorithm implementation"
-labels: [estimator, enhancement]
+# .github/ISSUE_TEMPLATE/proposal_estimator.yml
+name: "🧠 New Estimator Proposal"
+description: Propose a new frequency/RoCoF estimator for OpenFreqBench
+title: "estimator: <short-name> — <one-line purpose>"
+labels: ["type:feat", "area:estimator", "triage"]
+assignees: []
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing an estimator! Fill in the sections below so we can review rigorously and benchmark it fairly.
+
+  # 1) Summary
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One-paragraph overview—what problem does this estimator solve and why now?
+      placeholder: |
+        Example: Robust RoCoF estimator for fast transients and IBR-rich feeders; targets low-SNR, harmonic-rich conditions.
+    validations:
+      required: true
+
+  # 2) Problem framing
+  - type: textarea
+    id: scenarios
+    attributes:
+      label: Target scenarios & non-goals
+      description: Where should this shine? Where is it NOT intended?
+      placeholder: |
+        • Events: steps, ramps, sags/swells, oscillations, islanding
+        • Noise: white/pink, impulsive, interharmonics
+        • Non-goals: TW-scale (≤50 µs) events, etc.
+    validations:
+      required: true
+
+  # 3) Method & references
   - type: input
+    id: class_name
     attributes:
-      label: Algorithm name (e.g., EKF, PLL, Prony)
+      label: Proposed Python class
+      description: The class implementing EstimatorBase
+      placeholder: src/estimators/kalman/trust_weighted_ekf.py::TrustWeightedEKF
+    validations:
+      required: true
+  - type: dropdown
+    id: method_family
+    attributes:
+      label: Method family
+      options:
+        - Kalman / Bayesian
+        - Spectral (DFT/IpDFT/FFT variants)
+        - Zero-crossing / time-domain
+        - Model-based (PLL, swing eq., observers)
+        - Optimization (L1/L2, convex, sparse)
+        - ML/DL (supervised, seq2seq)
+        - Hybrid / Other
+    validations:
+      required: true
   - type: textarea
+    id: formulation
     attributes:
-      label: Reference / Paper link
+      label: Core formulation
+      description: Equations, state/measurement models, assumptions. Attach PDFs if needed.
+      placeholder: |
+        x_{k+1} = F_k x_k + w_k,   y_k = H_k x_k + v_k
+        State: [θ, ω, α], Meas: v_a,v_b,v_c or synchrophasor; w_k ~ N(0,Q), v_k ~ N(0,R)
+    validations:
+      required: true
   - type: textarea
+    id: refs
     attributes:
-      label: Expected inputs / outputs
+      label: Key references
+      description: DOI/arXiv/standards you’re basing this on
+      placeholder: |
+        • IEEE Std 60255-118-1:2018
+        • <Paper 1>, <Paper 2> (DOIs)
+    validations:
+      required: true
+
+  # 4) I/O contract & runtime
+  - type: checkboxes
+    id: io_modalities
+    attributes:
+      label: Supported inputs (PMU_Input)
+      options:
+        - label: Three-phase voltages (raw, time-domain)
+        - label: Synchrophasor stream (mag/angle)
+        - label: Sample clock / GPS time
+        - label: Frequency prior / RoCoF prior
+        - label: Other (describe in notes below)
+    validations:
+      required: true
   - type: textarea
+    id: io_spec
     attributes:
-      label: Implementation plan
+      label: Output fields (PMU_Output)
+      description: Exactly which fields you will emit
+      placeholder: |
+        • f_hat [Hz], rocof_hat [Hz/s], conf_int, quality flags, latency [ms]
+    validations:
+      required: true
+  - type: input
+    id: latency
+    attributes:
+      label: Target latency (end-to-end)
+      placeholder: "e.g., ≤ 40 ms @ 50/60 Hz, window = 2 cycles"
+  - type: input
+    id: complexity
+    attributes:
+      label: Computational complexity
+      placeholder: "e.g., O(N) per sample; ~120 µs @ 10 kHz on M4; ~1.5 ms on Raspberry Pi 4"
+
+  # 5) Compliance & metrics
+  - type: checkboxes
+    id: standards
+    attributes:
+      label: Standards & compliance goals
+      options:
+        - label: IEEE/IEC 60255-118-1 (P-class)
+        - label: IEEE/IEC 60255-118-1 (M-class)
+        - label: C37.118 compatibility (if relevant)
+        - label: Not targeting a standard
+  - type: textarea
+    id: metrics_targets
+    attributes:
+      label: Metric targets (define success)
+      description: List numeric targets you expect to meet in our bench.
+      placeholder: |
+        • TVE ≤ 1%, FE ≤ 5 mHz, RFE ≤ 0.01 Hz/s
+        • Robustness: ≤0.2% TVE at SNR 20 dB with 5% THD
+        • CRLB proximity: within 1.2× for steady-state
+    validations:
+      required: true
+
+  # 6) Benchmarking plan (OpenFreqBench)
+  - type: textarea
+    id: bench_matrix
+    attributes:
+      label: Scenarios & seeds
+      description: Which built-in scenarios (and new ones) will you run, with which seeds?
+      placeholder: |
+        • synthetic_sine, ramps_2%, harmonics_5%, flicker
+        • ieee13_opendss co-sim
+        • seeds: 42, 1337
+    validations:
+      required: true
+  - type: textarea
+    id: cfg_snippet
+    attributes:
+      label: Runner config snippet
+      description: Minimal YAML/JSON to add this estimator to a pipeline
+      placeholder: |
+        estimators:
+          - id: trust_weighted_ekf
+            module: src/estimators/kalman/trust_weighted_ekf.py
+            class: TrustWeightedEKF
+            params: { q_scale: 0.1, r_scale: 1.0 }
+    validations:
+      required: true
+
+  # 7) Data, licensing, and reproducibility
+  - type: checkboxes
+    id: data_sources
+    attributes:
+      label: Data sources
+      options:
+        - label: Built-in synthetic
+        - label: Public datasets (attach links)
+        - label: Private/Restricted (cannot be committed)
+  - type: checkboxes
+    id: licenses
+    attributes:
+      label: Dataset & code licensing
+      options:
+        - label: Dataset license verified and compatible
+        - label: New code will be licensed under repo default
+        - label: Third-party deps license reviewed
+    validations:
+      required: true
+  - type: textarea
+    id: repro_plan
+    attributes:
+      label: Reproducibility checklist
+      description: Seeds, pinned deps, env, CI matrix
+      placeholder: |
+        • Python 3.11; pip/conda env.yml; deterministic flag on; CI: macOS, Ubuntu; CPU/GPU
+
+  # 8) Hardware targets
+  - type: checkboxes
+    id: hardware
+    attributes:
+      label: Intended platforms
+      options:
+        - label: Desktop CPU (CI baseline)
+        - label: Raspberry Pi / ARM SBC
+        - label: Microcontroller (e.g., STM32/Teensy)
+        - label: FPGA (HDL/High-level synthesis)
+        - label: Other (specify below)
+  - type: textarea
+    id: hw_notes
+    attributes:
+      label: Hardware notes
+      description: Fixed-point plan, buffer sizes, DMA/PRU, resource estimates, etc.
+
+  # 9) Risks & validation
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks / failure modes
+      description: Where might this break (e.g., interharmonics, deep sags, GPS jitter), and how will you test it?
+  - type: textarea
+    id: ablation
+    attributes:
+      label: Ablation/validation plan
+      description: What parts of the method will you ablate? What baselines will you compare to?
+
+  # 10) Ownership & timeline
+  - type: input
+    id: maintainer
+    attributes:
+      label: Primary maintainer (GitHub handle)
+      placeholder: "@your-handle"
+    validations:
+      required: true
+  - type: input
+    id: review_date
+    attributes:
+      label: Target review date (YYYY-MM-DD)
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of Done
+      description: Checkpoints required before merge
+      placeholder: |
+        • Unit tests (≥90% of module)
+        • Bench passes with targets met
+        • Docs: README + usage; examples
+        • Release notes entry & labels applied
+    validations:
+      required: true
+
+  # 11) Attachments
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments / links
+      description: Diagrams, derivations, notebooks, PDFs, figures
+      placeholder: "Drag & drop files here or paste links."
