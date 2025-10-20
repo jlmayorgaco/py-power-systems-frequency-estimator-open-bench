@@ -45,6 +45,14 @@ It provides a **common testbed** where classic, modern, and emerging algorithms 
 The project is designed for research, teaching, and industrial applications, and aligns with **IEEE/IEC standards** (e.g., IEC/IEEE 60255-118-1).  
 All code, scenarios, and results are open and reproducible.  
 
+
+## 🚀 Quick Actions
+<p align="left">
+  <a href="https://github.com/jlmayorgaco/py-power-systems-frequency-estimator-open-bench/issues?q=is%3Aissue+is%3Aopen+-label%3A%22epic%22+sort%3Acreated-asc">
+    <img alt="Open Issues (no epic label)" src="https://img.shields.io/badge/Issues-Open%20%E2%80%94%20no%20epic-111827?style=for-the-badge&logo=github">
+  </a>
+</p>
+
 ---
 
  Current Issue in Development ISSUE-13:Repo: initialize pyproject & src/ layout
