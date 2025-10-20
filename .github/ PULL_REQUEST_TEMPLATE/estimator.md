@@ -11,6 +11,7 @@ Describe the new estimator briefly:
 - What physical/model principle does it use?
 - Intended operating range (steady-state, transients, IBRs, etc.)
 - Key expected advantages.
+- Paper Reference
 
 ---
 
