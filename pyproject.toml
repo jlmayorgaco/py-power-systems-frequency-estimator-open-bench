@@ -1,0 +1,36 @@
+# pyproject.toml
+[project]
+name = "openfreqbench"
+version = "0.0.1"
+description = "Open Benchmark of Power-System Frequency Estimators"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Jorge Luis Mayorga Taborda" }]
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+# Auto-discover packages that have __init__.py
+packages = { find = { include = ["estimators*", "scenarios*", "evaluation*", "pipelines*", "tests*"] } }
+
+[tool.setuptools.package-data]
+# If you add YAMLs or other resources inside packages later, list them here.
+# "scenarios" = ["**/*.yml", "**/*.yaml"]
+
+[project.scripts]
+# Optional: nice CLI alias (see the tiny 'main()' wrapper below)
+ofb-run = "pipelines.run_benchmark:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"
+cache_dir = ".ofb/.pytest_cache"
+
+# setup.cfg (repo root)
+[egg_info]
+egg_base = .ofb/build
