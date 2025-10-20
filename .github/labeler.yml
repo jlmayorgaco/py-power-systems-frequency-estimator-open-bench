@@ -1,0 +1,7 @@
+# .github/labeler.yml
+area:estimator:
+  - "src/estimators/**"
+area:scenario:
+  - "data/scenarios/**"
+area:metrics:
+  - "src/metrics/**"
