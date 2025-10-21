@@ -1,0 +1,36 @@
+[
+  {"name": "area:infra",       "color": "#0366D6", "description": "Infrastructure, build system, CI/CD, tooling"},
+  {"name": "area:orchestrator","color": "#0E8A16", "description": "Orchestrator, co-simulation loop, and compute model"},
+  {"name": "area:estimators",  "color": "#5319E7", "description": "Estimator APIs, base classes, and algorithms"},
+  {"name": "area:scenarios",   "color": "#B60205", "description": "Scenario generators, adapters, and datasets"},
+  {"name": "area:metrics",     "color": "#1D76DB", "description": "Metrics, fairness/compliance, and calibration"},
+  {"name": "area:report",      "color": "#FBCA04", "description": "Exports, reports, documentation, and visual outputs"},
+  {"name": "area:docs",        "color": "#6A737D", "description": "Documentation, MkDocs site, developer guides"},
+
+  {"name": "kind:feature",     "color": "#006B75", "description": "New feature or functionality"},
+  {"name": "kind:bug",         "color": "#D73A4A", "description": "Bug or regression"},
+  {"name": "kind:doc",         "color": "#6A737D", "description": "Documentation or content update"},
+  {"name": "kind:refactor",    "color": "#E4E669", "description": "Refactor or structural improvement"},
+  {"name": "kind:test",        "color": "#5319E7", "description": "Testing, CI, or validation tasks"},
+  {"name": "kind:release",     "color": "#C2E0C6", "description": "Release or versioning task"},
+
+  {"name": "priority:P0",      "color": "#E11D21", "description": "Must-do / critical path"},
+  {"name": "priority:P1",      "color": "#D93F0B", "description": "Important / should-do soon"},
+  {"name": "priority:P2",      "color": "#FBCA04", "description": "Nice-to-have / lower urgency"},
+
+  {"name": "size:S",           "color": "#0E8A16", "description": "≤ 0.5 days of work"},
+  {"name": "size:M",           "color": "#1D76DB", "description": "0.5–1.5 days of work"},
+  {"name": "size:L",           "color": "#5319E7", "description": "2–4 days of work"},
+  {"name": "size:XL",          "color": "#B60205", "description": "≥ 1 week of work or multi-component task"},
+
+  {"name": "status:backlog",   "color": "#E4E669", "description": "Not started / idea stage"},
+  {"name": "status:in-progress","color": "#0E8A16","description": "Currently being worked on"},
+  {"name": "status:blocked",   "color": "#D93F0B", "description": "Blocked by another dependency"},
+  {"name": "status:done",      "color": "#5319E7", "description": "Completed / verified"},
+  {"name": "status:needs-review","color":"#FBCA04","description":"Awaiting review or validation"},
+
+  {"name": "epic",             "color": "#7057FF", "description": "Tracking issue (epic)"},
+  {"name": "good-first-issue", "color": "#BFD4F2", "description": "Beginner-friendly contribution"},
+  {"name": "discussion",       "color": "#C5DEF5", "description": "Architecture or design discussion"},
+  {"name": "help-wanted",      "color": "#008672", "description": "Community help or contribution requested"}
+]
