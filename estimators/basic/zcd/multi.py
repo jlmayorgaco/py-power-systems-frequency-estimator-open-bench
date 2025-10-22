@@ -5,13 +5,16 @@
 # ---------------------------------------------------------------------
 
 from __future__ import annotations
-from typing import Dict, List
-from estimators.zcd.core import ZCDEstimatorBase, ZCDConfig
-from estimators.base import EstimatorBase
-from utils.pmu.pmu_input import PMU_Input
-from utils.pmu.pmu_output import PMU_Output
 
-def _agg(vals: List[float], mode: str) -> float:
+from typing import Any, Literal
+
+from estimators.base import EstimatorBase
+from estimators.zcd.core import ZCDConfig, ZCDEstimatorBase
+from utils.pmu.pmu_input import PMU_Input
+from utils.pmu.pmu_output import PMU_Output, PhasorName, PhasorMap
+
+
+def _agg(vals: list[float], mode: Literal["median", "mean"]) -> float:
     if not vals:
         return 0.0
     if mode == "mean":
@@ -19,7 +22,10 @@ def _agg(vals: List[float], mode: str) -> float:
     # default: median
     vals_sorted = sorted(vals)
     m = len(vals_sorted) // 2
-    return float((vals_sorted[m] if len(vals_sorted) % 2 else (vals_sorted[m - 1] + vals_sorted[m]) / 2))
+    return float(
+        vals_sorted[m] if len(vals_sorted) % 2 else (vals_sorted[m - 1] + vals_sorted[m]) / 2
+    )
+
 
 class ZCDMulti(EstimatorBase):
     """
@@ -32,20 +38,35 @@ class ZCDMulti(EstimatorBase):
       - agg: "median" | "mean"  (default "median")
     """
 
-    def __init__(self, config, name: str = "zcd_multi", profile: str = "M"):
+    def __init__(
+        self,
+        config: dict[str, Any] | Any,
+        name: str = "zcd_multi",
+        profile: Literal["P", "M"] = "M",
+    ) -> None:
         super().__init__(config=config, name=name, profile=profile)
 
         # read config with dict/attr compatibility
-        def g(key, default):
-            return getattr(config, key, default) if hasattr(config, key) else config.get(key, default)
+        def g(key: str, default: Any) -> Any:
+            return (
+                getattr(config, key, default) if hasattr(config, key) else config.get(key, default)
+            )
 
-        self.channels: List[str] = g("channels", ["V1", "V2", "V3"])
+        # Filtra al conjunto permitido para satisfacer PhasorName
+        valid: tuple[PhasorName, ...] = ("V1", "V2", "V3", "I1", "I2", "I3")
+        cfg_channels = list(g("channels", ["V1", "V2", "V3"]))
+        self.channels: list[PhasorName] = [c for c in cfg_channels if c in valid] or [
+            "V1",
+            "V2",
+            "V3",
+        ]
+
         eps = float(g("epsilon", 0.0))
         nominal = float(g("nominal_hz", 60.0))
-        mode = g("mode", "neg_to_pos")
-        self.agg_mode = g("agg", "median")
+        mode = str(g("mode", "neg_to_pos"))
+        self.agg_mode: Literal["median", "mean"] = g("agg", "median")
 
-        self.cores: Dict[str, ZCDEstimatorBase] = {
+        self.cores: dict[PhasorName, ZCDEstimatorBase] = {
             ch: ZCDEstimatorBase(ZCDConfig(epsilon=eps, nominal_hz=nominal, mode=mode))
             for ch in self.channels
         }
@@ -56,25 +77,30 @@ class ZCDMulti(EstimatorBase):
         super().reset()
 
     def update(self, measures: PMU_Input) -> PMU_Output:
-        ts = float(getattr(measures, "timestamp"))
+        # Prefer direct attribute access over getattr for fixed names (ruff B009)
+        ts: float = float(measures.timestamp)
 
-        f_list, r_list = [], []
+        f_list: list[float] = []
+        r_list: list[float] = []
         for ch, core in self.cores.items():
-            if not hasattr(measures, ch):
-                continue
-            x = float(getattr(measures, ch))
+            # ch es PhasorName, garantizado en self.channels
+            x = float(getattr(measures, ch, 0.0))
             f, r, _crossed, _tc = core.update_scalar(x, ts)
-            f_list.append(f); r_list.append(r)
+            f_list.append(f)
+            r_list.append(r)
 
         # aggregate across phases (robust by default via median)
         f_hat = _agg(f_list, self.agg_mode)
         r_hat = _agg(r_list, self.agg_mode)
 
-        # Optionally pass-through instantaneous values as phasor placeholders
-        phasors = {ch: complex(float(getattr(measures, ch, 0.0)), 0.0) for ch in self.channels}
+        # Phasors con claves tipadas como PhasorName (cumple PhasorMap)
+        phasors: dict[PhasorName, complex] = {
+            ch: complex(float(getattr(measures, ch, 0.0)), 0.0) for ch in self.channels
+        }
+        phasors_typed: PhasorMap = phasors
 
         return PMU_Output(
-            phasors=phasors,
+            phasors=phasors_typed,
             frequency_hz=float(f_hat),
             rocof_hz_s=float(r_hat),
             timestamp_utc=ts,
