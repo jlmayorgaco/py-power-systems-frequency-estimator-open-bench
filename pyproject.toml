@@ -8,21 +8,21 @@ requires-python = ">=3.10"
 license = { file = "LICENSE" }
 authors = [{ name = "Jorge Luis Mayorga Taborda" }]
 
-# Core runtime deps (keep minimal; estimators/scenarios can be extras)
+# Keep runtime core minimal (everything else goes in extras)
 dependencies = [
   "numpy>=1.26",
   "scipy>=1.11",
   "pandas>=2.2",
 ]
 
-# Optional groups for dev and features
 [project.optional-dependencies]
+# --- Developer toolchain (linting, typing, tests, docs authoring) ---
 dev = [
   "ruff>=0.6",
   "mypy>=1.10",
   "pytest>=8.3",
   "pytest-cov>=5.0",
-  # docs (choose one stack or both; mkdocs recommended)
+  # docs stacks (choose either or both; both are fine in dev)
   "mkdocs>=1.5",
   "mkdocs-material>=9.5",
   "sphinx>=7.0",
@@ -31,23 +31,78 @@ dev = [
   # typing backfill for py<3.12
   "typing-extensions; python_version<'3.12'",
 ]
-opendss = ["opendssdirect.py>=0.8"]
-viz = [
-  "matplotlib>=3.8",
-  "plotnine>=0.13",      # ggplot-like; optional
-]
+
+# --- Notebooks & interactive work ---
 notebooks = [
   "jupyterlab>=4.2",
   "ipykernel>=6.29",
+  "nbformat>=5.10",
+  "nbclient>=0.10",
+  "jupytext>=1.16",
 ]
 
-# Nice metadata for PyPI and repo
+# --- Visualization (static + interactive) ---
+viz = [
+  "matplotlib>=3.8",
+  "plotnine>=0.13",
+  "seaborn>=0.13",
+  "plotly>=5.24",
+]
+
+# --- Machine learning & statistical modeling ---
+ml = [
+  "scikit-learn>=1.5",
+  "statsmodels>=0.14",
+  "xgboost>=2.0",
+  # optional: fast tabular DF ops; nice for heavy pipelines
+  "polars>=1.7",
+]
+
+# --- Signal processing / performance helpers ---
+signal = [
+  "numba>=0.59",
+  "numexpr>=2.10",
+  # FFT acceleration; wheel availability varies by platform, keep optional
+  "pyfftw>=0.13",
+]
+
+# --- Power-systems tooling (sim, network models, RL envs) ---
+power = [
+  "opendssdirect.py>=0.8",  # OpenDSS interface
+  "pandapower>=2.14",       # network modeling / load flow
+  "grid2op>=1.10",          # grid operations env (optional)
+  "networkx>=3.2",
+]
+
+# --- Data I/O & large-array analytics (for long runs / big outputs) ---
+io = [
+  "xarray>=2024.5",
+  "netCDF4>=1.6",
+  "zarr>=2.18",
+  "h5py>=3.11",
+  "pyyaml>=6.0.2",
+  "orjson>=3.10",
+]
+
+# --- CLI ergonomics & config ---
+cli = [
+  "typer>=0.12",
+  "rich>=13.8",
+  "pydantic>=2.7",
+]
+
+# --- Everything you might want for a full-featured bench install ---
+full = [
+  "openfreqbench[dev,viz,ml,signal,power,io,notebooks,cli]"
+]
+
+# Project links
 [project.urls]
 Homepage = "https://github.com/jlmayorgaco/py-power-systems-frequency-estimator-open-bench"
 Issues   = "https://github.com/jlmayorgaco/py-power-systems-frequency-estimator-open-bench/issues"
 Docs     = "https://jlmayorgaco.github.io/py-power-systems-frequency-estimator-open-bench/"
 
-# CLI entry points (adjust to your actual modules)
+# CLI entry points (adjust modules if needed)
 [project.scripts]
 ofb-run   = "pipelines.run_benchmark:main"
 ofb-eval  = "evaluation.cli:main"
@@ -58,19 +113,15 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 # --- setuptools discovery ---
-# If you use a flat layout, this finds packages containing __init__.py.
-# If you switch to "src/" layout, replace with:
-#   [tool.setuptools.packages.find]
-#   where = ["src"]
-#   include = ["openfreqbench*", "estimators*", "scenarios*", "evaluation*", "pipelines*"]
 [tool.setuptools]
 packages = { find = { include = [
   "openfreqbench*", "estimators*", "scenarios*", "evaluation*", "pipelines*", "tests*"
 ]}}
 
 [tool.setuptools.package-data]
-# Example: if later you add YAML/JSON resources inside packages
+# Example future resources
 # "scenarios" = ["**/*.yml", "**/*.yaml"]
+# Produce PEP 561 marker if you add typing stubs later:
 # "openfreqbench" = ["py.typed"]
 
 # --- Testing ---
@@ -87,11 +138,12 @@ target-version = "py310"
 extend-exclude = ["docs/_build", ".ofb"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
-ignore = ["E203"]           # keep if you prefer Black-style slicing
+# Keep core correctness rules; silence organize-imports (I001) and Mapping nag (UP035)
+select = ["E", "F", "UP", "B", "I"]
+ignore = ["E203", "I001", "UP035"]
 
-[tool.ruff.format]
-# (accept defaults; add options if you want)
+[tool.ruff.lint.isort]
+known-first-party = ["evaluation", "estimators", "scenarios", "utils", "openfreqbench"]
 
 # --- Mypy ---
 [tool.mypy]
@@ -102,7 +154,7 @@ warn_redundant_casts = true
 disallow_untyped_defs = true
 no_implicit_optional = true
 
-# --- Coverage (optional but handy) ---
+# --- Coverage ---
 [tool.coverage.run]
 branch = true
 source = ["estimators", "scenarios", "evaluation", "pipelines", "openfreqbench"]
