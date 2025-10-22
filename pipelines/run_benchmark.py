@@ -1,115 +1,145 @@
-# pipelines/run_benchmark.py
+from __future__ import annotations
 
 import json
-import pathlib
-import numpy as np
-import matplotlib.pyplot as plt
+from collections.abc import Callable
 from datetime import datetime
+from pathlib import Path
+from typing import Protocol, TypedDict
 
+import matplotlib.pyplot as plt
+import numpy as np
+
+from estimators.basic.zcd import ZCDSingle
 from evaluation import metrics
 from evaluation.plotting import plot_signal_and_estimators
-
-from estimators.basic.ipdft import IpDFT
-from estimators.basic.zcd import ZeroCrossing
-
-from scenarios.s1_synthetic.make_clean import make_clean
 from scenarios.s1_synthetic.frequency_step import frequency_step
-from scenarios.s1_synthetic.frequency_ramp_step import frequency_ramp_step
+from utils.pmu.pmu_input import PMU_Input
+from utils.pmu.pmu_output import PMU_Output
 
-# Later you can add more scenarios (IEEE 13-bus, noisy, etc.)
+
+class Estimator(Protocol):
+    """Estimator interface needed here."""
+
+    def update(self, measures: PMU_Input) -> PMU_Output:  # match concrete ZCDSingle
+        ...
 
 
-def run_single(estimator, signal, truth, name="unknown"):
-    """Run estimator online: feed one sample at a time, get frequency trace."""
-    f_hat = []
-    for st in signal:
-        val = estimator.update(st)
-        f_hat.append(val)
+class RunResult(TypedDict):
+    name: str
+    n_samples: int
+    rmse: float
+    f_hat: list[float]
 
-    # Convert to array, replace None with NaN
-    f_hat = np.array([np.nan if v is None else v for v in f_hat])
-    truth = truth[:len(f_hat)]
 
-    # Compute RMSE ignoring NaNs
-    mask = ~np.isnan(f_hat)
-    rmse = metrics.frequency_error(f_hat[mask], truth[mask])
+def run_single(
+    estimator: Estimator,
+    signal: np.ndarray,
+    truth: np.ndarray,
+    fs: float,
+    channel: str,
+    name: str = "unknown",
+) -> RunResult:
+    """Feed timestamped PMU-style measurements to the estimator and collect a frequency trace."""
+    f_hat_vals: list[float | None] = []
+
+    inv_fs = 1.0 / float(fs)
+    t = 0.0
+    for x in signal.tolist():
+        # PMU_Input constructor expects all channels + timestamp; fill others as 0.0
+        kwargs = {"V1": 0.0, "V2": 0.0, "V3": 0.0, "I1": 0.0, "I2": 0.0, "I3": 0.0, "timestamp": t}
+        kwargs[channel] = float(x)
+        meas = PMU_Input(**kwargs)
+        out = estimator.update(meas)
+        f_hat_vals.append(out.frequency_hz)
+        t += inv_fs
+
+    f_hat_arr = np.array([np.nan if v is None else float(v) for v in f_hat_vals], dtype=float)
+    truth = truth[: f_hat_arr.shape[0]]
+
+    mask = ~np.isnan(f_hat_arr)
+    rmse = float(metrics.frequency_error(f_hat_arr[mask], truth[mask]))
 
     return {
         "name": name,
-        "n_samples": len(signal),
+        "n_samples": int(signal.shape[0]),
         "rmse": rmse,
-        "f_hat": f_hat.tolist(),
+        "f_hat": f_hat_arr.tolist(),
     }
 
 
+def main() -> None:
+    fs: int = 5000
+    channel = "V1"
 
-
-def main():
-    fs = 5000
-
-    # === Define estimators ===
-    estimators = {
-        "ZCD": ZeroCrossing(fs=fs)
-        #"IpDFT": IpDFT(fs=fs, frame_len=256),
+    # ZCDSingle config
+    zcd_config = {
+        "epsilon": 0.0,
+        "nominal_hz": 60.0,
+        "mode": "neg_to_pos",
+        "channel": channel,
+    }
+    estimators: dict[str, Estimator] = {
+        "ZCD": ZCDSingle(config=zcd_config),
     }
 
-    # === Define scenarios ===
-    scenarios = {
-
-        # Step change: 60 Hz → 59.5 Hz → back to 60 Hz
+    scenarios: dict[str, Callable[[], tuple[np.ndarray, np.ndarray]]] = {
         "s0_step": lambda: frequency_step(
-            f0=60.0, f_step=50, t_step=1.0, t_back=2.0, duration=4.0, fs=fs
+            f0=60.0,
+            f_step=59.5,
+            t_step=1.0,
+            t_back=2.0,
+            duration=4.0,
+            fs=fs,
         )
     }
 
-    # === Timestamped results folder ===
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    ROOT_DIR = pathlib.Path("data/results") / f"benchmark_{timestamp}"
-    JSON_DIR = ROOT_DIR / "jsons"
-    PLOT_DIR = ROOT_DIR / "plots"
-    JSON_DIR.mkdir(parents=True, exist_ok=True)
-    PLOT_DIR.mkdir(parents=True, exist_ok=True)
+    root_dir = Path("data/results") / f"benchmark_{timestamp}"
+    json_dir = root_dir / "jsons"
+    plot_dir = root_dir / "plots"
+    json_dir.mkdir(parents=True, exist_ok=True)
+    plot_dir.mkdir(parents=True, exist_ok=True)
 
-    all_results = {}
+    all_results: dict[str, list[RunResult]] = {}
 
-    # === Run each scenario ===
     for s_name, scenario_fn in scenarios.items():
         print(f"▶ Running scenario: {s_name}")
         signal, f_true = scenario_fn()
 
-        results = []
-        estimates = {}
+        signal = np.asarray(signal, dtype=float).ravel()
+        f_true = np.asarray(f_true, dtype=float).ravel()
 
-        # Run all estimators
+        results: list[RunResult] = []
+        estimates: dict[str, list[float]] = {}
+
         for name, est in estimators.items():
-            res = run_single(est, signal, f_true, name=name)
+            res = run_single(est, signal, f_true, fs=fs, channel=channel, name=name)
             results.append(res)
             estimates[name] = res["f_hat"]
 
-        # Save JSON
-        json_file = JSON_DIR / f"{s_name}.json"
-        with open(json_file, "w") as f:
-            json.dump(results, f, indent=2)
+        json_file = json_dir / f"{s_name}.json"
+        with json_file.open("w", encoding="utf-8") as fh:
+            json.dump(results, fh, indent=2)
         print(f"✅ JSON saved to {json_file}")
 
-        # Save Plot
         fig = plot_signal_and_estimators(
-            signal, f_true, estimates, fs,
-            zoom_windows_top=[(0.95, 1.05), (1.95, 2.05)],   # show two windows on the raw signal
-            zoom_window_bottom=(0.5, 2.5)                 # zoom for frequency subplot
+            signal,
+            f_true,
+            estimates,
+            fs,
+            zoom_windows_top=[(0.95, 1.05), (1.95, 2.05)],
+            zoom_window_bottom=(0.5, 2.5),
         )
-
-        plot_file = PLOT_DIR / f"{s_name}.png"
+        plot_file = plot_dir / f"{s_name}.png"
         fig.savefig(plot_file, dpi=300, bbox_inches="tight")
         plt.close(fig)
         print(f"📈 Plot saved to {plot_file}")
 
         all_results[s_name] = results
 
-    # Optionally: save a global index of all scenarios
-    index_file = ROOT_DIR / "summary.json"
-    with open(index_file, "w") as f:
-        json.dump(all_results, f, indent=2)
+    index_file = root_dir / "summary.json"
+    with index_file.open("w", encoding="utf-8") as fh:
+        json.dump(all_results, fh, indent=2)
     print(f"🗂 Summary saved to {index_file}")
 
 
