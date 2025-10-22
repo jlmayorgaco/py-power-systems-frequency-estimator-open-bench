@@ -55,7 +55,13 @@ All code, scenarios, and results are open and reproducible.
 
 ---
 
- Current Issue in Development ISSUE-13:Repo: initialize pyproject & src/ layout
+## Project Status
+
+**Current Issue:** [ISSUE-15 · CI: cache Python dependencies for speed](../../issues/15)
+
+![Milestone](https://img.shields.io/github/milestones/progress/IngJorgeLuisMayorga/py-openfreqbench/1?label=Milestone%201)
+![Open Issues](https://img.shields.io/github/issues/IngJorgeLuisMayorga/py-openfreqbench)
+![PRs](https://img.shields.io/github/issues-pr/IngJorgeLuisMayorga/py-openfreqbench)
 
 ---
 
