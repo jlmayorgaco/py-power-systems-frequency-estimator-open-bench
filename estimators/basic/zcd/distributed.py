@@ -10,16 +10,19 @@
 # ---------------------------------------------------------------------
 
 from __future__ import annotations
-from typing import Dict, List, Tuple, Optional
-from estimators.zcd.core import ZCDEstimatorBase, ZCDConfig
 
-def metropolis_weights(adj: Dict[str, List[str]]) -> Dict[Tuple[str, str], float]:
+from typing import Any, Mapping
+
+from estimators.zcd.core import ZCDConfig, ZCDEstimatorBase
+
+
+def metropolis_weights(adj: Mapping[str, list[str]]) -> dict[tuple[str, str], float]:
     """
     Build Metropolis-Hastings weights w_ij for i with neighbors N(i).
     w_ij = 1 / (1 + max(deg(i), deg(j))) for j in N(i); w_ii = 1 - sum_j w_ij
     """
-    deg = {i: max(1, len(neigh)) for i, neigh in adj.items()}
-    W: Dict[Tuple[str, str], float] = {}
+    deg: dict[str, int] = {i: max(1, len(neigh)) for i, neigh in adj.items()}
+    W: dict[tuple[str, str], float] = {}
     for i, neigh in adj.items():
         s = 0.0
         for j in neigh:
@@ -28,6 +31,7 @@ def metropolis_weights(adj: Dict[str, List[str]]) -> Dict[Tuple[str, str], float
             s += wij
         W[(i, i)] = max(0.0, 1.0 - s)
     return W
+
 
 class DistributedZCD:
     """
@@ -40,28 +44,32 @@ class DistributedZCD:
       - consensus_alpha: float in (0,1]           (default 1.0, single MH step)
     """
 
-    def __init__(self, config: dict):
-        self.nodes: List[str] = list(config.get("nodes", []))
+    def __init__(self, config: Mapping[str, Any]) -> None:
+        self.nodes: list[str] = list(config.get("nodes", []))
         if not self.nodes:
             raise ValueError("DistributedZCD requires config['nodes']")
 
         eps = float(config.get("epsilon", 0.0))
         nominal = float(config.get("nominal_hz", 60.0))
-        mode = config.get("mode", "neg_to_pos")
+        mode = str(config.get("mode", "neg_to_pos"))
 
-        self.cores: Dict[str, ZCDEstimatorBase] = {
+        self.cores: dict[str, ZCDEstimatorBase] = {
             n: ZCDEstimatorBase(ZCDConfig(epsilon=eps, nominal_hz=nominal, mode=mode))
             for n in self.nodes
         }
 
-        self.adj: Dict[str, List[str]] = {n: list(config.get("adjacency", {}).get(n, [])) for n in self.nodes}
-        self.W = metropolis_weights(self.adj) if any(self.adj.values()) else {}
-        self.fuse_mode: str = config.get("fuse", "consensus")
+        self.adj: dict[str, list[str]] = {
+            n: list(config.get("adjacency", {}).get(n, [])) for n in self.nodes
+        }
+        self.W: dict[tuple[str, str], float] = (
+            metropolis_weights(self.adj) if any(self.adj.values()) else {}
+        )
+        self.fuse_mode: str = str(config.get("fuse", "consensus"))
         self.alpha: float = float(config.get("consensus_alpha", 1.0))  # 1 MH step by default
 
         # last fused estimates (optional cache)
-        self.last_fused_freq: Optional[float] = None
-        self.last_fused_rocof: Optional[float] = None
+        self.last_fused_freq: float | None = None
+        self.last_fused_rocof: float | None = None
 
     def reset(self) -> None:
         for core in self.cores.values():
@@ -69,13 +77,13 @@ class DistributedZCD:
         self.last_fused_freq = None
         self.last_fused_rocof = None
 
-    def _fuse_consensus(self, local_f: Dict[str, float]) -> Dict[str, float]:
+    def _fuse_consensus(self, local_f: Mapping[str, float]) -> dict[str, float]:
         if not self.W:
             # No graph → fall back to mean
             m = sum(local_f.values()) / max(1, len(local_f))
             return {n: float(m) for n in local_f}
 
-        new_f: Dict[str, float] = {}
+        new_f: dict[str, float] = {}
         for i in local_f:
             acc = self.W.get((i, i), 0.0) * local_f[i]
             for j in self.adj.get(i, []):
@@ -84,7 +92,7 @@ class DistributedZCD:
             new_f[i] = float((1.0 - self.alpha) * local_f[i] + self.alpha * acc)
         return new_f
 
-    def step(self, sample: dict) -> dict:
+    def step(self, sample: Mapping[str, Any]) -> dict[str, Any]:
         """
         Update with one distributed sample.
 
@@ -107,11 +115,11 @@ class DistributedZCD:
             }
         """
         ts = float(sample["timestamp"])
-        nodes_payload: Dict[str, dict] = sample["nodes"]
+        nodes_payload = sample["nodes"]  # Mapping[str, Mapping[str, Any]]
 
         # 1) local ZCD updates
-        local_freq: Dict[str, float] = {}
-        local_rocof: Dict[str, float] = {}
+        local_freq: dict[str, float] = {}
+        local_rocof: dict[str, float] = {}
         for n, core in self.cores.items():
             v = float(nodes_payload.get(n, {}).get("value", 0.0))
             f, r, _crossed, _tc = core.update_scalar(v, ts)
@@ -122,7 +130,7 @@ class DistributedZCD:
         mean_f = sum(local_freq.values()) / max(1, len(local_freq))
         mean_r = sum(local_rocof.values()) / max(1, len(local_rocof))
 
-        fused: Dict[str, object] = {
+        fused: dict[str, Any] = {
             "mean_freq_hz": float(mean_f),
             "mean_rocof_hz_s": float(mean_r),
         }
@@ -132,13 +140,15 @@ class DistributedZCD:
             fused["consensus_freq_hz"] = fused_freq
             # store an overall average as headline
             self.last_fused_freq = sum(fused_freq.values()) / max(1, len(fused_freq))
-            self.last_fused_rocof = mean_r  # RoCoF fusion left as mean for simplicity
+            self.last_fused_rocof = mean_r  # RoCoF fusion kept as mean for simplicity
         else:
             self.last_fused_freq = mean_f
             self.last_fused_rocof = mean_r
 
         return {
             "timestamp": ts,
-            "local": {n: {"freq_hz": local_freq[n], "rocof_hz_s": local_rocof[n]} for n in self.nodes},
+            "local": {
+                n: {"freq_hz": local_freq[n], "rocof_hz_s": local_rocof[n]} for n in self.nodes
+            },
             "fused": fused,
         }
