@@ -1,21 +1,27 @@
 #!/usr/bin/env bash
 # OpenFreqBench — lint & type-check pipeline
-# Runs Ruff (lint/format) and Mypy inside the project environment.
-#
-# Examples:
-#   scripts/pipelines/lint.sh                 # lint + mypy on default paths
-#   scripts/pipelines/lint.sh --fix           # auto-fix with Ruff, then mypy
-#   scripts/pipelines/lint.sh --format-only   # only ruff format
-#   scripts/pipelines/lint.sh --staged        # lint only staged files
-#   scripts/pipelines/lint.sh --since main    # lint files changed since main
-#   scripts/pipelines/lint.sh --all           # lint entire repo
-#   scripts/pipelines/lint.sh --paths estimators pipelines
-#   scripts/pipelines/lint.sh --strict        # enable stricter lint/mypy flags
-#
-# Exit codes:
-#   0 on success, nonzero if any tool fails.
+# Runs Ruff (format/lint) and Mypy inside the project environment.
 
 set -Eeuo pipefail
+
+# --- Bash 3.2 compatibility (macOS): mapfile/readarray shim ---
+if ! command -v mapfile >/dev/null 2>&1; then
+  mapfile() {
+    local opt strip_newline=0
+    while getopts ":t" opt; do
+      case "$opt" in t) strip_newline=1;; esac
+    done
+    shift $((OPTIND - 1))
+    local arr_name="${1:-}"
+    [[ -z "$arr_name" ]] && { echo "mapfile shim: missing array name" >&2; return 1; }
+    eval "$arr_name=()"
+    local line
+    while IFS= read -r line; do
+      eval "$arr_name+=(\"\$line\")"
+    done
+  }
+  readarray() { mapfile "$@"; }
+fi
 
 # ---------- Resolve paths ----------
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -37,7 +43,9 @@ if [[ -f "$ROOT/scripts/common/env.sh" ]]; then
   # shellcheck disable=SC1090
   source "$ROOT/scripts/common/env.sh"
 else
-  die "Missing $ROOT/scripts/common/env.sh — run installer or add the file."
+  # Fallback: assume we're already inside the env; just exec directly
+  with_env() { "$@"; }
+  ofb_load_dotenv(){ :; }
 fi
 
 # Optionally load .env (not required for linting)
@@ -63,18 +71,12 @@ Flags:
   --format-only     Only run 'ruff format' (no lint/mypy)
   --no-mypy         Skip mypy
   --no-ruff         Skip Ruff (lint/format)
-  --strict          Stricter settings (fails on warnings where applicable)
+  --strict          Stricter settings (tool-config dependent)
   --staged          Only lint staged files (git)
   --since <ref>     Only lint files changed since <ref> (e.g., main)
   --all             Lint entire repo (default paths)
   --paths <...>     Paths/files to lint (space-separated; end of args)
   -h, --help        Show help
-
-Examples:
-  scripts/pipelines/lint.sh --fix
-  scripts/pipelines/lint.sh --staged
-  scripts/pipelines/lint.sh --since origin/main
-  scripts/pipelines/lint.sh --paths estimators pipelines tests
 EOF
 }
 
@@ -88,7 +90,7 @@ while (( "$#" )); do
     --staged) STAGED=1; shift ;;
     --since) SINCE="$2"; shift 2 ;;
     --all) ALL=1; shift ;;
-    --paths) shift; USER_PATHS=("$@"); break ;; # rest are paths
+    --paths) shift; USER_PATHS=("$@"); break ;;
     -h|--help) usage; exit 0 ;;
     *) warn "Unknown arg: $1"; usage; exit 2 ;;
   esac
@@ -97,23 +99,20 @@ done
 # ---------- Target discovery ----------
 git_available() { command -v git >/dev/null 2>&1 && [[ -d .git ]]; }
 
-default_paths=(
-  "openfreqbench" "estimators" "scenarios" "evaluation" "pipelines" "tests"
-)
+default_paths=( "openfreqbench" "estimators" "scenarios" "evaluation" "pipelines" "tests" )
 paths=()
 
-if (( ${#USER_PATHS[@]} > 0 )); then
+if (( ${#USER_PATHS[@]} )); then
   paths=("${USER_PATHS[@]}")
 elif [[ $ALL -eq 1 ]]; then
   paths=("${default_paths[@]}")
-elif [[ -n "$SINCE" ]] && git_available; then
+elif [[ -n "${SINCE:-}" ]] && git_available; then
   mapfile -t changed < <(git diff --name-only --diff-filter=ACMRT "$SINCE"... -- '*.py' || true)
   paths=("${changed[@]}")
 elif [[ $STAGED -eq 1 ]] && git_available; then
-  mapfile -t staged < <(git diff --name-only --cached --diff-filter=ACMRT -- '*.py' || true)
+  mapfile -t staged  < <(git diff --name-only --cached --diff-filter=ACMRT -- '*.py' || true)
   paths=("${staged[@]}")
 else
-  # If git exists, prefer changed files vs HEAD; else default paths
   if git_available; then
     mapfile -t changed < <(git diff --name-only --diff-filter=ACMRT HEAD -- '*.py' || true)
     if [[ ${#changed[@]} -gt 0 ]]; then
@@ -140,10 +139,28 @@ fi
 
 log "Lint targets: ${paths[*]}"
 
-LOG_DIR="$OFB_ROOT/logs"
+LOG_DIR="${OFB_ROOT:-$ROOT/.ofb}/logs"
 mkdir -p "$LOG_DIR"
-LOG_FILE="$LOG_DIR/lint-$(ofb_timestamp).log"
+LOG_FILE="$LOG_DIR/lint-$(date -u +%Y%m%dT%H%M%SZ).log"
 log "Logs: $LOG_FILE"
+
+# ---------- Ensure tools present (auto-install if missing) ----------
+ensure_ruff() {
+  [[ $RUN_RUFF -eq 1 ]] || return 0
+  if ! with_env ruff --version >/dev/null 2>&1; then
+    log "Installing Ruff (dev tool missing)…"
+    with_env python -m pip install --quiet ruff || die "Failed to install Ruff"
+  fi
+}
+ensure_mypy() {
+  [[ $RUN_MYPY -eq 1 ]] || return 0
+  if ! with_env mypy --version >/dev/null 2>&1; then
+    log "Installing Mypy (dev tool missing)…"
+    with_env python -m pip install --quiet mypy || die "Failed to install Mypy"
+  fi
+}
+ensure_ruff
+ensure_mypy
 
 # ---------- Steps ----------
 status=0
@@ -158,27 +175,36 @@ run_ruff_check() {
   [[ $RUN_RUFF -eq 1 ]] || return 0
   local args=(check)
   [[ $FIX -eq 1 ]] && args+=(--fix)
-  [[ $STRICT -eq 1 ]] && args+=(--unsafe-fixes)  # allow more aggressive fixes if configured
-  log "Ruff ${args[*]}"
+  [[ $STRICT -eq 1 ]] && args+=(--unsafe-fixes)
+  log "Ruff ${args[*]-}"
   ( set -o pipefail; with_env ruff "${args[@]}" "${paths[@]}" 2>&1 | tee -a "$LOG_FILE" ) || status=$?
 }
 
+# --- replace your existing run_mypy() with this ---
 run_mypy() {
   [[ $RUN_MYPY -eq 1 ]] || return 0
-  # mypy doesn't take directories well when many; pass them as is
   local args=()
   [[ $STRICT -eq 1 ]] && args+=(--warn-unused-ignores --no-warn-no-return)
-  log "Mypy ${args[*]}"
-  ( set -o pipefail; with_env mypy "${args[@]}" "${paths[@]}" 2>&1 | tee -a "$LOG_FILE" ) || status=$?
+
+  # Safe log under set -u even if args is empty
+  log "Mypy ${args[*]-}"
+
+  # Avoid empty-array expansion on Bash 3.2 + set -u
+  if [[ ${#args[@]} -gt 0 ]]; then
+    ( set -o pipefail; with_env mypy "${args[@]}" "${paths[@]}" 2>&1 | tee -a "$LOG_FILE" ) || status=$?
+  else
+    ( set -o pipefail; with_env mypy "${paths[@]}" 2>&1 | tee -a "$LOG_FILE" ) || status=$?
+  fi
 }
+
 
 # ---------- Execute ----------
 if [[ $FORMAT_ONLY -eq 1 ]]; then
   run_ruff_format
 else
-  run_ruff_format        # formatting first (idempotent, fast)
-  run_ruff_check         # then lint
-  run_mypy               # then type-check
+  run_ruff_format
+  run_ruff_check
+  run_mypy
 fi
 
 if [[ $status -ne 0 ]]; then
