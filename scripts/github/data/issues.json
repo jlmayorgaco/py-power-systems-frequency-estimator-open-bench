@@ -1,0 +1,952 @@
+[
+  {
+    "title": "Repo: initialize pyproject & src/ layout",
+    "body": "**Where:** project root, `src/pyopenfreqbench/`, `tests/`\n\n**Goal:** Create `pyproject.toml` (project metadata, deps, tool configs) and adopt the `src/` layout with a minimal importable package and test skeleton.\n\n**Acceptance Criteria:**\n- `pyproject.toml` present with name, version, authors, deps, and tool sections.\n- Package at `src/pyopenfreqbench/__init__.py` imports cleanly.\n- `tests/` folder exists with a smoke test.\n\n**Test Plan:**\n- `pip install -e .` then `python -c \"import pyopenfreqbench\"` succeeds.\n- `pytest -q` runs and passes a smoke test.",
+    "labels": "area:infra,kind:feature,priority:P0,size:M",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "CI: add workflows for lint, type, test, docs",
+    "body": "**Where:** `.github/workflows/ci.yml`\n\n**Goal:** Run ruff, mypy, pytest, and docs build on push/PR.\n\n**Acceptance Criteria:**\n- Matrix for Python 3.10–3.12.\n- Separate jobs: lint (ruff), type (mypy), test (pytest), docs build.\n- All jobs must pass for PRs.\n\n**Test Plan:**\n- Open a PR; verify all checks run and pass.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "CI: cache Python dependencies for speed",
+    "body": "**Where:** `.github/workflows/ci.yml`\n\n**Goal:** Enable caching for pip/poetry to reduce CI time.\n\n**Acceptance Criteria:**\n- Uses actions/setup-python cache keys (OS, Python version, lock hash).\n- Second CI run shows cache hit in logs.\n\n**Test Plan:**\n- Re-run CI; confirm cache hit and reduced duration.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "Tooling: configure ruff (rules, excludes, line length)",
+    "body": "**Where:** `pyproject.toml`\n\n**Goal:** Adopt ruff with sensible rules and formatting boundaries.\n\n**Acceptance Criteria:**\n- Enable rulesets: E,F,I,B,UP,SIM,PL,W.\n- Max line length 100; exclude build/venv paths.\n- `ruff check .` clean (no errors) on fresh clone.\n\n**Test Plan:**\n- Run `ruff check .` locally and in CI; both pass.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "Tooling: black + pre-commit hooks",
+    "body": "**Where:** `.pre-commit-config.yaml`, `pyproject.toml`\n\n**Goal:** Enforce consistent formatting and basic hygiene via pre-commit.\n\n**Acceptance Criteria:**\n- Hooks: black, ruff, end-of-file-fixer, trailing-whitespace.\n- `pre-commit run -a` completes cleanly.\n\n**Test Plan:**\n- Install pre-commit; run on repo; zero changes after second run.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "Tooling: mypy strict baseline for src/",
+    "body": "**Where:** `mypy.ini`, `pyproject.toml`\n\n**Goal:** Enable mypy (strict-ish) for `src/` while allowing tests to be looser initially.\n\n**Acceptance Criteria:**\n- `mypy.ini` present with strict flags for `src/`.\n- `mypy src` passes without errors.\n\n**Test Plan:**\n- Run `mypy src`; CI job passes.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "Docker: base image with pinned BLAS threads & non-root user",
+    "body": "**Where:** `Dockerfile`, `docker/entrypoint.sh`\n\n**Goal:** Provide a reproducible container that avoids BLAS thread variability.\n\n**Acceptance Criteria:**\n- Set `OPENBLAS_NUM_THREADS=1` and `MKL_NUM_THREADS=1`.\n- Non-root user runs the app.\n- `python -m pyopenfreqbench --help` works in container.\n\n**Test Plan:**\n- Build image; run container; execute CLI help successfully.",
+    "labels": "area:infra,kind:feature,priority:P0,size:M",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "Community: LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, CITATION.cff",
+    "body": "**Where:** project root, `.github/`\n\n**Goal:** Add community and governance files suitable for open-source.\n\n**Acceptance Criteria:**\n- LICENSE (e.g., Apache-2.0 or MIT) present.\n- CONTRIBUTING.md explains dev setup and PR flow.\n- CODE_OF_CONDUCT.md present.\n- CITATION.cff with project metadata.\n\n**Test Plan:**\n- Manual review; links render correctly on GitHub.",
+    "labels": "area:infra,kind:doc,priority:P0,size:S",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "Templates: GitHub Issue & PR templates",
+    "body": "**Where:** `.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`\n\n**Goal:** Provide structured templates for bugs, features, and pull requests.\n\n**Acceptance Criteria:**\n- Bug report and feature request YAML issue forms.\n- PR template with checklist (tests, docs, linters).\n\n**Test Plan:**\n- Open a test issue/PR and verify templates load.",
+    "labels": "area:infra,kind:doc,priority:P1,size:S",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "Repo hygiene: .editorconfig, .gitattributes, .gitignore",
+    "body": "**Where:** project root\n\n**Goal:** Normalize line endings, encodings, and common ignores across platforms.\n\n**Acceptance Criteria:**\n- `.editorconfig` with UTF-8, LF, indent settings.\n- `.gitattributes` enforcing `* text=auto eol=lf`.\n- `.gitignore` for Python, build, IDE, and OS files.\n\n**Test Plan:**\n- Clone on Windows/macOS/Linux; no stray CRLF changes.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "Utilities: unified logger with Rich formatter",
+    "body": "**Where:** `src/pyopenfreqbench/utils/log.py`\n\n**Goal:** Provide `get_logger(name)` with consistent formatting and env-level override.\n\n**Acceptance Criteria:**\n- Colored output in TTY; plain in CI.\n- respects `PYOPENFREQBENCH_LOGLEVEL` env var.\n- Unit test captures logs via `caplog`.\n\n**Test Plan:**\n- Add `tests/utils/test_log.py`; assert level and format.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "Tests: pytest scaffolding and fixtures",
+    "body": "**Where:** `tests/`, `tests/conftest.py`\n\n**Goal:** Add common fixtures (e.g., `tmp_artifacts_dir`, small synthetic signal) and pytest config.\n\n**Acceptance Criteria:**\n- `conftest.py` provides reusable fixtures.\n- `pytest -q` passes locally and in CI.\n\n**Test Plan:**\n- Implement a trivial test using fixtures; CI turns green.",
+    "labels": "area:infra,kind:test,priority:P0,size:S",
+    "milestone": "M0 – Repo bootstrap"
+  },
+  {
+    "title": "Core: implement EstimatorBase skeleton",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/base.py`\n\n**Goal:** Define an abstract base class with lifecycle methods (`configure`, `reset`, `update`, `estimate`) and sealed attributes after configuration.\n\n**Acceptance Criteria:**\n- Subclasses must override `estimate()`.\n- Prevent addition of new attributes post `configure()`.\n- Type hints fully annotated.\n\n**Test Plan:**\n- Create dummy subclass and assert mis-assigned attributes raise AttributeError.",
+    "labels": "area:estimators,kind:feature,priority:P0,size:M",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Core: add profiling integration to EstimatorBase",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/base.py`\n\n**Goal:** Integrate timing and resource tracking into EstimatorBase for per-frame telemetry.\n\n**Acceptance Criteria:**\n- Capture wall/CPU TTE per estimate.\n- Hooks for resource tracker updates.\n- Logs latency metrics.\n\n**Test Plan:**\n- Monkeypatch resource tracker; verify calls and TTE fields populated.",
+    "labels": "area:estimators,kind:feature,priority:P0,size:S",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Core: create PMU_Input and PMU_Output dataclasses",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/io.py`\n\n**Goal:** Define immutable dataclasses for input/output exchange between orchestrator and estimators.\n\n**Acceptance Criteria:**\n- Fields: timestamp, samples, optional `t_delivery`.\n- Frozen=True; equality comparable.\n- JSON-serializable via asdict.\n\n**Test Plan:**\n- Round-trip test to JSON; attempt mutation → TypeError.",
+    "labels": "area:estimators,kind:feature,priority:P0,size:S",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Core: define EstimationError and related exceptions",
+    "body": "**Where:** `src/pyopenfreqbench/core/exc.py`\n\n**Goal:** Provide typed exception classes for configuration, profiling, and estimation errors.\n\n**Acceptance Criteria:**\n- Classes: ConfigurationError, ProfilingError, EstimationError.\n- Include contextual info (estimator name, message).\n\n**Test Plan:**\n- Unit test raises/catches each type and prints message cleanly.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Scenarios: implement ScenarioConfig (Pydantic model)",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/config.py`\n\n**Goal:** Create typed configuration model with validation and deterministic hashing.\n\n**Acceptance Criteria:**\n- Pydantic BaseModel; fields for signal parameters.\n- SHA256 hash insensitive to field order.\n- JSON serialization supported.\n\n**Test Plan:**\n- Two dicts with same content but diff order → same hash.",
+    "labels": "area:scenarios,kind:feature,priority:P0,size:M",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Scenarios: implement SuiteConfig (Pydantic model)",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/suite.py`\n\n**Goal:** Define suite structure referencing multiple scenarios with runtime budgets and metadata.\n\n**Acceptance Criteria:**\n- Fields: name, latency_budget, memory_budget, scenarios.\n- Validation errors for missing/invalid fields.\n\n**Test Plan:**\n- Load valid/invalid JSON; assert validation passes/fails appropriately.",
+    "labels": "area:scenarios,kind:feature,priority:P1,size:M",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Orchestrator: implement dual-clock simulation loop",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/runner.py`\n\n**Goal:** Maintain T_sim (simulation) and T_proc (processing) clocks with consistent drift handling.\n\n**Acceptance Criteria:**\n- Deterministic timeline advancement.\n- Handles variable TTE per step.\n\n**Test Plan:**\n- Mock estimator with fixed TTE; verify T_proc progression matches spec.",
+    "labels": "area:orchestrator,kind:feature,priority:P0,size:M",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Orchestrator: add co-simulation rule enforcement",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/runner.py`\n\n**Goal:** Enforce rule: only update estimator when T_proc ≤ T_sim.\n\n**Acceptance Criteria:**\n- Backlog grows predictably when TTE > Δt_sim.\n- Log warnings on dropped frames.\n\n**Test Plan:**\n- Inject artificial delay; verify backlog size and message.",
+    "labels": "area:orchestrator,kind:feature,priority:P1,size:S",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Metrics: implement FE (frequency error)",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/errors.py`\n\n**Goal:** Compute FE = |f_est - f_true| elementwise and vectorized.\n\n**Acceptance Criteria:**\n- Works on scalars and arrays.\n- Supports tolerance masks.\n\n**Test Plan:**\n- Compare numpy results with manual calculation; assert match.",
+    "labels": "area:metrics,kind:feature,priority:P0,size:S",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Metrics: implement RFE (RoCoF error)",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/errors.py`\n\n**Goal:** Compute RFE = |df/dt_est - df/dt_true|.\n\n**Acceptance Criteria:**\n- Vectorized numpy implementation.\n- Handles NaN gracefully.\n\n**Test Plan:**\n- Synthetic linear ramp; RFE close to 0 within 1e-4.",
+    "labels": "area:metrics,kind:feature,priority:P0,size:S",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Metrics: implement TVE (phasor error)",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/errors.py`\n\n**Goal:** Compute Total Vector Error (TVE) per IEEE 60255-118-1.\n\n**Acceptance Criteria:**\n- Works on complex phasors.\n- Returns percent magnitude.\n\n**Test Plan:**\n- Compare test vector vs analytical reference; TVE < 1% in nominal case.",
+    "labels": "area:metrics,kind:feature,priority:P1,size:S",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Metrics: implement total_delay function",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/delay.py`\n\n**Goal:** Compute total delay = t_delivery - t_sim_mid for each frame.\n\n**Acceptance Criteria:**\n- Vectorized computation.\n- Handles missing t_delivery (NaN) safely.\n\n**Test Plan:**\n- Sample arrays; validate arithmetic and sign conventions.",
+    "labels": "area:metrics,kind:feature,priority:P1,size:S",
+    "milestone": "M1 – Core contracts"
+  },
+  {
+    "title": "Profiling: monotonic high-precision timer utility",
+    "body": "**Where:** `src/pyopenfreqbench/utils/timing.py`\n\n**Goal:** Provide monotonic, high-resolution time functions (ns) for profiling (wall & CPU) across platforms.\n\n**Acceptance Criteria:**\n- Expose `now_ns()` (monotonic) and `cpu_now_ns()` (per-process CPU time).\n- Uses `time.perf_counter_ns()` and `time.process_time_ns()` with fallbacks.\n- Docstrings clarify semantics and units.\n\n**Test Plan:**\n- Unit tests assert monotonic increase and integer ns type on major OSes.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Profiling: wall vs CPU TTE measurement helpers",
+    "body": "**Where:** `src/pyopenfreqbench/utils/profiling.py`\n\n**Goal:** Add helpers to measure per-call wall/CPU durations and return a small struct for aggregation.\n\n**Acceptance Criteria:**\n- `measure(fn, *args, **kwargs)` returns `{result, t_wall_ns, t_cpu_ns}`.\n- Context manager `measure_cm()` yields start/stop with same fields.\n- Zero-allocation hot path (avoid per-frame heap churn).\n\n**Test Plan:**\n- Tests compare durations to sleep(); variance within tolerance.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Profiling: resource tracker for RSS & object peak bytes",
+    "body": "**Where:** `src/pyopenfreqbench/utils/resource.py`\n\n**Goal:** Track peak Resident Set Size (RSS) and an estimator-scoped object peak (approx) during runs.\n\n**Acceptance Criteria:**\n- `track_peak_resources(scope_dict)` updates `rss_peak_bytes` (process-wide) and `obj_peak_bytes` (len/sizeof heuristic).\n- Clear docstring: RSS is process-wide; object peak is indicative only.\n\n**Test Plan:**\n- Tests allocate/free arrays; assert monotonic peak fields.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Sysprobe: detect BLAS vendor and threading",
+    "body": "**Where:** `src/pyopenfreqbench/utils/sysprobe.py`\n\n**Goal:** Detect NumPy/SciPy BLAS vendor (OpenBLAS/MKL/Accelerate) and current thread limits.\n\n**Acceptance Criteria:**\n- Reports `blas.vendor`, `blas.threads_env` (OPENBLAS_NUM_THREADS/MKL_NUM_THREADS), and a brief note if unknown.\n- Robust to missing SciPy.\n\n**Test Plan:**\n- Mocked environments assert vendor strings and thread nums.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Sysprobe: machine profile collector (OS/CPU/RAM/GPU/Python)",
+    "body": "**Where:** `src/pyopenfreqbench/utils/sysprobe.py`\n\n**Goal:** Collect a deterministic machine card: OS, kernel, CPU model/cores, RAM, Python version, BLAS vendor, optional GPU (CUDA name/driver).\n\n**Acceptance Criteria:**\n- Returns pure-Python dict serializable to JSON.\n- GPU fields absent if not applicable.\n- Includes UTC timestamp and timezone name.\n\n**Test Plan:**\n- Snapshot test on CI image; keys present and types correct.",
+    "labels": "area:infra,kind:feature,priority:P0,size:M",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Artifacts: write `run.json` manifest",
+    "body": "**Where:** `src/pyopenfreqbench/utils/artifacts.py`\n\n**Goal:** Persist a per-run JSON manifest with git SHA, dirty flag, seeds, suite hash, machine card, and tool versions.\n\n**Acceptance Criteria:**\n- `write_run_json(path, manifest)` ensures parent dirs and pretty JSON.\n- Git info captured or marked `null` if not a git repo.\n- Schema documented in docstring.\n\n**Test Plan:**\n- Temp dir write/read roundtrip equals ignoring ordering; keys validated.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "CLI: `--profiles` switch to emit run.json and TTE stats",
+    "body": "**Where:** `src/pyopenfreqbench/cli/run_bench.py`\n\n**Goal:** Add CLI flag to enable profiling outputs (run.json + per-estimator TTE summary) to the artifacts dir.\n\n**Acceptance Criteria:**\n- `--profiles` writes `run.json` and `tte_summary.json`.\n- Defaults off; flag documented in `--help`.\n\n**Test Plan:**\n- CLI smoke run in CI produces files; JSON validates with schema.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Aggregator: TTE histograms & percentiles",
+    "body": "**Where:** `src/pyopenfreqbench/utils/profiling.py`\n\n**Goal:** Aggregate per-frame TTE to `{count, mean, p50, p90, p95, p99, max}` and optional small histogram bins (ms).\n\n**Acceptance Criteria:**\n- Vectorized numpy implementation.\n- Handles empty input gracefully.\n\n**Test Plan:**\n- Synthetic arrays produce exact known percentiles; histogram sums to count.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Determinism: capture RNG seeds in manifest",
+    "body": "**Where:** `src/pyopenfreqbench/utils/artifacts.py`\n\n**Goal:** Record `random`, `numpy`, and project RNG seeds in `run.json`; warn if not set.\n\n**Acceptance Criteria:**\n- `manifest[\"seeds\"]` includes `random`, `numpy`, `project` keys (ints).\n- If unset, emit logger warning and store `null`.\n\n**Test Plan:**\n- Test with and without seeding; asserts values and warning call.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Snapshot: stable schema test for run.json",
+    "body": "**Where:** `tests/profiling/test_run_json_snapshot.py`\n\n**Goal:** Prevent accidental schema drift in `run.json`.\n\n**Acceptance Criteria:**\n- Snapshot or JSON-Schema test verifies presence and types of keys.\n- Backwards-compatible additions allowed (documented).\n\n**Test Plan:**\n- CI generates run.json and compares against committed schema/snapshot.",
+    "labels": "area:infra,kind:test,priority:P0,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Docs: profiling fields and interpretation guide",
+    "body": "**Where:** `docs/dev/profiling.md`\n\n**Goal:** Document all profiling fields (TTE wall/CPU, RSS, object peak, BLAS vendor, seeds) and how to interpret them.\n\n**Acceptance Criteria:**\n- Table of fields: name, type, units, notes.\n- Examples with snippets of run.json and typical values.\n\n**Test Plan:**\n- MkDocs build in CI; link from quickstart; manual review.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Hardening: low-overhead profiling in hot loop",
+    "body": "**Where:** `src/pyopenfreqbench/utils/profiling.py`, orchestrator integration points\n\n**Goal:** Ensure profiling adds minimal overhead (<3% in CI microbench) and avoid per-frame allocations.\n\n**Acceptance Criteria:**\n- Microbenchmark proves overhead bound with profiling on.\n- No new objects per frame (verified via tracemalloc or allocation counter).\n\n**Test Plan:**\n- Add microbench test; assert overhead threshold and allocations delta.",
+    "labels": "area:infra,kind:test,priority:P1,size:M",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+
+    {
+    "title": "Profiling: monotonic high-precision timer utility",
+    "body": "**Where:** `src/pyopenfreqbench/utils/timing.py`\n\n**Goal:** Provide monotonic, high-resolution time functions (ns) for profiling (wall & CPU) across platforms.\n\n**Acceptance Criteria:**\n- Expose `now_ns()` (monotonic) and `cpu_now_ns()` (per-process CPU time).\n- Uses `time.perf_counter_ns()` and `time.process_time_ns()` with fallbacks.\n- Docstrings clarify semantics and units.\n\n**Test Plan:**\n- Unit tests assert monotonic increase and integer ns type on major OSes.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Profiling: wall vs CPU TTE measurement helpers",
+    "body": "**Where:** `src/pyopenfreqbench/utils/profiling.py`\n\n**Goal:** Add helpers to measure per-call wall/CPU durations and return a small struct for aggregation.\n\n**Acceptance Criteria:**\n- `measure(fn, *args, **kwargs)` returns `{result, t_wall_ns, t_cpu_ns}`.\n- Context manager `measure_cm()` yields start/stop with same fields.\n- Zero-allocation hot path (avoid per-frame heap churn).\n\n**Test Plan:**\n- Tests compare durations to sleep(); variance within tolerance.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Profiling: resource tracker for RSS & object peak bytes",
+    "body": "**Where:** `src/pyopenfreqbench/utils/resource.py`\n\n**Goal:** Track peak Resident Set Size (RSS) and an estimator-scoped object peak (approx) during runs.\n\n**Acceptance Criteria:**\n- `track_peak_resources(scope_dict)` updates `rss_peak_bytes` (process-wide) and `obj_peak_bytes` (len/sizeof heuristic).\n- Clear docstring: RSS is process-wide; object peak is indicative only.\n\n**Test Plan:**\n- Tests allocate/free arrays; assert monotonic peak fields.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Sysprobe: detect BLAS vendor and threading",
+    "body": "**Where:** `src/pyopenfreqbench/utils/sysprobe.py`\n\n**Goal:** Detect NumPy/SciPy BLAS vendor (OpenBLAS/MKL/Accelerate) and current thread limits.\n\n**Acceptance Criteria:**\n- Reports `blas.vendor`, `blas.threads_env` (OPENBLAS_NUM_THREADS/MKL_NUM_THREADS), and a brief note if unknown.\n- Robust to missing SciPy.\n\n**Test Plan:**\n- Mocked environments assert vendor strings and thread nums.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Sysprobe: machine profile collector (OS/CPU/RAM/GPU/Python)",
+    "body": "**Where:** `src/pyopenfreqbench/utils/sysprobe.py`\n\n**Goal:** Collect a deterministic machine card: OS, kernel, CPU model/cores, RAM, Python version, BLAS vendor, optional GPU (CUDA name/driver).\n\n**Acceptance Criteria:**\n- Returns pure-Python dict serializable to JSON.\n- GPU fields absent if not applicable.\n- Includes UTC timestamp and timezone name.\n\n**Test Plan:**\n- Snapshot test on CI image; keys present and types correct.",
+    "labels": "area:infra,kind:feature,priority:P0,size:M",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Artifacts: write `run.json` manifest",
+    "body": "**Where:** `src/pyopenfreqbench/utils/artifacts.py`\n\n**Goal:** Persist a per-run JSON manifest with git SHA, dirty flag, seeds, suite hash, machine card, and tool versions.\n\n**Acceptance Criteria:**\n- `write_run_json(path, manifest)` ensures parent dirs and pretty JSON.\n- Git info captured or marked `null` if not a git repo.\n- Schema documented in docstring.\n\n**Test Plan:**\n- Temp dir write/read roundtrip equals ignoring ordering; keys validated.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "CLI: `--profiles` switch to emit run.json and TTE stats",
+    "body": "**Where:** `src/pyopenfreqbench/cli/run_bench.py`\n\n**Goal:** Add CLI flag to enable profiling outputs (run.json + per-estimator TTE summary) to the artifacts dir.\n\n**Acceptance Criteria:**\n- `--profiles` writes `run.json` and `tte_summary.json`.\n- Defaults off; flag documented in `--help`.\n\n**Test Plan:**\n- CLI smoke run in CI produces files; JSON validates with schema.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Aggregator: TTE histograms & percentiles",
+    "body": "**Where:** `src/pyopenfreqbench/utils/profiling.py`\n\n**Goal:** Aggregate per-frame TTE to `{count, mean, p50, p90, p95, p99, max}` and optional small histogram bins (ms).\n\n**Acceptance Criteria:**\n- Vectorized numpy implementation.\n- Handles empty input gracefully.\n\n**Test Plan:**\n- Synthetic arrays produce exact known percentiles; histogram sums to count.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Determinism: capture RNG seeds in manifest",
+    "body": "**Where:** `src/pyopenfreqbench/utils/artifacts.py`\n\n**Goal:** Record `random`, `numpy`, and project RNG seeds in `run.json`; warn if not set.\n\n**Acceptance Criteria:**\n- `manifest[\"seeds\"]` includes `random`, `numpy`, `project` keys (ints).\n- If unset, emit logger warning and store `null`.\n\n**Test Plan:**\n- Test with and without seeding; asserts values and warning call.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Snapshot: stable schema test for run.json",
+    "body": "**Where:** `tests/profiling/test_run_json_snapshot.py`\n\n**Goal:** Prevent accidental schema drift in `run.json`.\n\n**Acceptance Criteria:**\n- Snapshot or JSON-Schema test verifies presence and types of keys.\n- Backwards-compatible additions allowed (documented).\n\n**Test Plan:**\n- CI generates run.json and compares against committed schema/snapshot.",
+    "labels": "area:infra,kind:test,priority:P0,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Docs: profiling fields and interpretation guide",
+    "body": "**Where:** `docs/dev/profiling.md`\n\n**Goal:** Document all profiling fields (TTE wall/CPU, RSS, object peak, BLAS vendor, seeds) and how to interpret them.\n\n**Acceptance Criteria:**\n- Table of fields: name, type, units, notes.\n- Examples with snippets of run.json and typical values.\n\n**Test Plan:**\n- MkDocs build in CI; link from quickstart; manual review.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "Hardening: low-overhead profiling in hot loop",
+    "body": "**Where:** `src/pyopenfreqbench/utils/profiling.py`, orchestrator integration points\n\n**Goal:** Ensure profiling adds minimal overhead (<3% in CI microbench) and avoid per-frame allocations.\n\n**Acceptance Criteria:**\n- Microbenchmark proves overhead bound with profiling on.\n- No new objects per frame (verified via tracemalloc or allocation counter).\n\n**Test Plan:**\n- Add microbench test; assert overhead threshold and allocations delta.",
+    "labels": "area:infra,kind:test,priority:P1,size:M",
+    "milestone": "M2 – Profiling & Machine Card"
+  },
+  {
+    "title": "ComputeModel: implement deadtime primitive",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/compute_model.py`\n\n**Goal:** Add a deadtime component that inserts a fixed processing delay per frame (e.g., ADC/sensor or I/O cost) before T_proc increment.\n\n**Acceptance Criteria:**\n- Function/class applies constant deadtime (ns/ms configurable) to measured TTE.\n- Pure function of inputs; no global state.\n- Docstring clarifies units and composition rules.\n\n**Test Plan:**\n- Unit tests: zero, small, large deadtime; T_proc increments match expectation.",
+    "labels": "area:orchestrator,kind:feature,priority:P0,size:S",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "ComputeModel: implement jitter distributions (normal/uniform)",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/compute_model.py`\n\n**Goal:** Add additive jitter sampled from parameterized distributions (normal with μ=0, σ; uniform with ±a) applied to TTE.\n\n**Acceptance Criteria:**\n- Deterministic under provided RNG seed.\n- Parameter validation (σ>=0, a>=0).\n- Vectorized path for batches.\n\n**Test Plan:**\n- Statistical tests: sample mean≈0, std≈σ (normal); bounds respected (uniform).",
+    "labels": "area:orchestrator,kind:feature,priority:P0,size:M",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "ComputeModel: implement throttle factor and sleep emulation",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/compute_model.py`\n\n**Goal:** Provide multiplicative throttle on TTE (e.g., ×k) and optional sleep injection to emulate CPU frequency scaling or cooperative yielding.\n\n**Acceptance Criteria:**\n- `throttle_factor>=1` scales TTE; sleep adds fixed wall time.\n- Sleep is optional and no-op in \"fast\" mode.\n\n**Test Plan:**\n- With factor=2, average T_proc gap doubles vs baseline; sleep path measured by timer.",
+    "labels": "area:orchestrator,kind:feature,priority:P1,size:S",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "ComputeModel: composition order & pipeline API",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/compute_model.py`\n\n**Goal:** Define a canonical order for composing effects: `measured_TTE → deadtime → jitter → throttle → sleep` with a clean pipeline API.\n\n**Acceptance Criteria:**\n- Composable functions or a small DSL.\n- Single entrypoint `apply(model_cfg, measured_tte_ns)`.\n- Documented order with rationale.\n\n**Test Plan:**\n- Table-driven tests verifying equivalence to manual application for sample configs.",
+    "labels": "area:orchestrator,kind:feature,priority:P0,size:M",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "Orchestrator: integrate ComputeModel into dual-clock loop",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/runner.py`\n\n**Goal:** Apply compute model to measured TTE before advancing T_proc and enforcing co-sim rule.\n\n**Acceptance Criteria:**\n- Feature-flag or config gate to enable/disable compute model.\n- Backwards-compatible default (disabled).\n\n**Test Plan:**\n- Same input sequence with/without model yields different, predictable T_proc.",
+    "labels": "area:orchestrator,kind:feature,priority:P0,size:S",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "Metrics: backlog metrics (deadline_miss, queue_len, queuing_delay, utilization U)",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/backlog.py`\n\n**Goal:** Compute per-frame backlog metrics given T_sim, T_proc, Δt_sim, and deadlines.\n\n**Acceptance Criteria:**\n- Vectorized implementations for: deadline_miss (bool), queue_len (int), queuing_delay (time), utilization U (0–1).\n- Clear unit conventions; NaN-safe.\n\n**Test Plan:**\n- Synthetic timelines with known outcomes; assert exact arrays.",
+    "labels": "area:orchestrator,area:metrics,kind:feature,priority:P0,size:M",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "Orchestrator: warm-up frames exclusion",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/runner.py`\n\n**Goal:** Exclude first K frames from reporting/metrics (pipeline warm-up) via config.\n\n**Acceptance Criteria:**\n- Configurable integer K≥0; excludes from summary but not from control flow.\n- Metadata records K and exclusion note.\n\n**Test Plan:**\n- With K>0, reported rows reduced and indices shift consistently.",
+    "labels": "area:orchestrator,kind:feature,priority:P1,size:S",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "Hardening: RNG seeding & determinism for jitter",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/compute_model.py`\n\n**Goal:** Ensure compute model draws are reproducible when a seed is provided and isolated from global RNG.\n\n**Acceptance Criteria:**\n- Accepts `rng` or `seed` and does not mutate global state.\n- Document reproducibility contract.\n\n**Test Plan:**\n- Same seed → identical jitter series; different seed → different series.",
+    "labels": "area:orchestrator,kind:test,priority:P1,size:S",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "Validation: compute model config schema & errors",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/compute_model.py`, `.../config.py`\n\n**Goal:** Validate compute model configuration (types, ranges) and raise clear exceptions.\n\n**Acceptance Criteria:**\n- Pydantic or manual checks for non-negative params and known distribution names.\n- Helpful error messages include field path and value.\n\n**Test Plan:**\n- Invalid configs raise; messages asserted in tests.",
+    "labels": "area:orchestrator,kind:feature,priority:P0,size:S",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "Microbench: quantify overhead of compute model",
+    "body": "**Where:** `tests/orchestrator/test_compute_model_overhead.py`\n\n**Goal:** Ensure compute model overhead is bounded (e.g., <5% over baseline) under CI conditions.\n\n**Acceptance Criteria:**\n- Microbench fixture that measures baseline vs model-on runtime.\n- Threshold documented and enforced.\n\n**Test Plan:**\n- CI microbench passes on reference runner; report median times.",
+    "labels": "area:orchestrator,kind:test,priority:P1,size:M",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "Logging/telemetry: summarize compute model effects",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/runner.py`\n\n**Goal:** Emit concise summary of compute model parameters and observed deltas in TTE (mean, p95) at run end.\n\n**Acceptance Criteria:**\n- Log block with model config and before/after metrics.\n- Hook to export into `run.json` under `compute_model`.\n\n**Test Plan:**\n- Smoke run: logs contain expected block; JSON has fields.",
+    "labels": "area:orchestrator,kind:feature,priority:P1,size:S",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "Visualization hook: queue length distribution for reports",
+    "body": "**Where:** `src/pyopenfreqbench/report/hooks.py`\n\n**Goal:** Provide a small helper to compute histogram stats of queue_len for plotting (used later by report epic).\n\n**Acceptance Criteria:**\n- Returns bins and counts for queue_len with stable binning.\n- Documented for re-use by report builder.\n\n**Test Plan:**\n- Deterministic output on synthetic timelines; sums match total frames.",
+    "labels": "area:report,kind:feature,priority:P2,size:S",
+    "milestone": "M3 – ComputeModel"
+  },
+  {
+    "title": "Fairness: implement FairnessGate core (window/latency/memory budgets)",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/fairness.py`\n\n**Goal:** Enforce suite-level budgets for analysis window, end-to-end latency, and memory usage; produce pass/fail with reasons.\n\n**Acceptance Criteria:**\n- Public API: `evaluate_fairness(summary_df, budgets) -> FairnessResult` with fields `{pass: bool, reasons: List[str], details: DataFrame}`.\n- Budgets supported: `window_s`, `latency_ms_p95`, `rss_peak_mb` (names documented).\n- Vectorized checks; no per-row Python loops.\n\n**Test Plan:**\n- Unit tests with synthetic `summary_df` hit pass and fail paths; reasons include threshold and observed value.",
+    "labels": "area:metrics,kind:feature,priority:P0,size:M",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+  {
+    "title": "Fairness: budget config schema & validation",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/suite.py`, `metrics/fairness.py`\n\n**Goal:** Define a typed schema for fairness budgets and validate on suite load.\n\n**Acceptance Criteria:**\n- Pydantic model `Budgets{ window_s: float>=0, latency_ms_p95: float>=0, rss_peak_mb: float>=0 }`.\n- Helpful error messages on invalid types/ranges.\n- Backwards-compatible defaults for missing fields.\n\n**Test Plan:**\n- Parametrized tests for negative/None/string values; asserts ValidationError messages.",
+    "labels": "area:metrics,kind:feature,priority:P0,size:S",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+  {
+    "title": "Loader: Suite YAML loader with schema validation & hashing",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/loader.py`\n\n**Goal:** Load suite definitions from YAML, validate against schema, and compute a stable hash for reproducibility.\n\n**Acceptance Criteria:**\n- Function `load_suite(path) -> SuiteConfig` with `.sha256` property.\n- Order-insensitive hashing; comments ignored.\n- Clear exceptions with file/line context.\n\n**Test Plan:**\n- Two YAMLs with permuted keys yield same SHA; invalid YAML raises with annotated line.",
+    "labels": "area:scenarios,kind:feature,priority:P0,size:M",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+  {
+    "title": "Compliance: per-estimator pass/fail summary aggregation",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/summary.py`\n\n**Goal:** Produce a compact table with pass/fail per estimator per suite plus failing reasons.\n\n**Acceptance Criteria:**\n- Adds columns: `fair_pass` (bool), `fair_reasons` (CSV string), `latency_ms_p95`, `rss_peak_mb`.\n- Stable column order and dtypes.\n\n**Test Plan:**\n- Unit test builds a tiny summary and asserts expected booleans and reason strings.",
+    "labels": "area:metrics,kind:feature,priority:P0,size:S",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+  {
+    "title": "CLI: validate suite budgets and show compliance table",
+    "body": "**Where:** `src/pyopenfreqbench/cli/run_bench.py`\n\n**Goal:** Add `--check-only` mode (no execution) to validate suite YAML and budgets, and `--report-compliance` to print compliance table after runs.\n\n**Acceptance Criteria:**\n- `run_bench --suite suite.yaml --check-only` exits 0 on valid, non-zero on invalid.\n- `--report-compliance` prints ASCII table with pass/fail.\n\n**Test Plan:**\n- CLI tests exercise both flags; capture stdout and exit codes.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+  {
+    "title": "Fairness: boundary tests for budget thresholds",
+    "body": "**Where:** `tests/metrics/test_fairness_boundaries.py`\n\n**Goal:** Ensure inclusive/exclusive threshold logic is correct at boundaries.\n\n**Acceptance Criteria:**\n- Tests for exactly-on-threshold, epsilon above, epsilon below for each budget.\n- Document inclusivity (e.g., `<=` passes).\n\n**Test Plan:**\n- Parametrized numpy arrays verify pass/fail flips only where expected.",
+    "labels": "area:metrics,kind:test,priority:P0,size:S",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+  {
+    "title": "Fairness: reason taxonomy & message formatting",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/fairness.py`\n\n**Goal:** Standardize reason strings for failures for consistent UX and parsing.\n\n**Acceptance Criteria:**\n- Reasons follow `BUDGET_NAME: observed OP threshold (units)` format.\n- Joined with `; ` when multiple.\n- Unit tests assert exact strings for known inputs.\n\n**Test Plan:**\n- Golden string tests; ensure stable formatting and ordering.",
+    "labels": "area:metrics,kind:feature,priority:P1,size:S",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+  {
+    "title": "NaN/Inf policy: compliance handling for missing metrics",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/fairness.py`, docs\n\n**Goal:** Define how NaN/Inf in `latency_ms_p95` or `rss_peak_mb` affect fairness.\n\n**Acceptance Criteria:**\n- Default policy: treat NaN/Inf as failure with reason `metric=NaN/Inf`.\n- Config override to ignore specific metrics.\n\n**Test Plan:**\n- Unit tests with NaN/Inf inputs produce failures and expected messages.",
+    "labels": "area:metrics,kind:feature,priority:P1,size:S",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+  {
+    "title": "Logging: clear compliance summary and pointers to docs",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/summary.py`\n\n**Goal:** Emit a concise log block summarizing compliance outcome with links to documentation anchors.\n\n**Acceptance Criteria:**\n- On failure, log block lists budgets exceeded and doc URL.\n- On success, single-line confirmation.\n\n**Test Plan:**\n- Smoke test captures logs and asserts presence of anchors.",
+    "labels": "area:metrics,kind:feature,priority:P2,size:S",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+  {
+    "title": "Docs: fairness budgets spec and examples",
+    "body": "**Where:** `docs/dev/fairness.md`\n\n**Goal:** Document budgets, threshold semantics, examples, and FAQs.\n\n**Acceptance Criteria:**\n- Tables of budget names, units, defaults.\n- Two worked examples (pass and fail) with output screenshots.\n\n**Test Plan:**\n- MkDocs build; internal links validated; manual review.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+  {
+    "title": "Examples: minimal suite YAMLs (pass & fail cases)",
+    "body": "**Where:** `examples/suites/`\n\n**Goal:** Provide tiny suites demonstrating fairness pass and fail behavior for quick reproduction.\n\n**Acceptance Criteria:**\n- `suite_pass.yaml` and `suite_fail.yaml` with comments.\n- README shows how to run check-only and full run.\n\n**Test Plan:**\n- CI executes check-only on both; asserts exit codes and messages.",
+    "labels": "area:scenarios,kind:doc,priority:P2,size:S",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+  {
+    "title": "Integration: feed latency & memory metrics into fairness",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/runner.py`, `metrics/summary.py`\n\n**Goal:** Ensure orchestrator populates required per-estimator metrics consumed by FairnessGate (e.g., `latency_ms_p95`, `rss_peak_mb`).\n\n**Acceptance Criteria:**\n- Summary computation derives p95 latency from per-frame TTE and t_delivery.\n- RSS peak sourced from resource tracker.\n\n**Test Plan:**\n- End-to-end smoke test: run a tiny suite, then evaluate fairness; expected pass/fail and metrics present.",
+    "labels": "area:orchestrator,area:metrics,kind:feature,priority:P0,size:M",
+    "milestone": "M4 – Fairness & Compliance"
+  },
+    {
+    "title": "Estimator: baseline FFT-peak estimator (parabolic interpolation)",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/basic/fft_peak.py`\n\n**Goal:** Implement a simple frequency estimator using FFT magnitude peak and parabolic interpolation around max bin.\n\n**Acceptance Criteria:**\n- Inherits from `EstimatorBase` and implements `estimate()`.\n- Handles input length/window mismatch gracefully.\n- Computes and stores `alg_latency_s`.\n\n**Test Plan:**\n- Synthetic 60 Hz sinusoid → FE < 1e-3 Hz.\n- Unit tests verify vectorized correctness and deterministic output.",
+    "labels": "area:estimators,kind:feature,priority:P0,size:M",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Estimator: Goertzel-based tone tracker",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/spectral/goertzel.py`\n\n**Goal:** Implement frequency tracking using Goertzel recursion to handle narrowband tones.\n\n**Acceptance Criteria:**\n- Efficient single-tone computation.\n- Returns PMU_Output with `t_delivery=None` by default.\n\n**Test Plan:**\n- Unit test at 59–61 Hz; FE < 1e-3; runtime < 1 ms for 1k samples.",
+    "labels": "area:estimators,kind:feature,priority:P1,size:M",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Estimator: SRF-PLL (synchronous reference frame PLL)",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/control/pll_srf.py`\n\n**Goal:** Implement SRF-PLL estimator for grid voltage phasor and frequency extraction.\n\n**Acceptance Criteria:**\n- Closed-loop structure with configurable Kp, Ki.\n- Produces PMU_Output with phasor and frequency.\n- Stable for 45–65 Hz input.\n\n**Test Plan:**\n- Step/ramp response tests; RoCoF error < 1e-2 Hz/s.",
+    "labels": "area:estimators,kind:feature,priority:P0,size:L",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Estimator: Extended Kalman Filter (EKF) for frequency/phase tracking",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/state/ekf_freq.py`\n\n**Goal:** Implement nonlinear EKF estimator tracking phase, frequency, and RoCoF under noise.\n\n**Acceptance Criteria:**\n- Linearization around predicted phase.\n- Process/measurement noise configurable.\n- Stable at 10 dB SNR.\n\n**Test Plan:**\n- Ramp test: RFE < 1e-2 Hz/s; verify Jacobian dimensions and filter stability.",
+    "labels": "area:estimators,kind:feature,priority:P0,size:L",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Estimator: Taylor-Fourier series estimator (TF-k)",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/poly/taylor_fourier.py`\n\n**Goal:** Implement TF-k frequency estimator via k-th order Taylor expansion of phase evolution.\n\n**Acceptance Criteria:**\n- Supports configurable order (k ≤ 3).\n- Handles harmonic distortion.\n\n**Test Plan:**\n- Step and chirp signals; FE < 1e-3; CPU < 2 ms per frame.",
+    "labels": "area:estimators,kind:feature,priority:P1,size:L",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Estimator: Improved DFT (IpDFT) / Kay frequency estimator",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/spectral/idft_kay.py`\n\n**Goal:** Implement Kay’s IpDFT with window correction and interpolation for accurate frequency estimation.\n\n**Acceptance Criteria:**\n- Window leakage correction.\n- Handles Hann and Rectangular windows.\n\n**Test Plan:**\n- FE < 0.001 Hz; cross-check with FFT peak estimator baseline.",
+    "labels": "area:estimators,kind:feature,priority:P1,size:M",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Estimator: Kalman filter for phasor tracking (KF)",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/state/kf_phasor.py`\n\n**Goal:** Implement discrete-time Kalman Filter tracking complex phasor state under Gaussian noise.\n\n**Acceptance Criteria:**\n- State: [real, imag, d_real, d_imag].\n- Output: PMU_Output with phasor and frequency.\n\n**Test Plan:**\n- Steady-state 60 Hz tone → TVE < 1%; transient recovery < 3 cycles.",
+    "labels": "area:estimators,kind:feature,priority:P0,size:M",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Estimator: ensemble hybrid estimator (weighted blend)",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/hybrid/ensemble_blend.py`\n\n**Goal:** Combine outputs from FFT, PLL, and EKF estimators using dynamic weighting (SNR-aware).\n\n**Acceptance Criteria:**\n- Implements simple blending scheme with reliability weights.\n- Provides mean FE improvement ≥5% vs any single estimator.\n\n**Test Plan:**\n- Synthetic suite test; assert improvement metric; no instability.",
+    "labels": "area:estimators,kind:feature,priority:P1,size:L",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Testing: Low-SNR stability and NaN handling across estimators",
+    "body": "**Where:** `tests/estimators/test_stability.py`\n\n**Goal:** Verify estimator robustness at 10 dB SNR and ensure all return valid (finite) outputs.\n\n**Acceptance Criteria:**\n- No NaN/Inf in PMU_Output.\n- FE and RFE metrics finite.\n- Configurable failure tolerance.\n\n**Test Plan:**\n- Parameterized tests for SNR = 30, 20, 10 dB; all pass FE finite check.",
+    "labels": "area:estimators,kind:test,priority:P0,size:S",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Compliance: add FairnessGate validation for estimators",
+    "body": "**Where:** `tests/estimators/test_fairness_gate.py`\n\n**Goal:** Ensure each estimator passes fairness budgets (latency/window/memory) defined in suite.\n\n**Acceptance Criteria:**\n- Integrate fairness module; all baseline estimators pass default budgets.\n- Logs include metrics used for validation.\n\n**Test Plan:**\n- Run all estimators; summarize compliance; assert all pass.",
+    "labels": "area:metrics,area:estimators,kind:test,priority:P1,size:S",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Documentation: Estimator API reference & design rationale",
+    "body": "**Where:** `docs/dev/estimators.md`\n\n**Goal:** Document base API, configuration pattern, latency definition, and examples for each baseline estimator.\n\n**Acceptance Criteria:**\n- Table with estimator IDs, categories, latency ranges.\n- Example code snippet per type.\n- Cross-links to fairness and metrics docs.\n\n**Test Plan:**\n- MkDocs build successful; manual review for completeness.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Benchmark: baseline performance profiling for all estimators",
+    "body": "**Where:** `scripts/profile_estimators.py`\n\n**Goal:** Measure CPU latency, FE, and RFE across synthetic suite for each baseline estimator.\n\n**Acceptance Criteria:**\n- Results exported to CSV and included in reports.\n- Consistent units and columns.\n\n**Test Plan:**\n- Run on CI with seed fixed; assert non-null metrics and stable ordering.",
+    "labels": "area:metrics,kind:test,priority:P0,size:M",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+  {
+    "title": "Unit testing: deterministic seed reproducibility for estimators",
+    "body": "**Where:** `tests/estimators/test_seed_reproducibility.py`\n\n**Goal:** Validate that repeated runs with same seed yield identical frequency and latency outputs.\n\n**Acceptance Criteria:**\n- Run twice → identical FE and latency arrays.\n- Hash equality confirmed in summary JSON.\n\n**Test Plan:**\n- Compute hash over outputs; assert equal within 1e-12 tolerance.",
+    "labels": "area:estimators,kind:test,priority:P0,size:S",
+    "milestone": "M5 – Estimator Zoo (baseline)"
+  },
+    {
+    "title": "Scenario: frequency step generator with analytic truth",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/generators/step.py`\n\n**Goal:** Generate a single or multi-step frequency change with optional phase continuity and return `(signal, truth_df)`.\n\n**Acceptance Criteria:**\n- Parameters: `f0_hz`, `steps=[(t_s, df_hz), ...]`, `fs_hz`, `duration_s`, `amplitude`, `phase0`.\n- Truth includes `t`, `f_true_hz`, `rocof_true_hz_s`, and step event markers.\n- Deterministic under provided seed.\n\n**Test Plan:**\n- Analytic f(t) matches truth_df to 1e-12; CI runtime < 2 s.",
+    "labels": "area:scenarios,kind:feature,priority:P0,size:S",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+  {
+    "title": "Scenario: frequency ramp generator with analytic truth",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/generators/ramp.py`\n\n**Goal:** Generate linear ramp of frequency (constant RoCoF) with deterministic phasing and return `(signal, truth_df)`.\n\n**Acceptance Criteria:**\n- Parameters: `f0_hz`, `rocof_hz_s`, `fs_hz`, `duration_s`, `amplitude`, `phase0`.\n- Truth contains exact linear `f_true_hz` and constant `rocof_true_hz_s`.\n- Option to clip to [45, 65] Hz to avoid aliasing in tests.\n\n**Test Plan:**\n- Numeric derivative of angle matches `rocof_hz_s` within 1e-6; CI runtime < 2 s.",
+    "labels": "area:scenarios,kind:feature,priority:P0,size:S",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+  {
+    "title": "Scenario: linear chirp generator (f_start→f_end)",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/generators/chirp_linear.py`\n\n**Goal:** Produce linear chirp between two frequencies with phase continuity and ground-truth arrays.\n\n**Acceptance Criteria:**\n- Parameters: `f_start_hz`, `f_end_hz`, `fs_hz`, `duration_s`, `amplitude`, `phase0`.\n- Truth provides `f_true_hz`, `rocof_true_hz_s` (constant slope), time stamps at frame mid.\n\n**Test Plan:**\n- Finite-difference df/dt ≈ expected slope within 1e-4; CI runtime < 2 s.",
+    "labels": "area:scenarios,kind:feature,priority:P1,size:S",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+  {
+    "title": "Scenario: harmonics & interharmonics with drift",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/generators/harmonics.py`\n\n**Goal:** Add configurable harmonic/interharmonic content and slow amplitude drift to a base tone; provide truth for fundamental f/rocof only.\n\n**Acceptance Criteria:**\n- Parameters include lists of `(k, rel_amp, phase)` for harmonics and `(f_hz, rel_amp, phase)` for interharmonics; optional amplitude drift rate.\n- Truth documents that only fundamental is evaluated; metadata records distortion config.\n\n**Test Plan:**\n- THD computed by reference matches config within 1e-3; CI runtime < 3 s.",
+    "labels": "area:scenarios,kind:feature,priority:P1,size:M",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+  {
+    "title": "Scenario: colored noise & DC offset injector",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/generators/noise.py`\n\n**Goal:** Provide utilities to add DC offset and noise (white/colored: pink or AR(1)) to any base scenario in a deterministic way.\n\n**Acceptance Criteria:**\n- Parameters: `snr_db`, `dc_offset`, `color={'white','pink','ar1'}`, `seed`.\n- Returns modified signal and unchanged truth; stores noise seed and params in metadata.\n\n**Test Plan:**\n- Measured SNR within ±0.3 dB target; reproducible with same seed.",
+    "labels": "area:scenarios,kind:feature,priority:P1,size:S",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+  {
+    "title": "Scenario: voltage sags/swells event annotations",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/generators/events.py`\n\n**Goal:** Provide amplitude sags/swells segments with clear event tagging at frame mid-times for downstream evaluation.\n\n**Acceptance Criteria:**\n- Parameters: list of events `(t_start, t_end, scale)`.\n- Truth/events table with `event_id`, `type`, `t_start_mid`, `t_end_mid`.\n\n**Test Plan:**\n- Tags align with frame boundaries within half-frame tolerance; unit tests cover edge overlaps.",
+    "labels": "area:scenarios,kind:feature,priority:P2,size:S",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+  {
+    "title": "CSVScenario: column mapping & schema validation",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/adapters/csv_scenario.py`\n\n**Goal:** Stream signals and optional truth from CSV with flexible column names and strict schema validation.\n\n**Acceptance Criteria:**\n- Config fields: `path`, `map: {time, signal, f_true?, rocof_true?}`, `fs_hz?`.\n- Validates presence/types; helpful error messages with file/line.\n\n**Test Plan:**\n- Valid/invalid CSV fixtures; raise on missing mapping; happy path streams frames.",
+    "labels": "area:scenarios,kind:feature,priority:P0,size:M",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+  {
+    "title": "CSVScenario: streaming backpressure test",
+    "body": "**Where:** `tests/scenarios/test_csv_backpressure.py`\n\n**Goal:** Ensure CSVScenario respects orchestrator pacing/backpressure without buffer blowup.\n\n**Acceptance Criteria:**\n- Bounded memory during streaming; no unbounded queues.\n- Simulated slow consumer doesn’t drop rows unexpectedly.\n\n**Test Plan:**\n- Stress test with large CSV under artificial delays; track memory and row counts.",
+    "labels": "area:scenarios,kind:test,priority:P0,size:S",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+  {
+    "title": "Truth validator: analytic vs numeric consistency checks",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/validation.py`\n\n**Goal:** Provide utilities to validate truth arrays by numerically differentiating/integrating the signal and comparing within tolerances.\n\n**Acceptance Criteria:**\n- Functions: `validate_truth(signal, truth_df, fs_hz, tol)`; returns report object with per-metric deltas.\n- Handles edge effects; documents windowing.\n\n**Test Plan:**\n- Step/ramp/chirp pass with small deltas; failing fixtures produce clear messages.",
+    "labels": "area:scenarios,kind:feature,priority:P0,size:S",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+  {
+    "title": "Seed determinism tests for all synthetic generators",
+    "body": "**Where:** `tests/scenarios/test_seed_determinism.py`\n\n**Goal:** Ensure all synthetic scenarios are reproducible given a fixed seed and configuration.\n\n**Acceptance Criteria:**\n- Two runs with same seed → identical signal and truth hashes.\n- Different seed → hash differs.\n\n**Test Plan:**\n- Parametrize across step/ramp/chirp/harmonics/noise; assert equality by SHA256.",
+    "labels": "area:scenarios,kind:test,priority:P0,size:S",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+  {
+    "title": "OpenDSS minimal feeder: IEEE-13 reg_tap_step scenario",
+    "body": "**Where:** `src/pyopenfreqbench/scenarios/opendss/ieee13_regtap.py`\n\n**Goal:** Provide a minimal OpenDSS-based scenario where a regulator tap change induces frequency/phasor disturbances; export `(signal, truth_df)`.\n\n**Acceptance Criteria:**\n- Scripted run callable from Python without GUI.\n- Includes small fixture network files under `assets/opendss/ieee13/`.\n- Truth contains event timestamps and expected trends.\n\n**Test Plan:**\n- Smoke run in CI (skipped if simulator not available); local test documented.",
+    "labels": "area:scenarios,kind:feature,priority:P1,size:M",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+  {
+    "title": "Fast smoke suite: ≤5s CI scenario set",
+    "body": "**Where:** `suites/smoke_m6.yaml`, `tests/scenarios/test_smoke_suite.py`\n\n**Goal:** Provide a tiny scenario suite that executes in ≤5 s to validate the end-to-end pipeline.\n\n**Acceptance Criteria:**\n- Suite includes at least step and ramp with short duration and modest fs.\n- CI ensures wall runtime under limit and produces artifacts.\n\n**Test Plan:**\n- Time-constrained test marks failure if runtime exceeds threshold; artifacts existence asserted.",
+    "labels": "area:scenarios,kind:test,priority:P0,size:S",
+    "milestone": "M6 – Scenarios (synthetic + CSV)"
+  },
+
+  {
+    "title": "Export: frames.parquet writer",
+    "body": "**Where:** `src/pyopenfreqbench/utils/export.py`\n\n**Goal:** Serialize frame-level measurements (per sample/time step) into Parquet with deterministic schema and reproducible dtype mapping.\n\n**Acceptance Criteria:**\n- Columns: `t`, `f_est`, `f_true`, `rocof_est`, `rocof_true`, `estimator_id`, `scenario_id`.\n- Uses `pyarrow` for schema consistency.\n- Deterministic order and metadata header with schema version.\n\n**Test Plan:**\n- Write/read roundtrip; validate dtype and numeric equality within 1e-12 tolerance.",
+    "labels": "area:infra,kind:feature,priority:P0,size:M",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Export: summary.parquet writer",
+    "body": "**Where:** `src/pyopenfreqbench/utils/export.py`\n\n**Goal:** Export aggregated summary metrics (FE, RFE, TVE, latency, fairness flags) to Parquet with fixed dtype and units.\n\n**Acceptance Criteria:**\n- Adds metadata: schema_version, export_time, suite_sha.\n- Compatible with downstream tools.\n- No NaN type coercion.\n\n**Test Plan:**\n- Export sample DataFrame; reload; assert dtype equality and numeric fidelity.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Export: XLSX report writer (summary + methods)",
+    "body": "**Where:** `src/pyopenfreqbench/utils/export_xlsx.py`\n\n**Goal:** Write Excel workbook with two sheets (`summary`, `methods`), styled for publication (IEEE-friendly).\n\n**Acceptance Criteria:**\n- Freeze header row; numeric columns right-aligned; `%` formatting for error metrics.\n- Deterministic ordering and reproducible layout.\n\n**Test Plan:**\n- Load with openpyxl; assert sheet names and style props; snapshot test workbook hash.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Report builder: headless PDF generation",
+    "body": "**Where:** `reports/build_report.py`\n\n**Goal:** Generate headless, deterministic PDF reports including Pareto plots, heatmaps, histograms, and complexity plots.\n\n**Acceptance Criteria:**\n- Uses matplotlib/plotly; deterministic figure sizes.\n- Metadata (build_time, git_sha) embedded.\n- Output reproducible byte-for-byte on same seed.\n\n**Test Plan:**\n- Compare hash of output PDF on two runs; assert identical.",
+    "labels": "area:report,kind:feature,priority:P0,size:L",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Report: Pareto chart (FE@p95 vs avg_TTE_ms)",
+    "body": "**Where:** `src/pyopenfreqbench/report/plots_pareto.py`\n\n**Goal:** Visualize trade-off between accuracy (FE@p95) and latency per estimator, highlighting Pareto frontier.\n\n**Acceptance Criteria:**\n- Reads from summary.parquet.\n- Identifies Pareto-optimal estimators; annotates labels.\n\n**Test Plan:**\n- Synthetic input with known frontier; verify IDs and coordinates match expected.",
+    "labels": "area:report,kind:feature,priority:P1,size:S",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Report: heatmap of deadline_miss_rate vs SNR×RoCoF",
+    "body": "**Where:** `src/pyopenfreqbench/report/plots_heatmap.py`\n\n**Goal:** Generate 2D heatmap summarizing estimator robustness under varying SNR and RoCoF.\n\n**Acceptance Criteria:**\n- Color scale fixed across runs; supports log axes.\n- Title and axis labels auto-generated from suite metadata.\n\n**Test Plan:**\n- Sample dataset produces correct shape and consistent color normalization.",
+    "labels": "area:report,kind:feature,priority:P1,size:S",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Report: histogram of queue length per scenario",
+    "body": "**Where:** `src/pyopenfreqbench/report/plots_hist_queue.py`\n\n**Goal:** Plot histogram of queue_len distribution per scenario for evaluating compute load.\n\n**Acceptance Criteria:**\n- Aggregates queue_len over all frames; overlays mean and median lines.\n- Stable bin edges; consistent color palette.\n\n**Test Plan:**\n- Deterministic histogram counts; total sum = frame count.",
+    "labels": "area:report,kind:feature,priority:P2,size:S",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Report: auto-generate methods.md appendix",
+    "body": "**Where:** `src/pyopenfreqbench/report/methods_autowrite.py`\n\n**Goal:** Generate Markdown appendix summarizing each estimator’s config, fs, window, latency, and machine card.\n\n**Acceptance Criteria:**\n- Reads from run.json and summary.parquet.\n- Deterministic ordering and formatting.\n\n**Test Plan:**\n- Snapshot test generated Markdown; assert sections count and headings.",
+    "labels": "area:report,kind:feature,priority:P2,size:S",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Export: CSV summary for quick inspection",
+    "body": "**Where:** `src/pyopenfreqbench/utils/export_csv.py`\n\n**Goal:** Add lightweight CSV export of summary for human-readable inspection (subset of fields).\n\n**Acceptance Criteria:**\n- Writes with ISO timestamps; comma delimiter; stable ordering.\n- Optional rounding via config flag.\n\n**Test Plan:**\n- Compare CSV vs Parquet summary; field subset consistent; reproducible diff.",
+    "labels": "area:infra,kind:feature,priority:P2,size:S",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Export: aggregate metrics (percentiles and on-time scoring)",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/aggregate.py`\n\n**Goal:** Compute and export aggregated percentiles (p50/p95) for FE/RFE and deadline-aware scores.\n\n**Acceptance Criteria:**\n- Functions `percentile_metrics(df)` and `deadline_score(df)` return consistent column names.\n- Vectorized numpy implementation.\n\n**Test Plan:**\n- Unit test ensures percentile results equal manual computation; verify inclusive vs exclusive semantics.",
+    "labels": "area:metrics,kind:feature,priority:P0,size:S",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Report: Excel styling enhancements",
+    "body": "**Where:** `src/pyopenfreqbench/utils/export_xlsx.py`\n\n**Goal:** Improve visual presentation in Excel exports for readability and publication.\n\n**Acceptance Criteria:**\n- Apply alternating row colors; add top header style; percent columns formatted with 2 decimals.\n- Compact column widths and numeric alignment.\n\n**Test Plan:**\n- Snapshot test with openpyxl style inspection; diff vs baseline workbook.",
+    "labels": "area:report,kind:feature,priority:P2,size:S",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Testing: export reproducibility and idempotence",
+    "body": "**Where:** `tests/export/test_export_determinism.py`\n\n**Goal:** Ensure multiple consecutive exports yield identical bytes for the same input and metadata.\n\n**Acceptance Criteria:**\n- Parquet and XLSX roundtrips identical hash (excluding timestamp fields).\n- Metadata field differences ignored by comparator.\n\n**Test Plan:**\n- Two runs on identical input → identical md5; tolerance for timestamp keys.",
+    "labels": "area:infra,kind:test,priority:P0,size:S",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+  {
+    "title": "Docs: reporting and export formats reference",
+    "body": "**Where:** `docs/dev/reports.md`\n\n**Goal:** Document all output artifacts (frames.parquet, summary.parquet, xlsx, pdf) and how to interpret them.\n\n**Acceptance Criteria:**\n- Table with file names, formats, fields, sizes, typical uses.\n- Example screenshots of plots.\n\n**Test Plan:**\n- MkDocs build; link validation; manual QA review.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M7 – Metrics, Exports, Reports"
+  },
+ {
+    "title": "CLI: implement run_bench.py with core flags",
+    "body": "**Where:** `src/pyopenfreqbench/cli/run_bench.py`\n\n**Goal:** Provide a clean CLI entrypoint to run suites and emit artifacts.\n\n**Acceptance Criteria:**\n- Flags: `--suite PATH` (required), `--out DIR` (default: `artifacts/`), `--seed INT`, `--profiles` (emit profiling), `--verbose/-v` (repeatable), `--version`.\n- Helpful `--help` with examples; non-zero exit on failure.\n\n**Test Plan:**\n- Click/argparse-style CLI tests exercising flag parsing and exit codes.",
+    "labels": "area:infra,kind:feature,priority:P0,size:M",
+    "milestone": "M8 – Developer UX"
+  },
+  {
+    "title": "CLI UX: progress bars and Rich logging formatter",
+    "body": "**Where:** `src/pyopenfreqbench/cli/run_bench.py`, `utils/log.py`\n\n**Goal:** Surface user-friendly progress (scenario × estimator) and colorful logs in TTY; plain logs in CI.\n\n**Acceptance Criteria:**\n- Per-estimator progress with ETA; collapsible verbose trace.\n- Auto-detect TTY and disable color in CI.\n\n**Test Plan:**\n- Snapshot tests for text output; manual TTY smoke to verify rendering.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M8 – Developer UX"
+  },
+  {
+    "title": "CLI: config file support with environment overrides",
+    "body": "**Where:** `src/pyopenfreqbench/cli/config.py`\n\n**Goal:** Allow loading defaults from `pyopenfreqbench.toml`/YAML and let env vars override (e.g., `PFB_OUT`).\n\n**Acceptance Criteria:**\n- Search order: CLI flags > env vars > config file > defaults.\n- Clear error on unknown keys; print effective config with `--print-config`.\n\n**Test Plan:**\n- Unit tests for precedence matrix and unknown-key failure.",
+    "labels": "area:infra,kind:feature,priority:P1,size:M",
+    "milestone": "M8 – Developer UX"
+  },
+  {
+    "title": "CLI: dry-run and check-only modes (no execution)",
+    "body": "**Where:** `src/pyopenfreqbench/cli/run_bench.py`\n\n**Goal:** Provide `--dry-run` (plan only) and integrate `--check-only` (validate suite & budgets) with consistent messages.\n\n**Acceptance Criteria:**\n- `--dry-run` prints planned estimators×scenarios and output paths.\n- `--check-only` validates suite schema and budgets; exits non-zero on invalid.\n\n**Test Plan:**\n- CLI tests assert printed plan and exit codes; no artifacts created.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M8 – Developer UX"
+  },
+  {
+    "title": "Cookiecutter: new estimator template",
+    "body": "**Where:** `tools/cookiecutter/estimator/`\n\n**Goal:** Scaffold a production-ready estimator (inherits EstimatorBase) with tests and docstring.\n\n**Acceptance Criteria:**\n- Renders class, config stub, unit test, and README.\n- `pytest` green on rendered project.\n\n**Test Plan:**\n- CI job renders template and runs tests on the output.",
+    "labels": "area:infra,kind:feature,priority:P0,size:M",
+    "milestone": "M8 – Developer UX"
+  },
+  {
+    "title": "Cookiecutter: new scenario template",
+    "body": "**Where:** `tools/cookiecutter/scenario/`\n\n**Goal:** Scaffold a scenario module with config, truth generation, and tests.\n\n**Acceptance Criteria:**\n- Includes deterministic seed handling and minimal docs.\n- `pytest` green on rendered project.\n\n**Test Plan:**\n- CI renders and tests the template like the estimator one.",
+    "labels": "area:infra,kind:feature,priority:P1,size:M",
+    "milestone": "M8 – Developer UX"
+  },
+  {
+    "title": "Quickstart: ≤60s from install to PDF+XLSX",
+    "body": "**Where:** `README.md`, `docs/quickstart.md`\n\n**Goal:** Provide a crisp walkthrough to run a tiny suite and produce XLSX+PDF outputs.\n\n**Acceptance Criteria:**\n- Uses container or venv; includes copy-paste commands.\n- Screenshots of outputs; troubleshooting section.\n\n**Test Plan:**\n- Fresh container run reproduces outputs under 60 seconds wall time.",
+    "labels": "area:docs,kind:doc,priority:P0,size:S",
+    "milestone": "M8 – Developer UX"
+  },
+  {
+    "title": "Dev environment: VS Code devcontainer & tasks",
+    "body": "**Where:** `.devcontainer/`, `.vscode/tasks.json`\n\n**Goal:** One-click dev setup with pinned Python, dependencies, and tasks (lint, type, test, run bench).\n\n**Acceptance Criteria:**\n- Devcontainer builds; tasks run without additional setup.\n- README section documents usage.\n\n**Test Plan:**\n- Open in VS Code → container builds; run \"Tests\" task successfully.",
+    "labels": "area:infra,kind:feature,priority:P1,size:M",
+    "milestone": "M8 – Developer UX"
+  },
+  {
+    "title": "Build helpers: Makefile/justfile convenience commands",
+    "body": "**Where:** `Makefile` or `justfile`\n\n**Goal:** Shortcuts for common tasks: `lint`, `type`, `test`, `docs`, `bench-smoke`, `clean`.\n\n**Acceptance Criteria:**\n- Commands documented in README; non-interactive.\n- CI can reuse commands for consistency.\n\n**Test Plan:**\n- CI job calls `make lint type test` and succeeds.",
+    "labels": "area:infra,kind:feature,priority:P2,size:S",
+    "milestone": "M8 – Developer UX"
+  },
+  {
+    "title": "CLI polish: consistent errors & exit codes",
+    "body": "**Where:** `src/pyopenfreqbench/cli/errors.py`\n\n**Goal:** Standardize error messages and map to stable exit codes (config=2, runtime=3, io=4, unknown=1).\n\n**Acceptance Criteria:**\n- Rich tracebacks only with `-vv`; otherwise concise hints.\n- Unit tests assert exit codes and messages for common failures.\n\n**Test Plan:**\n- Parametrized failing invocations in tests; snapshot messages.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M8 – Developer UX"
+  },
+  {
+    "title": "CLI: shell completion scripts (bash/zsh/fish)",
+    "body": "**Where:** `src/pyopenfreqbench/cli/completion.py`\n\n**Goal:** Provide auto-completion install command (prints shell snippet) for common shells.\n\n**Acceptance Criteria:**\n- `run_bench completion --shell bash|zsh|fish` outputs script.\n- Docs include install instructions.\n\n**Test Plan:**\n- Smoke test ensures non-empty output; manual spot-check locally.",
+    "labels": "area:infra,kind:feature,priority:P2,size:S",
+    "milestone": "M8 – Developer UX"
+  },
+  {
+    "title": "Examples: tiny demo suite & convenience script",
+    "body": "**Where:** `examples/`, `suites/smoke_m8.yaml`, `scripts/run_demo.sh`\n\n**Goal:** Provide an example that new users can run to see artifacts and plots quickly.\n\n**Acceptance Criteria:**\n- Minimal suite and a script that runs and opens outputs.\n- README in examples explains steps and expected results.\n\n**Test Plan:**\n- CI executes demo in headless mode; verifies expected files exist.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M8 – Developer UX"
+  },
+   {
+    "title": "Calibration: Fit TTE ≈ a·N + b complexity model",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/complexity.py`\n\n**Goal:** Derive regression model relating estimator time-to-execute (TTE) to input length N, providing slope (a) and intercept (b) for complexity profiling.\n\n**Acceptance Criteria:**\n- Implements linear regression with R² metric.\n- Handles multiple estimators and aggregates results.\n- Returns structured dict for export and reporting.\n\n**Test Plan:**\n- Synthetic linear data recovers slope/intercept within 5%; CI snapshot test JSON output.",
+    "labels": "area:metrics,kind:feature,priority:P0,size:M",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+  {
+    "title": "Complexity curve visualization in reports",
+    "body": "**Where:** `reports/plots/complexity_curve.py`\n\n**Goal:** Plot TTE (ms) vs N samples for all estimators, highlighting linear trend and complexity classification.\n\n**Acceptance Criteria:**\n- Supports linear and log–log scales.\n- Legend includes slope (a) and R².\n- Deterministic figure size and order.\n\n**Test Plan:**\n- Snapshot test for figure hash and metadata consistency.",
+    "labels": "area:report,kind:feature,priority:P1,size:S",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+  {
+    "title": "Emulation: apply measured profile for synthetic runtime",
+    "body": "**Where:** `src/pyopenfreqbench/orchestrator/runner.py`\n\n**Goal:** Allow the orchestrator to emulate runtime using measured TTE profiles instead of actual compute.\n\n**Acceptance Criteria:**\n- Config flag `use_profile=True` scales wall time per estimator.\n- Logs factor applied and writes to run.json.\n\n**Test Plan:**\n- Profile-based run doubles average T_proc when factor=2; verify report reflects change.",
+    "labels": "area:orchestrator,kind:feature,priority:P1,size:S",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+  {
+    "title": "Complexity classification summary table",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/complexity_summary.py`\n\n**Goal:** Produce a summary table mapping estimators to their complexity class (O(1), O(N), O(N log N), etc.) with regression fit quality.\n\n**Acceptance Criteria:**\n- Uses slope and R² to assign class heuristically.\n- Adds classification column to summary.parquet.\n\n**Test Plan:**\n- Synthetic test for known slopes (linear, quadratic) yields correct class labels.",
+    "labels": "area:metrics,kind:feature,priority:P1,size:S",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+  {
+    "title": "Machine performance profile aggregation",
+    "body": "**Where:** `src/pyopenfreqbench/utils/sysprobe.py`\n\n**Goal:** Aggregate MachineProfile stats (CPU model, threads, RAM) to normalize TTE across runs and compute baseline correction factors.\n\n**Acceptance Criteria:**\n- Profiles stored in JSON; normalization function available.\n- Uses CPU clock or SPECint-style scaling.\n\n**Test Plan:**\n- Compare normalized TTE across two machines within ±10%.",
+    "labels": "area:infra,kind:feature,priority:P2,size:M",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+  {
+    "title": "Complexity regression cross-validation",
+    "body": "**Where:** `tests/metrics/test_complexity_cv.py`\n\n**Goal:** Validate regression results using cross-validation and synthetic datasets to avoid overfitting.\n\n**Acceptance Criteria:**\n- Performs k-fold regression (k≥3); compares R² mean/std.\n- Logs warnings if overfitting detected.\n\n**Test Plan:**\n- Synthetic noisy data yields stable slope; test passes with low variance.",
+    "labels": "area:metrics,kind:test,priority:P1,size:S",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+  {
+    "title": "Estimator complexity registry",
+    "body": "**Where:** `src/pyopenfreqbench/estimators/registry.py`\n\n**Goal:** Add field `expected_complexity` to estimator metadata and expose in summary exports.\n\n**Acceptance Criteria:**\n- Optional field auto-populated by EstimatorBase subclasses.\n- Exposed in methods.md appendix.\n\n**Test Plan:**\n- Unit test ensures all baseline estimators define complexity metadata.",
+    "labels": "area:estimators,kind:feature,priority:P1,size:S",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+  {
+    "title": "Performance regression detection in CI",
+    "body": "**Where:** `.github/workflows/benchmark.yml`\n\n**Goal:** Compare latest branch performance vs baseline; fail if regression >10% in avg TTE.\n\n**Acceptance Criteria:**\n- Uses stored JSON reference in `benchmarks/golden_tte.json`.\n- Prints summary diff and marks status failure on degradation.\n\n**Test Plan:**\n- Simulate slower run → CI fails with readable diff output.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+  {
+    "title": "Complexity plot integration into build_report",
+    "body": "**Where:** `reports/build_report.py`\n\n**Goal:** Integrate complexity plot and slope summary into final PDF report.\n\n**Acceptance Criteria:**\n- Adds section \"Algorithmic Complexity\" with table + plot.\n- Layout harmonized with other figures.\n\n**Test Plan:**\n- Run build_report; PDF includes table and labeled figure pages.",
+    "labels": "area:report,kind:feature,priority:P1,size:S",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+  {
+    "title": "Complexity unit test: identical slope reproducibility",
+    "body": "**Where:** `tests/metrics/test_complexity_determinism.py`\n\n**Goal:** Ensure identical dataset and estimator yield identical slope within tolerance.\n\n**Acceptance Criteria:**\n- Two repeated fits produce same slope/intercept up to 1e-8.\n- No random seeds involved in regression.\n\n**Test Plan:**\n- CI test for deterministic results across runs.",
+    "labels": "area:metrics,kind:test,priority:P0,size:S",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+  {
+    "title": "Docs: calibration and complexity methodology",
+    "body": "**Where:** `docs/dev/complexity.md`\n\n**Goal:** Document the methodology for deriving complexity metrics and interpreting results.\n\n**Acceptance Criteria:**\n- Includes formulas, plots, and example JSON snippet.\n- Mentions limitations and normalization assumptions.\n\n**Test Plan:**\n- MkDocs build; cross-link validated.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+  {
+    "title": "Complexity regression API for notebooks",
+    "body": "**Where:** `src/pyopenfreqbench/metrics/api.py`\n\n**Goal:** Expose programmatic API `fit_complexity(df, group_by)` returning regression model for use in notebooks.\n\n**Acceptance Criteria:**\n- Callable function returning slope, intercept, R², grouped by estimator.\n- Works on both pandas and polars DataFrames.\n\n**Test Plan:**\n- Example in docs/notebooks shows expected output and reproducibility.",
+    "labels": "area:metrics,kind:feature,priority:P2,size:S",
+    "milestone": "M9 – Calibration & Complexity"
+  },
+    {
+    "title": "Docs: scaffold MkDocs site and theme",
+    "body": "**Where:** `mkdocs.yml`, `docs/`\n\n**Goal:** Initialize MkDocs with a clean theme, site metadata, and base navigation.\n\n**Acceptance Criteria:**\n- `mkdocs.yml` configured with site_name, repo_url, edit_uri.\n- Basic pages: `index.md`, `getting-started.md`, `changelog.md`.\n- Local `mkdocs serve` runs without warnings.\n\n**Test Plan:**\n- CI job builds site; artifacts uploaded for preview.",
+    "labels": "area:docs,kind:doc,priority:P0,size:S",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Docs: API autodoc generation (mkdocstrings)",
+    "body": "**Where:** `mkdocs.yml`, `docs/api/`\n\n**Goal:** Auto-generate API reference from Python docstrings using `mkdocstrings`.\n\n**Acceptance Criteria:**\n- Modules documented: `estimators`, `scenarios`, `metrics`, `orchestrator`, `utils`.\n- Cross-references resolve; no import side effects during build.\n\n**Test Plan:**\n- CI builds API pages; link check passes.",
+    "labels": "area:docs,kind:doc,priority:P0,size:M",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Docs: contributor guide & style conventions",
+    "body": "**Where:** `docs/contributing.md`\n\n**Goal:** Document PR flow, branch naming, testing, linting, and docstring conventions (numpydoc/Google style).\n\n**Acceptance Criteria:**\n- Includes pre-commit usage and CI gate criteria.\n- Example docstrings and code style table.\n\n**Test Plan:**\n- Manual review; links render on site.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Docs: EstimatorBase developer guide",
+    "body": "**Where:** `docs/dev/estimators.md`\n\n**Goal:** Explain lifecycle (`configure/reset/update/estimate`), latency accounting, and `t_delivery` rules with examples.\n\n**Acceptance Criteria:**\n- Code snippets compile (doctest or pytest-marked examples).\n- Diagram of data flow from orchestrator → estimator → metrics.\n\n**Test Plan:**\n- Doctest job executes examples; CI green.",
+    "labels": "area:docs,kind:doc,priority:P0,size:M",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Docs: FairnessGate spec and rationale",
+    "body": "**Where:** `docs/dev/fairness.md`\n\n**Goal:** Define budgets (window/latency/memory), threshold semantics, and failure reasons format.\n\n**Acceptance Criteria:**\n- Tables of fields/units; pass/fail examples.\n- Links to CLI flags and example suites.\n\n**Test Plan:**\n- MkDocs build; internal anchors validated.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Docs: Scenario writing & CSV adapter how-to",
+    "body": "**Where:** `docs/dev/scenarios.md`\n\n**Goal:** Show how to create synthetic generators and CSV adapters with seed determinism and truth derivation.\n\n**Acceptance Criteria:**\n- Step-by-step tutorial; includes minimal code and test snippet.\n- Troubleshooting for common pitfalls (misaligned fs, NaN truth).\n\n**Test Plan:**\n- Tutorial code block executed in CI via doctest.",
+    "labels": "area:docs,kind:doc,priority:P1,size:M",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Docs: reproducibility checklist",
+    "body": "**Where:** `docs/dev/repro.md`\n\n**Goal:** Checklist for seeds, git SHA, BLAS vendor/threads, run.json, and environment capture.\n\n**Acceptance Criteria:**\n- Copy-paste commands for setting seeds and exporting run.json.\n- Links to MachineProfile fields reference.\n\n**Test Plan:**\n- Manual review; cross-links validated in CI.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Docs infra: link checker & spell checker in CI",
+    "body": "**Where:** `.github/workflows/docs.yml`\n\n**Goal:** Add strict link checking and spell checking to docs build pipeline.\n\n**Acceptance Criteria:**\n- External links validated with retry; internal anchors enforced.\n- Custom dictionary for domain terms (RoCoF, IpDFT, SRF-PLL).\n\n**Test Plan:**\n- CI fails on broken link; sample misspelling triggers error.",
+    "labels": "area:infra,kind:test,priority:P0,size:S",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Docs: executed notebook example (analysis.ipynb)",
+    "body": "**Where:** `docs/notebooks/analysis.ipynb`, `mkdocs.yml`\n\n**Goal:** Include one executed notebook demonstrating reading Parquet exports and plotting a figure.\n\n**Acceptance Criteria:**\n- Built via nbconvert or jupyter-cache during CI.\n- Figure embedded in docs; runtime kept < 30s.\n\n**Test Plan:**\n- CI executes notebook; output cells present; hash stable.",
+    "labels": "area:report,kind:doc,priority:P1,size:M",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Docs: site search, navigation, and next/prev controls",
+    "body": "**Where:** `mkdocs.yml`\n\n**Goal:** Enable full-text search, section grouping, and previous/next navigation for better UX.\n\n**Acceptance Criteria:**\n- Search bar visible; keyboard shortcut documented.\n- Nav groups: Getting Started, Developer Docs, API Reference, Reports.\n\n**Test Plan:**\n- Local serve sanity check; CI preview artifact manual QA.",
+    "labels": "area:docs,kind:feature,priority:P2,size:S",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Docs deployment: GitHub Pages publish",
+    "body": "**Where:** `.github/workflows/pages.yml`\n\n**Goal:** Deploy site to GitHub Pages on `main` and on tagged releases.\n\n**Acceptance Criteria:**\n- Public URL configured; cache-busting enabled.\n- Preview deploy for PRs via artifact or PR environments.\n\n**Test Plan:**\n- Push to main → site updates; tag release → version badge reflects tag.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Badges & SEO: shields, sitemap, metadata",
+    "body": "**Where:** `README.md`, `mkdocs.yml`\n\n**Goal:** Add build/release badges, sitemap.xml, and metadata (description, keywords) for discoverability.\n\n**Acceptance Criteria:**\n- Shields: CI, docs, PyPI (when available).\n- Sitemap enabled; meta description populated.\n\n**Test Plan:**\n- Badges render on README; sitemap generated in site output.",
+    "labels": "area:docs,kind:feature,priority:P2,size:S",
+    "milestone": "M10 – Docs Site"
+  },
+  {
+    "title": "Release: build wheels/sdist via GitHub Actions",
+    "body": "**Where:** `.github/workflows/release.yml`, `pyproject.toml`\n\n**Goal:** Automate packaging for v0.2 — produce sdist (`.tar.gz`) and universal wheels (`.whl`) for supported Python versions.\n\n**Acceptance Criteria:**\n- Workflow runs on tag `v*` and creates sdist + wheels using `python -m build`.\n- Artifacts uploaded to the GitHub Release draft.\n- Build metadata (version, git SHA) embedded.\n\n**Test Plan:**\n- Tag a sandbox release; verify artifacts exist and can be installed with `pip install <whl>`.",
+    "labels": "area:infra,kind:release,priority:P0,size:S",
+    "milestone": "M11 – v0.2 Release"
+  },
+  {
+    "title": "Packaging: finalize pyproject metadata & entry points",
+    "body": "**Where:** `pyproject.toml`, `src/pyopenfreqbench/__init__.py`\n\n**Goal:** Ensure project metadata is complete and CLI entry point is exposed.\n\n**Acceptance Criteria:**\n- `project` section filled (name, version, authors, license, classifiers, urls).\n- Console script: `pyopenfreqbench=pyopenfreqbench.cli.run_bench:main`.\n- `__version__` synchronized with package version.\n\n**Test Plan:**\n- `pip install -e .`; `pyopenfreqbench --help` prints usage.",
+    "labels": "area:infra,kind:feature,priority:P0,size:S",
+    "milestone": "M11 – v0.2 Release"
+  },
+  {
+    "title": "Versioning: bump script and tag guard",
+    "body": "**Where:** `scripts/version_bump.sh`, `.github/workflows/release.yml`\n\n**Goal:** Provide a safe version bump tool (major/minor/patch) and CI guard preventing tag/version mismatch.\n\n**Acceptance Criteria:**\n- `scripts/version_bump.sh --bump {major|minor|patch}` updates `pyproject.toml` and `__init__.py`.\n- CI job checks tag `vX.Y.Z` equals package version.\n\n**Test Plan:**\n- Dry-run mode prints planned change; create a fake tag, CI fails on mismatch.",
+    "labels": "area:infra,kind:feature,priority:P1,size:S",
+    "milestone": "M11 – v0.2 Release"
+  },
+  {
+    "title": "Changelog: auto-generate from Conventional Commits",
+    "body": "**Where:** `CHANGELOG.md`, `scripts/changelog_from_commits.py`\n\n**Goal:** Generate `CHANGELOG.md` grouped by features/fixes/breaking changes per tag.\n\n**Acceptance Criteria:**\n- Script outputs Keep a Changelog format with compare links.\n- CI step updates changelog on release PR.\n\n**Test Plan:**\n- Feed sample commit history; snapshot test resulting Markdown.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M11 – v0.2 Release"
+  },
+  {
+    "title": "Golden summary CI: tolerance gate and diff",
+    "body": "**Where:** `.github/workflows/golden.yml`, `benchmarks/golden_summary.parquet`\n\n**Goal:** Compare current summary against a committed golden with ±3% tolerance; fail on regression and print diff table.\n\n**Acceptance Criteria:**\n- CI downloads/builds test artifacts, computes metrics delta.\n- Human-readable diff emitted; job status reflects outcome.\n\n**Test Plan:**\n- Intentionally perturb FE by +5%; CI fails with clear row-level diff.",
+    "labels": "area:infra,kind:test,priority:P0,size:S",
+    "milestone": "M11 – v0.2 Release"
+  },
+  {
+    "title": "Reproducibility: multi-host repro_check.sh",
+    "body": "**Where:** `scripts/repro_check.sh`\n\n**Goal:** Compare summaries from two hosts/runs and print a delta report with pass/fail thresholds.\n\n**Acceptance Criteria:**\n- Accepts `--left PATH` `--right PATH` and prints table of deltas.\n- Threshold flags for absolute/relative tolerances.\n\n**Test Plan:**\n- Run twice on same seed; expect near-zero deltas; alter one run to exceed threshold → non-zero exit.",
+    "labels": "area:infra,kind:test,priority:P0,size:M",
+    "milestone": "M11 – v0.2 Release"
+  },
+  {
+    "title": "Determinism: same-seed same-hash CI test",
+    "body": "**Where:** `tests/e2e/test_determinism.py`, `.github/workflows/golden.yml`\n\n**Goal:** Execute the same tiny suite twice and verify identical summary hash and key aggregates.\n\n**Acceptance Criteria:**\n- Hash function documented; excludes timestamps and machine-specific fields.\n- CI gate enforces equality.\n\n**Test Plan:**\n- E2E job runs twice; asserts identical hashes and equal FE/RFE arrays.",
+    "labels": "area:infra,kind:test,priority:P0,size:S",
+    "milestone": "M11 – v0.2 Release"
+  },
+  {
+    "title": "Release notes: GitHub Release template & auto-fill",
+    "body": "**Where:** `.github/release.yml`\n\n**Goal:** Provide a release notes template that auto-includes highlights, breaking changes, and contributors.\n\n**Acceptance Criteria:**\n- Template renders sections from changelog and commit metadata.\n- Release workflow populates body when creating the release.\n\n**Test Plan:**\n- Draft a release; confirm sections populated and links valid.",
+    "labels": "area:infra,kind:release,priority:P1,size:S",
+    "milestone": "M11 – v0.2 Release"
+  },
+  {
+    "title": "Provenance: SBOM & vulnerability scan",
+    "body": "**Where:** `.github/workflows/security.yml`, `sbom/`\n\n**Goal:** Generate an SBOM (CycloneDX) and run dependency vulnerability checks at release time.\n\n**Acceptance Criteria:**\n- CycloneDX JSON created and attached to release.\n- `pip-audit` (or equivalent) runs; non-zero exit on high severity.\n\n**Test Plan:**\n- CI produces SBOM artifact; inject a known vulnerable dep → job fails.",
+    "labels": "area:infra,kind:feature,priority:P1,size:M",
+    "milestone": "M11 – v0.2 Release"
+  },
+  {
+    "title": "Signing: artifact and tag signing (optional)",
+    "body": "**Where:** `.github/workflows/release.yml`\n\n**Goal:** Sign git tags and release artifacts to improve supply-chain trust.\n\n**Acceptance Criteria:**\n- Tags signed (GPG/Sigstore); verification documented in README.\n- Checksums (`SHA256SUMS`) published with signatures.\n\n**Test Plan:**\n- Verify signatures locally; CI step validates checksum file.",
+    "labels": "area:infra,kind:feature,priority:P2,size:M",
+    "milestone": "M11 – v0.2 Release"
+  },
+  {
+    "title": "README & badges: post-release refresh",
+    "body": "**Where:** `README.md`, `docs/index.md`\n\n**Goal:** Update badges (version/docs), quickstart, and links to point at v0.2 artifacts and docs.\n\n**Acceptance Criteria:**\n- Badges show green CI; version badge reflects `v0.2`.\n- Quickstart verified against released package.\n\n**Test Plan:**\n- Manual review; follow links from README to docs and release assets.",
+    "labels": "area:docs,kind:doc,priority:P1,size:S",
+    "milestone": "M11 – v0.2 Release"
+  },
+  {
+    "title": "Release checklist & owner’s runbook",
+    "body": "**Where:** `docs/dev/release_runbook.md`\n\n**Goal:** Create a step-by-step runbook covering: version bump, changelog, tag, CI results, artifact verification, announcements.\n\n**Acceptance Criteria:**\n- Copy-paste commands; decision tree for failures; rollback steps.\n- Links to workflows and dashboards.\n\n**Test Plan:**\n- Dry-run a mock release using the runbook; update doc with lessons learned.",
+    "labels": "area:docs,kind:doc,priority:P2,size:S",
+    "milestone": "M11 – v0.2 Release"
+  }
+]

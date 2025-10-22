@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, 'feature/**', 'fix/**']
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_INPUT: "1"
+  FORCE_COLOR: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # ---------------------------
+  # Lint: ruff (single version)
+  # ---------------------------
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements*.txt
+            pyproject.toml
+            setup.cfg
+            setup.py
+
+      - name: Install project + ruff
+        run: |
+          python -m pip install -U pip wheel
+          if [[ -f requirements-dev.txt ]]; then
+            python -m pip install -r requirements-dev.txt
+          elif [[ -f requirements.txt ]]; then
+            python -m pip install -r requirements.txt
+          fi
+          if [[ -f pyproject.toml || -f setup.cfg || -f setup.py ]]; then
+            python -m pip install -e .
+          fi
+          python -m pip install "ruff>=0.6"
+      - name: Ruff format (check)
+        run: ruff format --check .
+      - name: Ruff lint
+        run: ruff check . --output-format=github
+
+  # ---------------------------
+  # Type: mypy (matrix)
+  # ---------------------------
+  type:
+    name: Type check (mypy ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: |
+            requirements*.txt
+            pyproject.toml
+            mypy.ini
+            setup.cfg
+            setup.py
+
+      - name: Cache mypy
+        uses: actions/cache@v4
+        with:
+          path: .mypy_cache
+          key: mypy-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/*.py', 'pyproject.toml', 'mypy.ini', 'setup.cfg') }}
+          restore-keys: |
+            mypy-${{ runner.os }}-${{ matrix.python-version }}-
+
+      - name: Install project + mypy
+        run: |
+          python -m pip install -U pip wheel
+          if [[ -f requirements-dev.txt ]]; then
+            python -m pip install -r requirements-dev.txt
+          elif [[ -f requirements.txt ]]; then
+            python -m pip install -r requirements.txt
+          fi
+          if [[ -f pyproject.toml || -f setup.cfg || -f setup.py ]]; then
+            python -m pip install -e .
+          fi
+          python -m pip install "mypy>=1.10" typing-extensions
+
+      - name: mypy
+        run: |
+          if [[ -f mypy.ini || -f setup.cfg || -f pyproject.toml ]]; then
+            mypy .
+          else
+            mypy --ignore-missing-imports .
+          fi

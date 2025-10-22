@@ -12,46 +12,44 @@
 #   - detect_crossing(): robust linear-interp crossing detector
 #   - ZCDEstimatorBase: base with update_scalar(value, ts)
 #
-# Dependencies: numpy (optional), stdlib only otherwise.
+# Dependencies: stdlib only.
 # ---------------------------------------------------------------------
 
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Optional, Tuple, Literal
-
-try:
-    import numpy as np  # optional (only used for sign checks/convenience)
-except Exception:  # pragma: no cover
-    np = None  # type: ignore
-
+from typing import Literal
 
 # --------------------------- Config & State ---------------------------
 
 CrossingMode = Literal["neg_to_pos", "pos_to_neg", "either"]
 
 
-@dataclass
+@dataclass(slots=True)
 class ZCDConfig:
     """Runtime knobs for ZCD."""
-    epsilon: float = 0.0                # deadband around zero
-    nominal_hz: float = 60.0            # fallback when no crossings yet
-    mode: CrossingMode = "neg_to_pos"   # which crossing to detect
-    min_period_s: float = 1e-6          # ignore absurdly small periods
-    max_period_s: float = 1.0           # ignore absurdly large periods (outliers)
+
+    epsilon: float = 0.0  # deadband around zero
+    nominal_hz: float = 60.0  # fallback when no crossings yet
+    mode: CrossingMode = "neg_to_pos"  # which crossing to detect
+    min_period_s: float = 1e-6  # ignore absurdly small periods
+    max_period_s: float = 1.0  # ignore absurdly large periods (outliers)
 
 
-@dataclass
+@dataclass(slots=True)
 class ZCDState:
     """Streaming state across samples."""
-    prev_val: Optional[float] = None
-    prev_ts: Optional[float] = None
-    last_cross_ts: Optional[float] = None
-    prev_cross_ts: Optional[float] = None
-    last_freq: Optional[float] = None
-    prev_freq: Optional[float] = None
+
+    prev_val: float | None = None
+    prev_ts: float | None = None
+    last_cross_ts: float | None = None
+    prev_cross_ts: float | None = None
+    last_freq: float | None = None
+    prev_freq: float | None = None
 
 
 # ------------------------- Core functionality -------------------------
+
 
 def _sign(x: float, eps: float) -> int:
     """Signed region with deadband: -1, 0, +1."""
@@ -69,22 +67,24 @@ def detect_crossing(
     curr_ts: float,
     eps: float = 0.0,
     mode: CrossingMode = "neg_to_pos",
-) -> Tuple[bool, Optional[float]]:
+) -> tuple[bool, float | None]:
     """
     Detect a zero crossing between two samples and linearly interpolate the
     crossing time.
 
-    Returns:
-        (crossed, t_cross)
+    Returns
+    -------
+    (crossed, t_cross): tuple[bool, float | None]
+        crossed: whether a crossing occurred between prev and curr
+        t_cross: interpolated crossing timestamp (seconds) if crossed, else None
     """
     s0 = _sign(prev_val, eps)
     s1 = _sign(curr_val, eps)
 
-    crossed = False
     if mode == "neg_to_pos":
         crossed = (s0 == -1) and (s1 >= 0)
     elif mode == "pos_to_neg":
-        crossed = (s0 == +1) and (s1 <= 0)
+        crossed = (s0 == 1) and (s1 <= 0)
     else:  # "either"
         crossed = (s0 != 0) and (s1 != 0) and (s0 != s1)
 
@@ -94,8 +94,10 @@ def detect_crossing(
     # Linear interpolation between the two samples:
     dx = curr_val - prev_val
     if dx == 0.0:
-        return True, curr_ts  # degenerate; fall back to current timestamp
-    alpha = (-prev_val) / dx  # fraction in [0,1] ideally
+        # Degenerate; fall back to current timestamp
+        return True, float(curr_ts)
+
+    alpha = (-prev_val) / dx  # fraction in [0, 1] ideally
     t_cross = prev_ts + (curr_ts - prev_ts) * alpha
     return True, float(t_cross)
 
@@ -113,33 +115,34 @@ class ZCDEstimatorBase:
     Then construct and return your PMU_Output as desired.
     """
 
-    def __init__(self, cfg: Optional[ZCDConfig] = None):
-        self.cfg = cfg or ZCDConfig()
-        self.state = ZCDState()
+    def __init__(self, cfg: ZCDConfig | None = None) -> None:
+        self.cfg: ZCDConfig = cfg or ZCDConfig()
+        self.state: ZCDState = ZCDState()
 
     def reset(self) -> None:
         self.state = ZCDState()
 
     # Core streaming update
-    def update_scalar(self, value: float, ts: float) -> Tuple[float, float, bool, Optional[float]]:
+    def update_scalar(self, value: float, ts: float) -> tuple[float, float, bool, float | None]:
         """
         Feed one scalar sample with timestamp (seconds).
 
-        Returns:
-            freq_hz, rocof_hz_s, crossed, t_cross
+        Returns
+        -------
+        (freq_hz, rocof_hz_s, crossed, t_cross)
         """
         st = self.state
         cfg = self.cfg
 
         crossed = False
-        t_cross = None
+        t_cross: float | None = None
 
         if st.prev_val is not None and st.prev_ts is not None:
             crossed, t_cross = detect_crossing(
                 st.prev_val, st.prev_ts, value, ts, eps=cfg.epsilon, mode=cfg.mode
             )
             if crossed:
-                if st.last_cross_ts is not None:
+                if st.last_cross_ts is not None and t_cross is not None:
                     period = float(t_cross - st.last_cross_ts)
                     # Filter absurd periods:
                     if cfg.min_period_s <= period <= cfg.max_period_s:
@@ -149,6 +152,7 @@ class ZCDEstimatorBase:
                         st.prev_cross_ts = st.last_cross_ts
                         st.last_cross_ts = t_cross
                 else:
+                    # first observed crossing
                     st.last_cross_ts = t_cross
 
         # advance sample history
@@ -175,17 +179,22 @@ class ZCDEstimatorBase:
 
 # ------------------------ Tiny local smoke test -----------------------
 
+
 class ZCDCoreTester:
     """Utility to sanity-check the core without PMU wiring."""
-    def __init__(self, cfg: Optional[ZCDConfig] = None):
+
+    def __init__(self, cfg: ZCDConfig | None = None) -> None:
         self.core = ZCDEstimatorBase(cfg)
 
-    def run_sine(self, fs: float = 10000.0, f: float = 60.0, seconds: float = 0.2):
+    def run_sine(
+        self, fs: float = 10_000.0, f: float = 60.0, seconds: float = 0.2
+    ) -> list[tuple[float, float, float, float, bool, float | None]]:
         import math
+
         n = int(fs * seconds)
         dt = 1.0 / fs
         t0 = 0.0
-        out = []
+        out: list[tuple[float, float, float, float, bool, float | None]] = []
         for k in range(n):
             t = t0 + k * dt
             x = math.sin(2.0 * math.pi * f * t)

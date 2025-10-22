@@ -1,0 +1,62 @@
+[
+  {
+    "title": "M0 – Repo bootstrap",
+    "description": "Stand up production-ready Python repo: pyproject, src/ layout, tests/, CI (ruff/mypy/pytest), Docker base, pre-commit, community files. DoD: CI green; `python -c \"import pyopenfreqbench\"` works; Docker image runs CLI help.",
+    "due": "2025-10-20"
+  },
+  {
+    "title": "M1 – Core contracts",
+    "description": "Finalize stable interfaces: EstimatorBase; PMU_Input/PMU_Output (frozen, t_delivery semantics); Scenario/Suite (Pydantic); minimal orchestrator (dual-clocks + co-sim rule); FE/RFE/TVE and total_delay. DoD: unit tests pass; examples run deterministically.",
+    "due": "2025-10-27"
+  },
+  {
+    "title": "M2 – Profiling & Machine Card",
+    "description": "Add resource telemetry and machine profiling: TTE wall/CPU, RSS/object peaks; MachineProfile (OS/CPU/RAM/Python/BLAS/GPU); run.json with git SHA, dirty flag, seeds. DoD: snapshot tests; fields documented; produced on every run.",
+    "due": "2025-11-03"
+  },
+  {
+    "title": "M3 – ComputeModel",
+    "description": "Realistic compute-time emulation and backlog metrics: deadtime, jitter, throttle, sleep; integration path into orchestrator; metrics: deadline_miss, queue_len, queuing_delay, utilization; warm-up frame exclusion. DoD: seeded, deterministic tests.",
+    "due": "2025-11-10"
+  },
+  {
+    "title": "M4 – Fairness & Compliance",
+    "description": "FairnessGate budgets (window/latency/memory) with reason strings; Suite YAML loader with schema validation and hashing; compliance summary per estimator×suite. DoD: invalid configs fail-fast with clear errors; unit tests for boundaries.",
+    "due": "2025-11-17"
+  },
+  {
+    "title": "M5 – Estimator Zoo (baseline)",
+    "description": "Deliver 6–8 baseline estimators (FFT peak, Goertzel, SRF-PLL, EKF, IpDFT/Kay, KF phasor, TF-k, ensemble). Each sets alg_latency_s, handles NaN/Inf, passes steady/step/ramp/low-SNR tests, and has docstrings/examples. DoD: FE/RFE targets met.",
+    "due": "2025-12-01"
+  },
+  {
+    "title": "M6 – Scenarios (synthetic + CSV)",
+    "description": "Seeded generators: step, ramp, chirp, harmonics; noise/DC offset; event annotations (sags/swells, mid-frame tags); CSVScenario with column mapping and streaming backpressure tests; truth validator (analytic vs numeric). DoD: <5s smoke case in CI.",
+    "due": "2025-12-08"
+  },
+  {
+    "title": "M7 – Metrics, Exports, Reports",
+    "description": "Exports: frames.parquet, summary.parquet (documented schemas); Excel run.xlsx (styles, frozen header); headless report plots (Pareto FE@p95 vs avg_TTE_ms; heatmap miss vs SNR×RoCoF; histogram queue_len); Methods.md autowrite. DoD: reproducible PNGs.",
+    "due": "2025-12-15"
+  },
+  {
+    "title": "M8 – Developer UX",
+    "description": "CLI run_bench.py (--suite/--out/--profiles/--seed); cookiecutters for estimator and scenario; quickstart doc achieving install→PDF+XLSX in ≤60s. DoD: templates render in CI and pass pytest; fresh-container quickstart is green.",
+    "due": "2025-12-22"
+  },
+  {
+    "title": "M9 – Calibration & Complexity",
+    "description": "Complexity regression TTE≈a·N+b (slope/intercept/R²) + emulation via profile/throttle; report adds complexity columns/plots. DoD: synthetic linear data recovers params; emulation factor shifts timing as expected; tests cover edge cases.",
+    "due": "2026-01-05"
+  },
+  {
+    "title": "M10 – Docs Site",
+    "description": "MkDocs site with API autodoc, dev guides (EstimatorBase, FairnessGate, Scenario writing, Repro checklist), and an executed notebook example. DoD: `mkdocs build` green in CI; 0 broken links; example chart produced in CI.",
+    "due": "2026-01-12"
+  },
+  {
+    "title": "M11 – v0.2 Release",
+    "description": "Release readiness and reproducibility: tag workflow builds wheels/sdist and uploads; golden-summary CI (±3% tolerance); repro-check script (multi-host) and determinism test (same seed→same summary hash). DoD: successful tagged release on sandbox.",
+    "due": "2026-01-19"
+  }
+]

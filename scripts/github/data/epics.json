@@ -1,0 +1,74 @@
+[
+  {
+    "title": "🧱 Epic: Repo Bootstrap & Infra",
+    "labels": "epic,area:infra,priority:P0,size:M",
+    "milestone": "M0 – Repo bootstrap",
+    "body_md": "**Goal:** Stand up a production-ready Python repo with CI, lint/type/format, containers, community files, and deterministic environments.\n\n**Outcomes / DoD:**\n- `pyproject.toml` with dependencies and tool configs (ruff/black/mypy)\n- Source layout under `src/pyopenfreqbench/` + `tests/`\n- CI green on lint, type-check, tests (Py3.10–3.12)\n- Docker image builds and runs CLI help\n- Community files: LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, ISSUE_TEMPLATE, CITATION.cff\n- Pre-commit hooks wired\n\n**Non-Goals:** Feature work (estimators/scenarios/metrics) beyond a smoke test.\n\n**Dependencies:** None (foundation epic).\n\n**Risks/Mitigations:**\n- flake in CI cache → use pinned actions and cache keys\n- BLAS threading variance → pin `OPENBLAS_NUM_THREADS=1`, `MKL_NUM_THREADS=1`\n\n**KPIs:**\n- CI median runtime < 6 min\n- 0 warnings in `ruff check` and `mypy` on `src/`\n\n**Tasks**\n- [ ] Repo: init pyproject + package layout\n- [ ] CI: workflow skeletons (lint/type/test/docs)\n- [ ] CI: cache Python deps\n- [ ] Tooling: ruff + black + pre-commit\n- [ ] Tooling: mypy (strict on src/)\n- [ ] Docker: base image + MKL/OpenBLAS pins\n- [ ] Community files (LICENSE, CONTRIBUTING, COC, CITATION)\n- [ ] Tests scaffolding (fixtures, conftest)"
+  },
+  {
+    "title": "🧩 Epic: Core Contracts",
+    "labels": "epic,area:estimators,priority:P0,size:M",
+    "milestone": "M1 – Core contracts",
+    "body_md": "**Goal:** Define stable interfaces and base classes for estimators, scenarios, orchestrator contracts, and essential metrics.\n\n**Outcomes / DoD:**\n- `EstimatorBase` with `configure/reset/update/estimate` and sealed attrs\n- `PMU_Input`/`PMU_Output` frozen dataclasses with `t_delivery` semantics\n- Scenario/Suite Pydantic configs with hashing helpers\n- Minimal orchestrator loop (dual-clock model) with backlog rule\n- Initial metrics: FE, RFE, TVE; total delay function\n\n**Dependencies:** Repo Bootstrap & Infra\n\n**Risks/Mitigations:** Over-tight interfaces → document extension points and config validation errors\n\n**KPIs:**\n- 100% tests pass for base classes and IO types\n- ±0 regressions on example smoke suite\n\n**Tasks**\n- [ ] I/O dataclasses (`estimators/io.py`)\n- [ ] Exceptions module (`core/exc.py`)\n- [ ] EstimatorBase skeleton + profiling hooks\n- [ ] ScenarioConfig & SuiteConfig (Pydantic)\n- [ ] Orchestrator: dual clocks + co-sim rule\n- [ ] Metrics: FE/RFE/TVE + total delay\n- [ ] Unit tests for contracts and validation"
+  },
+  {
+    "title": "🧪 Epic: Profiling & Machine Card",
+    "labels": "epic,area:infra,priority:P1,size:M",
+    "milestone": "M2 – Profiling & Machine Card",
+    "body_md": "**Goal:** Provide consistent performance telemetry (TTE wall/CPU, RSS/obj peaks) and capture a deterministic machine profile per run.\n\n**Outcomes / DoD:**\n- `resource.track_peak_resources()` with documented RSS semantics\n- `MachineProfile` (OS/CPU/RAM/Python/BLAS/GPU)\n- `artifacts.write_run_json()` with git SHA, dirty flag, seeds, machine card\n- Snapshot tests for presence and format\n\n**Dependencies:** Core Contracts\n\n**Risks/Mitigations:** Platform variability → normalize fields; mark optional GPU\n\n**KPIs:**\n- Run JSON produced for every CLI run\n- Resource peaks monotonic in tests\n\n**Tasks**\n- [ ] Resource tracker (RSS/object peaks)\n- [ ] Machine profile (sysprobe)\n- [ ] Persist run.json (artifacts)\n- [ ] Snapshot/unit tests"
+  },
+  {
+    "title": "⚙️ Epic: Orchestrator & ComputeModel",
+    "labels": "epic,area:orchestrator,priority:P0,size:M",
+    "milestone": "M3 – ComputeModel",
+    "body_md": "**Goal:** Implement compute-time realism (deadtime, jitter, throttle) and backlog metrics integrated into the dual-clock orchestrator.\n\n**Outcomes / DoD:**\n- ComputeModel primitives (deadtime, jitter, throttle, sleep emulation)\n- Integration path to apply compute model to measured TTE\n- Backlog metrics: deadline_miss, queue_len, queuing_delay, utilization\n- Warm-up frames exclusion\n\n**Dependencies:** Profiling & Machine Card\n\n**Risks/Mitigations:** Overfitting distributions → parameterize RNG and seed\n\n**KPIs:**\n- Deterministic unit tests for jitter distributions\n- Backlog stats validated on synthetic timelines\n\n**Tasks**\n- [ ] ComputeModel primitives\n- [ ] Orchestrator integration\n- [ ] Backlog metrics package\n- [ ] Warm-up frames drop\n- [ ] Unit tests (deterministic seeds)"
+  },
+  {
+    "title": "🛡️ Epic: Fairness & Compliance",
+    "labels": "epic,area:metrics,priority:P0,size:M",
+    "milestone": "M4 – Fairness & Compliance",
+    "body_md": "**Goal:** Define and enforce budgets (window/latency/memory) and pass/fail compliance summaries across suites.\n\n**Outcomes / DoD:**\n- `FairnessGate` with budget checks and reason strings\n- Suite loader (YAML) with schema validation & hashing\n- Compliance summary columns per estimator per suite\n\n**Dependencies:** Orchestrator & ComputeModel\n\n**Risks/Mitigations:** Ambiguous budget semantics → explicit docstrings and examples\n\n**KPIs:**\n- Fail-fast on misconfigured suites\n- Clear reasons for non-compliance in reports\n\n**Tasks**\n- [ ] FairnessGate budgets\n- [ ] Suite YAML loader + schema\n- [ ] Compliance summary aggregation\n- [ ] Unit tests for boundary cases"
+  },
+  {
+    "title": "📈 Epic: Estimators v0.1",
+    "labels": "epic,area:estimators,priority:P1,size:L",
+    "milestone": "M5 – Estimator Zoo (baseline)",
+    "body_md": "**Goal:** Deliver an MVP set of baseline frequency/phasor estimators with consistent I/O, latency accounting, and tests.\n\n**Outcomes / DoD:**\n- 6–8 baseline estimators implemented and documented\n- Each sets `alg_latency_s` and validates config\n- Unit tests: steady state (60 Hz), step/ramp RoCoF, low SNR\n- Complexity calibration tests (TTE vs N)\n- FairnessGate compliance across baseline suite\n\n**Dependencies:** Fairness & Compliance\n\n**Risks/Mitigations:** Numerical instability at low SNR → vectorized implementations and tolerance bands\n\n**KPIs:**\n- FE@p95 within target on reference scenarios\n- No NaN/Inf propagation in stress tests\n\n**Tasks**\n- [ ] basic/fft_peak.py — parabolic interpolation\n- [ ] spectral/goertzel.py — Goertzel tracker\n- [ ] control/pll_srf.py — SRF-PLL\n- [ ] states/ekf_freq.py — EKF (angle/frequency)\n- [ ] spectral/idft_kay.py — IpDFT/Kay\n- [ ] state/kf_phasor.py — KF (phasor)\n- [ ] poly/taylor_fourier.py — TF-k\n- [ ] hybrid/ensemble_blend.py — ensemble\n- [ ] API conformance & latency accounting\n- [ ] Low-SNR and RoCoF tests\n- [ ] Complexity calibration hooks"
+  },
+  {
+    "title": "🧪 Epic: Scenarios v0.1",
+    "labels": "epic,area:scenarios,priority:P1,size:M",
+    "milestone": "M6 – Scenarios (synthetic + CSV)",
+    "body_md": "**Goal:** Provide core synthetic generators and a minimal feeder case, returning (signal, truth_df) with deterministic seeds.\n\n**Outcomes / DoD:**\n- Seeded synthetic scenarios: step, ramp, chirp, harmonics, noise/DC offset\n- Event annotations: sags/swells; time tags at frame mid\n- CSVScenario adapter with column mapping and streaming tests\n- Truth validator comparing analytic vs numeric derivations\n\n**Dependencies:** Estimators v0.1\n\n**Risks/Mitigations:** Truth drift vs numeric → validator and tolerances per case\n\n**KPIs:**\n- Reproducible results under fixed seed\n- < 5s CI smoke run for at least one case\n\n**Tasks**\n- [ ] s1_synthetic/frequency_step\n- [ ] s1_synthetic/frequency_ramp\n- [ ] s1_synthetic/chirp_linear\n- [ ] s1_synthetic/harmonics\n- [ ] noise/DC offset and colored noise options\n- [ ] s2_ieee13/reg_tap_step (OpenDSS minimal)\n- [ ] CSVScenario: mapping/validation + backpressure test\n- [ ] Truth validator (analytic vs numeric)"
+  },
+  {
+    "title": "📦 Epic: Metrics, Exports & Reports",
+    "labels": "epic,area:report,priority:P1,size:L",
+    "milestone": "M7 – Metrics, Exports, Reports",
+    "body_md": "**Goal:** Build consistent exports (Parquet/XLSX) and headless report generation (Pareto, heatmaps, histograms) with deterministic sizes.\n\n**Outcomes / DoD:**\n- `frames.parquet` and `summary.parquet` with documented schemas\n- `run.xlsx` with styled tabs and frozen headers\n- Headless report builder with figures (Pareto, heatmaps, histograms)\n- Methods.md autowrite (fs, window, latency, machine card)\n\n**Dependencies:** Scenarios v0.1, Estimators v0.1\n\n**Risks/Mitigations:** Plot size drift → fixed figure size presets and tests\n\n**KPIs:**\n- Reproducible PNG hashes within tolerance\n- Excel passes basic format checks\n\n**Tasks**\n- [ ] Export: frames.parquet\n- [ ] Export: summary.parquet\n- [ ] Export: run.xlsx (styles)\n- [ ] Report: Pareto FE@p95 vs avg_TTE_ms\n- [ ] Report: heatmap deadline_miss vs SNR×RoCoF\n- [ ] Report: histogram queue_len per scenario\n- [ ] Methods.md autowrite"
+  },
+  {
+    "title": "🛠️ Epic: Developer UX",
+    "labels": "epic,area:infra,priority:P1,size:M",
+    "milestone": "M8 – Developer UX",
+    "body_md": "**Goal:** Streamline contribution flow with cookiecutters, a quickstart, and a stable CLI.\n\n**Outcomes / DoD:**\n- CLI `run_bench.py` with `--suite/--out/--profiles/--seed`\n- Cookiecutter templates for estimator and scenario\n- Quickstart doc (≤60s to PDF+XLSX)\n\n**Dependencies:** Metrics/Exports/Reports\n\n**Risks/Mitigations:** Template rot → CI cookiecutter render + pytest\n\n**KPIs:**\n- New estimator PR stands up tests in < 10 min\n- Quickstart executed green in fresh container\n\n**Tasks**\n- [ ] CLI: run_bench.py\n- [ ] Cookiecutter: new estimator\n- [ ] Cookiecutter: new scenario\n- [ ] Quickstart doc"
+  },
+  {
+    "title": "📐 Epic: Calibration & Complexity",
+    "labels": "epic,area:metrics,priority:P1,size:M",
+    "milestone": "M9 – Calibration & Complexity",
+    "body_md": "**Goal:** Quantify complexity via TTE≈a·N+b and provide emulation via throttle factors.\n\n**Outcomes / DoD:**\n- Regression utilities with slope/intercept/R²\n- Orchestrator emulation path via profile or factor\n- Report additions (slope/R² columns/plots)\n\n**Dependencies:** Developer UX, Metrics/Exports/Reports\n\n**Risks/Mitigations:** Non-linearities → windowed regression and diagnostics\n\n**KPIs:**\n- Calibration recovers known linear params on synthetic data\n- Emulation factor produces expected timing gaps\n\n**Tasks**\n- [ ] Calibration: fit TTE=aN+b\n- [ ] Emulation via throttle profile\n- [ ] Report: complexity columns/plots\n- [ ] Unit tests for regression/effects"
+  },
+  {
+    "title": "📚 Epic: Docs Site",
+    "labels": "epic,area:infra,priority:P1,size:M",
+    "milestone": "M10 – Docs Site",
+    "body_md": "**Goal:** Publish MkDocs site with API autodoc, dev guides, and runnable notebooks.\n\n**Outcomes / DoD:**\n- `mkdocs.yml` + site build in CI\n- Developer guides: EstimatorBase, FairnessGate, Scenario writing, Repro checklist\n- Executed notebook example producing one chart\n\n**Dependencies:** Developer UX\n\n**Risks/Mitigations:** API drift → CI link check and autodoc refresh\n\n**KPIs:**\n- `mkdocs build` green in CI\n- 0 broken links\n\n**Tasks**\n- [ ] MkDocs scaffolding + theme\n- [ ] Dev guide: EstimatorBase (t_delivery/latency)\n- [ ] Doc: FairnessGate spec + rationale\n- [ ] Doc: Scenario writing + CSV adapter\n- [ ] Doc: Repro checklist (seeds, Git SHA, BLAS)\n- [ ] Notebook example executed in CI"
+  },
+  {
+    "title": "🚀 Epic: v0.2 Release Readiness",
+    "labels": "epic,area:infra,priority:P0,size:M",
+    "milestone": "M11 – v0.2 Release",
+    "body_md": "**Goal:** Ship v0.2 with automated packaging, golden-summary checks, and reproducibility verification across hosts.\n\n**Outcomes / DoD:**\n- Release workflow builds wheels/sdist and uploads artifacts\n- Golden summary CI with ±3% tolerance and diff on failure\n- Repro check script comparing two artifact dirs\n- Determinism test: same seed → same summary hash\n\n**Dependencies:** Docs Site, Calibration & Complexity\n\n**Risks/Mitigations:** Platform-dependent numerical drift → tolerances and pinned env\n\n**KPIs:**\n- Tag triggers release successfully on sandbox\n- Golden suite stable for 3 consecutive runs\n\n**Tasks**\n- [ ] Release automation workflow\n- [ ] Golden summary CI\n- [ ] Repro check multi-host script\n- [ ] Determinism test\n- [ ] Changelog and release notes"
+  }
+]
