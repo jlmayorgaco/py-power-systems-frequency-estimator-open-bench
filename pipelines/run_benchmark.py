@@ -9,9 +9,9 @@ from typing import Protocol, TypedDict
 import matplotlib.pyplot as plt
 import numpy as np
 
-from estimators.basic.zcd import ZCDSingle
 from evaluation import metrics
 from evaluation.plotting import plot_signal_and_estimators
+from estimators.basic.zcd import ZCDSingle
 from scenarios.s1_synthetic.frequency_step import frequency_step
 from utils.pmu.pmu_input import PMU_Input
 from utils.pmu.pmu_output import PMU_Output
