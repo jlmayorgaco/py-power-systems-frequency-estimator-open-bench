@@ -34,30 +34,55 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      # ---------- Poetry path (if poetry.lock exists) ----------
+      - name: Set up Python (Poetry cache)
+        if: ${{ hashFiles('**/poetry.lock') != '' }}
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
+          cache: poetry
           cache-dependency-path: |
-            requirements*.txt
+            **/poetry.lock
+
+      - name: Install deps (Poetry)
+        if: ${{ hashFiles('**/poetry.lock') != '' }}
+        run: |
+          python -m pip install -U pip
+          python -m pip install poetry
+          poetry --version
+          poetry install --no-interaction --no-ansi
+
+      # ---------- pip path (if no poetry.lock) ----------
+      - name: Set up Python (pip cache)
+        if: ${{ hashFiles('**/poetry.lock') == '' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          # Prefer a single, pinned lock if present; fall back to common files
+          cache-dependency-path: |
+            **/requirements-lock.txt
+            **/requirements.txt
+            **/requirements-dev.txt
             pyproject.toml
             setup.cfg
             setup.py
 
-      - name: Install project + ruff
+      - name: Install deps (pip)
+        if: ${{ hashFiles('**/poetry.lock') == '' }}
         run: |
           python -m pip install -U pip wheel
-          if [[ -f requirements-dev.txt ]]; then
-            python -m pip install -r requirements-dev.txt
-          elif [[ -f requirements.txt ]]; then
-            python -m pip install -r requirements.txt
-          fi
-          if [[ -f pyproject.toml || -f setup.cfg || -f setup.py ]]; then
-            python -m pip install -e .
-          fi
-          python -m pip install "ruff>=0.6"
+          if [[ -f requirements-lock.txt ]]; then pip install -r requirements-lock.txt; fi
+          if [[ -f requirements.txt ]]; then pip install -r requirements.txt; fi
+          if [[ -f requirements-dev.txt ]]; then pip install -r requirements-dev.txt; fi
+          if [[ -f pyproject.toml || -f setup.cfg || -f setup.py ]]; then pip install -e .; fi
+
+      - name: Install ruff
+        run: python -m pip install "ruff>=0.6"
+
       - name: Ruff format (check)
         run: ruff format --check .
+
       - name: Ruff lint
         run: ruff check . --output-format=github
 
@@ -75,16 +100,48 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      # ---------- Poetry path ----------
+      - name: Set up Python (Poetry cache)
+        if: ${{ hashFiles('**/poetry.lock') != '' }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
+          cache: poetry
           cache-dependency-path: |
-            requirements*.txt
+            **/poetry.lock
+
+      - name: Install deps (Poetry)
+        if: ${{ hashFiles('**/poetry.lock') != '' }}
+        run: |
+          python -m pip install -U pip
+          python -m pip install poetry
+          poetry install --no-interaction --no-ansi
+
+      # ---------- pip path ----------
+      - name: Set up Python (pip cache)
+        if: ${{ hashFiles('**/poetry.lock') == '' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            **/requirements-lock.txt
+            **/requirements.txt
+            **/requirements-dev.txt
             pyproject.toml
             mypy.ini
             setup.cfg
             setup.py
+
+      - name: Install deps (pip)
+        if: ${{ hashFiles('**/poetry.lock') == '' }}
+        run: |
+          python -m pip install -U pip wheel
+          if [[ -f requirements-lock.txt ]]; then pip install -r requirements-lock.txt; fi
+          if [[ -f requirements.txt ]]; then pip install -r requirements.txt; fi
+          if [[ -f requirements-dev.txt ]]; then pip install -r requirements-dev.txt; fi
+          if [[ -f pyproject.toml || -f setup.cfg || -f setup.py ]]; then pip install -e .; fi
+          python -m pip install "mypy>=1.10" typing-extensions
 
       - name: Cache mypy
         uses: actions/cache@v4
@@ -93,19 +150,6 @@ jobs:
           key: mypy-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/*.py', 'pyproject.toml', 'mypy.ini', 'setup.cfg') }}
           restore-keys: |
             mypy-${{ runner.os }}-${{ matrix.python-version }}-
-
-      - name: Install project + mypy
-        run: |
-          python -m pip install -U pip wheel
-          if [[ -f requirements-dev.txt ]]; then
-            python -m pip install -r requirements-dev.txt
-          elif [[ -f requirements.txt ]]; then
-            python -m pip install -r requirements.txt
-          fi
-          if [[ -f pyproject.toml || -f setup.cfg || -f setup.py ]]; then
-            python -m pip install -e .
-          fi
-          python -m pip install "mypy>=1.10" typing-extensions
 
       - name: mypy
         run: |
