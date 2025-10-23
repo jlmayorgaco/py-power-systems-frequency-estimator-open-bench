@@ -1,14 +1,44 @@
-# .pre-commit-config.yaml
-# OpenFreqBench baseline hooks
+# .pre-commit-config.yaml — OpenFreqBench baseline hooks
 default_language_version:
   python: python3
 
 repos:
-  # Lightweight hygiene
+  # 1) Hygiene: YAML/EOF/whitespace/line-endings
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
       - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # 2) Black — code formatter (keeps formatting consistent)
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        additional_dependencies: []  # keep empty unless you need plugins
+
+  # 3) Ruff — lint & quick autofixes (formatter disabled; Black is the formatter)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: [--fix]   # auto-fix what it safely can
+
+# Optional global excludes to speed up hooks
+exclude: |
+  (?x)(
+    ^\.venv/|
+    ^venv/|
+    ^env/|
+    ^build/|
+    ^dist/|
+    ^node_modules/|
+    ^docs/_build/|
+    ^\.ofb/|
+    \.min\.js$|
+    \.lock$
+  )
