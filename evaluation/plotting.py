@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
 
-import matplotlib.gridspec as gridspec
-import matplotlib.pyplot as plt
+from matplotlib import gridspec, pyplot
 import numpy as np
 from brokenaxes import brokenaxes
 from matplotlib.figure import Figure
@@ -23,7 +22,7 @@ def plot_signal_and_estimators(
     n = signal.shape[0]
     t = np.arange(n, dtype=float) / float(fs)
 
-    fig = plt.figure(figsize=(6.0, 3.2))
+    fig = pyplot.figure(figsize=(6.0, 3.2))
     gs = gridspec.GridSpec(2, 1, height_ratios=[1, 2], figure=fig)
 
     if zoom_windows_top:
@@ -69,5 +68,5 @@ def plot_signal_and_estimators(
             margin = 0.15 * f_ref
             ax1.set_ylim(f_ref - margin, f_ref + margin)
 
-    plt.tight_layout()
+    pyplot.tight_layout()
     return fig
