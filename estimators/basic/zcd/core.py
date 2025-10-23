@@ -1,3 +1,4 @@
+from __future__ import annotations
 # estimators/zcd/core.py
 # ---------------------------------------------------------------------
 # Reusable Zero-Crossing (ZCD) core utilities for frequency & RoCoF.
@@ -15,8 +16,7 @@
 # Dependencies: stdlib only.
 # ---------------------------------------------------------------------
 
-from __future__ import annotations
-
+import math
 from dataclasses import dataclass
 from typing import Literal
 
@@ -86,7 +86,8 @@ def detect_crossing(
     elif mode == "pos_to_neg":
         crossed = (s0 == 1) and (s1 <= 0)
     else:  # "either"
-        crossed = (s0 != 0) and (s1 != 0) and (s0 != s1)
+        # merged comparison per Ruff PLR1714
+        crossed = (s0 != 0) and (s1 not in {0, s0})
 
     if not crossed:
         return False, None
@@ -189,8 +190,6 @@ class ZCDCoreTester:
     def run_sine(
         self, fs: float = 10_000.0, f: float = 60.0, seconds: float = 0.2
     ) -> list[tuple[float, float, float, float, bool, float | None]]:
-        import math
-
         n = int(fs * seconds)
         dt = 1.0 / fs
         t0 = 0.0

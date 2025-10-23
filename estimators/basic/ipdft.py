@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import Any, Literal, Mapping
+from collections.abc import Mapping
+from typing import Any, Literal
 
 import numpy as np
 from numpy.typing import NDArray
 
 from estimators.base import EstimatorBase
 from utils.pmu.pmu_input import PMU_Input
-from utils.pmu.pmu_output import PMU_Output, PhasorName
+from utils.pmu.pmu_output import PhasorName, PMU_Output
 
 
 class IpDFT(EstimatorBase):
