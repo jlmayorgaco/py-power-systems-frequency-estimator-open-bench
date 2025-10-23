@@ -157,6 +157,9 @@ known-first-party = ["evaluation", "estimators", "scenarios", "utils", "openfreq
 combine-as-imports = true
 force-sort-within-sections = true
 
+[tool.ruff.lint.pylint]
+max-args = 7
+
 # --- Mypy ---
 [tool.mypy]
 python_version = "3.10"
