@@ -135,15 +135,28 @@ cache_dir = ".ofb/.pytest_cache"
 [tool.ruff]
 line-length = 100
 target-version = "py310"
-extend-exclude = ["docs/_build", ".ofb"]
+# Uses .ruffignore for path excludes
 
 [tool.ruff.lint]
-# Keep core correctness rules; silence organize-imports (I001) and Mapping nag (UP035)
-select = ["E", "F", "UP", "B", "I"]
-ignore = ["E203", "I001", "UP035"]
+# Enable requested rule families: E,F,I,B,UP,SIM,PL,W
+select = ["E", "F", "I", "B", "UP", "SIM", "PL", "W"]
+
+# Keep noise manageable initially
+ignore = [
+  "E203",     # slice spacing (Black-compatible)
+  "PLR2004",  # magic value used in comparison (often noisy in tests)
+]
+
+# Per-file relaxations
+per-file-ignores = {
+  "__init__.py" = ["F401"],     # allow re-exports
+  "tests/**" = ["PLR2004"],     # allow magic numbers in tests
+}
 
 [tool.ruff.lint.isort]
 known-first-party = ["evaluation", "estimators", "scenarios", "utils", "openfreqbench"]
+combine-as-imports = true
+force-sort-within-sections = true
 
 # --- Mypy ---
 [tool.mypy]
