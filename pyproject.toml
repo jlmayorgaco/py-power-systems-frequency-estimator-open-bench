@@ -145,6 +145,7 @@ select = ["E", "F", "I", "B", "UP", "SIM", "PL", "W"]
 ignore = [
   "E203",     # slice spacing (Black-compatible)
   "PLR2004",  # magic value used in comparison (often noisy in tests)
+  "I001",     # disable import sorting/formatting complaints
 ]
 
 # Proper TOML table for per-file ignores (fixes your parse error)
