@@ -147,11 +147,10 @@ ignore = [
   "PLR2004",  # magic value used in comparison (often noisy in tests)
 ]
 
-# Per-file relaxations
-per-file-ignores = {
-  "__init__.py" = ["F401"],     # allow re-exports
-  "tests/**" = ["PLR2004"],     # allow magic numbers in tests
-}
+# Proper TOML table for per-file ignores (fixes your parse error)
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]     # allow re-exports
+"tests/**" = ["PLR2004"]     # allow magic numbers in tests
 
 [tool.ruff.lint.isort]
 known-first-party = ["evaluation", "estimators", "scenarios", "utils", "openfreqbench"]
