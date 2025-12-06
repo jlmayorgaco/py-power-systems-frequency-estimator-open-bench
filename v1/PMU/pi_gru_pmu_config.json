@@ -1,0 +1,7 @@
+{
+    "window_len_samples": 100,
+    "hidden_dim": 128,
+    "num_layers": 2,
+    "dropout": 0.2,
+    "target_centered": true
+}
