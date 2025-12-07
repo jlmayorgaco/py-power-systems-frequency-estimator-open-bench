@@ -1,0 +1,792 @@
+{
+    "metadata": {
+        "timestamp": "2025-12-03 13:04:13.952860",
+        "description": "Two-stage process: 1) Hyperparameter Optimization (Grid Search) 2) Final Benchmark Run",
+        "pc_hostname": "jorge.mayorga-L52M3QX7L9",
+        "machine_arch": "arm64",
+        "cpu_processor": "arm",
+        "os_platform": "macOS-15.4-arm64-arm-64bit",
+        "python_version": "3.12.4",
+        "random_seed": 42,
+        "fs_physics_hz": 1000000.0,
+        "fs_dsp_hz": 10000.0,
+        "downsampling_ratio": 100
+    },
+    "results": {
+        "IEEE_Mag_Step": {
+            "scenario_description": {
+                "description": "Sudden Voltage Magnitude Step",
+                "parameters": "Step +10% magnitude at t=0.5s",
+                "harmonics": "None",
+                "noise": "Gaussian White Noise (sigma=0.001 pu)",
+                "dynamics": "Steady State Frequency (60Hz), Amplitude Transient"
+            },
+            "methods": {
+                "IpDFT": {
+                    "RMSE": 0.0015720110973401057,
+                    "MAX_PEAK": 0.007411562319155962,
+                    "SETTLING": 0.0,
+                    "ENERGY": 3.3361455017165982e-06,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.6255000000000024,
+                    "TIME_PER_SAMPLE_US": 41.70000000000016,
+                    "STRUCTURAL_LATENCY_MS": 166.6,
+                    "optimal_params": "10 cycles"
+                },
+                "PLL": {
+                    "RMSE": 0.0002610518821920667,
+                    "MAX_PEAK": 0.0013238606290002508,
+                    "SETTLING": 0.0,
+                    "ENERGY": 9.199991501462789e-08,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.10079100000001517,
+                    "TIME_PER_SAMPLE_US": 6.719400000001012,
+                    "STRUCTURAL_LATENCY_MS": 16.6,
+                    "optimal_params": "Kp1.0,Ki1.0"
+                },
+                "EKF": {
+                    "RMSE": 0.0007329304602419712,
+                    "MAX_PEAK": 0.008569276319121855,
+                    "SETTLING": 0.0,
+                    "ENERGY": 7.252025303931854e-07,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.15854200000001129,
+                    "TIME_PER_SAMPLE_US": 10.56946666666742,
+                    "STRUCTURAL_LATENCY_MS": 0.1,
+                    "optimal_params": "Q0.01,R10.0"
+                },
+                "EKF2": {
+                    "RMSE": 0.0006138875799552582,
+                    "MAX_PEAK": 0.0050572534608051,
+                    "SETTLING": 0.0,
+                    "ENERGY": 5.087582471114867e-07,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.37178800000003775,
+                    "TIME_PER_SAMPLE_US": 24.785866666669182,
+                    "STRUCTURAL_LATENCY_MS": 0.1,
+                    "optimal_params": "Q0.01,R10.0,InnRef0.5,EvTh1.5,Fast40.0ms"
+                },
+                "SOGI": {
+                    "RMSE": 0.294336338987301,
+                    "MAX_PEAK": 0.3352006515404682,
+                    "SETTLING": 1.346,
+                    "ENERGY": 0.11695573860540397,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.03655100000003131,
+                    "TIME_PER_SAMPLE_US": 2.4367333333354204,
+                    "STRUCTURAL_LATENCY_MS": 16.6,
+                    "optimal_params": "k0.5,g25"
+                },
+                "RLS": {
+                    "RMSE": 0.006730059650776546,
+                    "MAX_PEAK": 0.043265041760669476,
+                    "SETTLING": 0.0,
+                    "ENERGY": 6.114649891906423e-05,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.08148800000003575,
+                    "TIME_PER_SAMPLE_US": 5.432533333335717,
+                    "STRUCTURAL_LATENCY_MS": 2500.0,
+                    "optimal_params": "Lam0.9,Win500"
+                },
+                "Teager": {
+                    "RMSE": 4.3458802853306535,
+                    "MAX_PEAK": 16.899151245730707,
+                    "SETTLING": 1.2751000000000001,
+                    "ENERGY": 25.497011863474626,
+                    "TRIP_TIME_0p5": 1.1704,
+                    "MAX_CONTIGUOUS_0p5": 0.0335,
+                    "COMPLEXITY": 0.1424650000000156,
+                    "TIME_PER_SAMPLE_US": 9.497666666667707,
+                    "STRUCTURAL_LATENCY_MS": 5.0,
+                    "optimal_params": "Win50"
+                },
+                "TFT": {
+                    "RMSE": 0.0021021541938795766,
+                    "MAX_PEAK": 0.018966613295987145,
+                    "SETTLING": 0.0,
+                    "ENERGY": 5.965720544041414e-06,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.3320780000000241,
+                    "TIME_PER_SAMPLE_US": 22.138533333334937,
+                    "STRUCTURAL_LATENCY_MS": 100.0,
+                    "optimal_params": "Cycles6"
+                },
+                "RLS-VFF": {
+                    "RMSE": 0.059272575702036555,
+                    "MAX_PEAK": 0.2675691319947546,
+                    "SETTLING": 0.0007,
+                    "ENERGY": 0.004742871610977433,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.084083000000021,
+                    "TIME_PER_SAMPLE_US": 5.6055333333347335,
+                    "STRUCTURAL_LATENCY_MS": 100.0,
+                    "optimal_params": "lamMin0.97,Ka0.1"
+                },
+                "UKF": {
+                    "RMSE": 0.000774396621302401,
+                    "MAX_PEAK": 0.008507683350259754,
+                    "SETTLING": 0.0,
+                    "ENERGY": 8.095816715641753e-07,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 1.1206920000000764,
+                    "TIME_PER_SAMPLE_US": 74.7128000000051,
+                    "STRUCTURAL_LATENCY_MS": 1.0,
+                    "optimal_params": "Q0.01,R10.0"
+                },
+                "Koopman-RKDPmu": {
+                    "RMSE": 0.0010188383369724044,
+                    "MAX_PEAK": 0.006346558782482248,
+                    "SETTLING": 0.0,
+                    "ENERGY": 1.4013426017943378e-06,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 1.159481000000028,
+                    "TIME_PER_SAMPLE_US": 77.29873333333519,
+                    "STRUCTURAL_LATENCY_MS": 64.0,
+                    "optimal_params": "Win640"
+                },
+                "PI-GRU": {
+                    "RMSE": 0.17694106414152294,
+                    "MAX_PEAK": 0.19027290344238423,
+                    "SETTLING": 0.0,
+                    "ENERGY": 0.04226598924237162,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 22.366084999999998,
+                    "TIME_PER_SAMPLE_US": 1491.072333333333,
+                    "STRUCTURAL_LATENCY_MS": 10.0,
+                    "optimal_params": "PI-GRU pretrained model"
+                }
+            }
+        },
+        "IEEE_Freq_Ramp": {
+            "scenario_description": {
+                "description": "High ROCOF Frequency Ramp",
+                "parameters": "Ramp +5 Hz/s starting at t=0.3s, ending t=1.0s",
+                "harmonics": "None",
+                "noise": "Gaussian White Noise (sigma=0.001 pu)",
+                "dynamics": "Linear Frequency Change (Quadratic Phase)"
+            },
+            "methods": {
+                "IpDFT": {
+                    "RMSE": 0.0728745220301455,
+                    "MAX_PEAK": 0.15695956581463122,
+                    "SETTLING": 0.0,
+                    "ENERGY": 0.007169439547514917,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.1799589999999398,
+                    "TIME_PER_SAMPLE_US": 11.997266666662654,
+                    "STRUCTURAL_LATENCY_MS": 33.300000000000004,
+                    "optimal_params": "2 cycles"
+                },
+                "PLL": {
+                    "RMSE": 0.1421290780564444,
+                    "MAX_PEAK": 0.35400460800011757,
+                    "SETTLING": 0.2555,
+                    "ENERGY": 0.027270911019386064,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.10237199999994573,
+                    "TIME_PER_SAMPLE_US": 6.824799999996381,
+                    "STRUCTURAL_LATENCY_MS": 16.6,
+                    "optimal_params": "Kp35.1578947368421,Ki200.0"
+                },
+                "EKF": {
+                    "RMSE": 0.018005874903061235,
+                    "MAX_PEAK": 0.06310050349781449,
+                    "SETTLING": 0.0,
+                    "ENERGY": 0.00043768556688333215,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.15774799999996958,
+                    "TIME_PER_SAMPLE_US": 10.516533333331306,
+                    "STRUCTURAL_LATENCY_MS": 0.1,
+                    "optimal_params": "Q193.06977288832496,R0.3727593720314942"
+                },
+                "EKF2": {
+                    "RMSE": 0.013744278093636306,
+                    "MAX_PEAK": 0.048461150866536684,
+                    "SETTLING": 0.0,
+                    "ENERGY": 0.0002550219934255347,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.37441499999999905,
+                    "TIME_PER_SAMPLE_US": 24.960999999999935,
+                    "STRUCTURAL_LATENCY_MS": 0.1,
+                    "optimal_params": "Q39.81071705534969,R0.01,InnRef0.05,EvTh1.5,Fast40.0ms"
+                },
+                "SOGI": {
+                    "RMSE": 0.32955974555066736,
+                    "MAX_PEAK": 0.3650703061582661,
+                    "SETTLING": 1.35,
+                    "ENERGY": 0.1466229949480178,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.03728299999988849,
+                    "TIME_PER_SAMPLE_US": 2.485533333325899,
+                    "STRUCTURAL_LATENCY_MS": 16.6,
+                    "optimal_params": "k0.5,g100"
+                },
+                "RLS": {
+                    "RMSE": 0.26184460704143614,
+                    "MAX_PEAK": 0.9662348645042016,
+                    "SETTLING": 0.6940000000000001,
+                    "ENERGY": 0.09255950761952357,
+                    "TRIP_TIME_0p5": 0.013800000000000002,
+                    "MAX_CONTIGUOUS_0p5": 0.0001,
+                    "COMPLEXITY": 0.08483200000000579,
+                    "TIME_PER_SAMPLE_US": 5.655466666667053,
+                    "STRUCTURAL_LATENCY_MS": 250.0,
+                    "optimal_params": "Lam0.9,Win50"
+                },
+                "Teager": {
+                    "RMSE": 5.286013681990167,
+                    "MAX_PEAK": 17.70352390542724,
+                    "SETTLING": 1.3090000000000002,
+                    "ENERGY": 37.72161987235278,
+                    "TRIP_TIME_0p5": 1.2376,
+                    "MAX_CONTIGUOUS_0p5": 0.0375,
+                    "COMPLEXITY": 0.14431300000001102,
+                    "TIME_PER_SAMPLE_US": 9.620866666667402,
+                    "STRUCTURAL_LATENCY_MS": 5.0,
+                    "optimal_params": "Win50"
+                },
+                "TFT": {
+                    "RMSE": 0.07258012264299184,
+                    "MAX_PEAK": 0.12733101449237694,
+                    "SETTLING": 0.0,
+                    "ENERGY": 0.007111630173876844,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.13904200000001765,
+                    "TIME_PER_SAMPLE_US": 9.269466666667844,
+                    "STRUCTURAL_LATENCY_MS": 33.300000000000004,
+                    "optimal_params": "Cycles2"
+                },
+                "RLS-VFF": {
+                    "RMSE": 1.5204776285638624,
+                    "MAX_PEAK": 2.392754957346604,
+                    "SETTLING": 1.1424,
+                    "ENERGY": 3.121000495600302,
+                    "TRIP_TIME_0p5": 1.071,
+                    "MAX_CONTIGUOUS_0p5": 1.0709,
+                    "COMPLEXITY": 0.085877999999866,
+                    "TIME_PER_SAMPLE_US": 5.725199999991067,
+                    "STRUCTURAL_LATENCY_MS": 100.0,
+                    "optimal_params": "lamMin0.97,Ka0.1"
+                },
+                "UKF": {
+                    "RMSE": 0.020739330013682892,
+                    "MAX_PEAK": 0.06568976952469541,
+                    "SETTLING": 0.0,
+                    "ENERGY": 0.0005806617427122048,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 1.1156639999999243,
+                    "TIME_PER_SAMPLE_US": 74.37759999999496,
+                    "STRUCTURAL_LATENCY_MS": 1.0,
+                    "optimal_params": "Q3.727593720314938,R0.002682695795279727"
+                },
+                "Koopman-RKDPmu": {
+                    "RMSE": 0.05487222001242841,
+                    "MAX_PEAK": 0.08601733451043714,
+                    "SETTLING": 0.0,
+                    "ENERGY": 0.004064796714274671,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.5865249999999378,
+                    "TIME_PER_SAMPLE_US": 39.10166666666252,
+                    "STRUCTURAL_LATENCY_MS": 8.0,
+                    "optimal_params": "Win80"
+                },
+                "PI-GRU": {
+                    "RMSE": 2.73204451357419,
+                    "MAX_PEAK": 3.68935046875,
+                    "SETTLING": 1.1936,
+                    "ENERGY": 10.076490752603624,
+                    "TRIP_TIME_0p5": 1.1378000000000001,
+                    "MAX_CONTIGUOUS_0p5": 1.1378000000000001,
+                    "COMPLEXITY": 22.645295999999917,
+                    "TIME_PER_SAMPLE_US": 1509.6863999999944,
+                    "STRUCTURAL_LATENCY_MS": 10.0,
+                    "optimal_params": "PI-GRU pretrained model"
+                }
+            }
+        },
+        "IEEE_Modulation": {
+            "scenario_description": {
+                "description": "Amplitude Modulation (AM/LFO)",
+                "parameters": "AM Depth 10% (kx=0.1), Mod Freq 2 Hz",
+                "harmonics": "None",
+                "noise": "Gaussian White Noise (sigma=0.001 pu)",
+                "dynamics": "Steady Frequency with Inter-harmonic interference"
+            },
+            "methods": {
+                "IpDFT": {
+                    "RMSE": 0.0002814716986675907,
+                    "MAX_PEAK": 0.0007472112738255987,
+                    "SETTLING": 0.0,
+                    "ENERGY": 1.069555281536056e-07,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.6271319999998468,
+                    "TIME_PER_SAMPLE_US": 41.80879999998979,
+                    "STRUCTURAL_LATENCY_MS": 166.6,
+                    "optimal_params": "10 cycles"
+                },
+                "PLL": {
+                    "RMSE": 0.00023838370865834403,
+                    "MAX_PEAK": 0.0004406171068325193,
+                    "SETTLING": 0.0,
+                    "ENERGY": 7.671616994750343e-08,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.10182400000007874,
+                    "TIME_PER_SAMPLE_US": 6.788266666671916,
+                    "STRUCTURAL_LATENCY_MS": 16.6,
+                    "optimal_params": "Kp1.0,Ki1.0"
+                },
+                "EKF": {
+                    "RMSE": 0.0011886002210366735,
+                    "MAX_PEAK": 0.0026524341061744394,
+                    "SETTLING": 0.0,
+                    "ENERGY": 1.9072401553553797e-06,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.15803200000004836,
+                    "TIME_PER_SAMPLE_US": 10.53546666666989,
+                    "STRUCTURAL_LATENCY_MS": 0.1,
+                    "optimal_params": "Q0.01,R10.0"
+                },
+                "EKF2": {
+                    "RMSE": 0.0011457321888179348,
+                    "MAX_PEAK": 0.003577484102628148,
+                    "SETTLING": 0.0,
+                    "ENERGY": 1.7721480354662734e-06,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.3720419999999649,
+                    "TIME_PER_SAMPLE_US": 24.80279999999766,
+                    "STRUCTURAL_LATENCY_MS": 0.1,
+                    "optimal_params": "Q0.01,R10.0,InnRef0.5,EvTh1.5,Fast40.0ms"
+                },
+                "SOGI": {
+                    "RMSE": 0.29396930699879015,
+                    "MAX_PEAK": 0.3125928586496016,
+                    "SETTLING": 1.35,
+                    "ENERGY": 0.11666423716742107,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.03721999999993386,
+                    "TIME_PER_SAMPLE_US": 2.4813333333289243,
+                    "STRUCTURAL_LATENCY_MS": 16.6,
+                    "optimal_params": "k0.5,g25"
+                },
+                "RLS": {
+                    "RMSE": 0.006429316275411301,
+                    "MAX_PEAK": 0.02192258485334264,
+                    "SETTLING": 0.0,
+                    "ENERGY": 5.5803745488512685e-05,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.08318499999995765,
+                    "TIME_PER_SAMPLE_US": 5.545666666663844,
+                    "STRUCTURAL_LATENCY_MS": 2500.0,
+                    "optimal_params": "Lam0.9,Win500"
+                },
+                "Teager": {
+                    "RMSE": 5.018452477880232,
+                    "MAX_PEAK": 15.761224273867427,
+                    "SETTLING": 1.3002,
+                    "ENERGY": 33.99956811820203,
+                    "TRIP_TIME_0p5": 1.22,
+                    "MAX_CONTIGUOUS_0p5": 0.0366,
+                    "COMPLEXITY": 0.14432399999986956,
+                    "TIME_PER_SAMPLE_US": 9.621599999991304,
+                    "STRUCTURAL_LATENCY_MS": 5.0,
+                    "optimal_params": "Win50"
+                },
+                "TFT": {
+                    "RMSE": 0.0002595850743506667,
+                    "MAX_PEAK": 0.0007812667316215993,
+                    "SETTLING": 0.0,
+                    "ENERGY": 9.096895461461554e-08,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.3404050000001462,
+                    "TIME_PER_SAMPLE_US": 22.69366666667641,
+                    "STRUCTURAL_LATENCY_MS": 100.0,
+                    "optimal_params": "Cycles6"
+                },
+                "RLS-VFF": {
+                    "RMSE": 0.05854746099697002,
+                    "MAX_PEAK": 0.2647230087460244,
+                    "SETTLING": 0.0007,
+                    "ENERGY": 0.004627537005408831,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.08552599999984523,
+                    "TIME_PER_SAMPLE_US": 5.7017333333230145,
+                    "STRUCTURAL_LATENCY_MS": 100.0,
+                    "optimal_params": "lamMin0.97,Ka0.1"
+                },
+                "UKF": {
+                    "RMSE": 0.0011577074271858976,
+                    "MAX_PEAK": 0.0027133795810954098,
+                    "SETTLING": 0.0,
+                    "ENERGY": 1.8093867573978767e-06,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 1.0992180000000644,
+                    "TIME_PER_SAMPLE_US": 73.28120000000429,
+                    "STRUCTURAL_LATENCY_MS": 1.0,
+                    "optimal_params": "Q0.01,R10.0"
+                },
+                "Koopman-RKDPmu": {
+                    "RMSE": 0.0012505380627228695,
+                    "MAX_PEAK": 0.0033686800253818205,
+                    "SETTLING": 0.0,
+                    "ENERGY": 2.1111913525302013e-06,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 1.1640059999999721,
+                    "TIME_PER_SAMPLE_US": 77.60039999999815,
+                    "STRUCTURAL_LATENCY_MS": 64.0,
+                    "optimal_params": "Win640"
+                },
+                "PI-GRU": {
+                    "RMSE": 0.17694170881819904,
+                    "MAX_PEAK": 0.19001731872558736,
+                    "SETTLING": 0.0,
+                    "ENERGY": 0.04226629723133085,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 22.655894999999873,
+                    "TIME_PER_SAMPLE_US": 1510.3929999999916,
+                    "STRUCTURAL_LATENCY_MS": 10.0,
+                    "optimal_params": "PI-GRU pretrained model"
+                }
+            }
+        },
+        "IBR_Nightmare": {
+            "scenario_description": {
+                "description": "IBR Islanding Scenario (True Nightmare)",
+                "parameters": "Instantaneous Phase Jump +60 deg at t=0.7s",
+                "harmonics": "5th Harmonic (5%), Inter-harmonic 32.5Hz (2%)",
+                "noise": "High Gaussian Noise (sigma=0.005 pu)",
+                "dynamics": "Phase Discontinuity (Dirac delta frequency)"
+            },
+            "methods": {
+                "IpDFT": {
+                    "RMSE": 0.4807684003777357,
+                    "MAX_PEAK": 2.907734829815297,
+                    "SETTLING": 0.10540000000000001,
+                    "ENERGY": 0.31203664398238523,
+                    "TRIP_TIME_0p5": 0.0859,
+                    "MAX_CONTIGUOUS_0p5": 0.0859,
+                    "COMPLEXITY": 0.6123800000000301,
+                    "TIME_PER_SAMPLE_US": 40.825333333335344,
+                    "STRUCTURAL_LATENCY_MS": 166.6,
+                    "optimal_params": "10 cycles"
+                },
+                "PLL": {
+                    "RMSE": 0.06455261277252557,
+                    "MAX_PEAK": 0.09514123174778888,
+                    "SETTLING": 0.0,
+                    "ENERGY": 0.005625503751275503,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.10151700000005803,
+                    "TIME_PER_SAMPLE_US": 6.767800000003869,
+                    "STRUCTURAL_LATENCY_MS": 16.6,
+                    "optimal_params": "Kp1.0,Ki1.0"
+                },
+                "EKF": {
+                    "RMSE": 0.3248034463575529,
+                    "MAX_PEAK": 1.1111339045902966,
+                    "SETTLING": 0.23120000000000002,
+                    "ENERGY": 0.1424213263337541,
+                    "TRIP_TIME_0p5": 0.1651,
+                    "MAX_CONTIGUOUS_0p5": 0.1651,
+                    "COMPLEXITY": 0.1585529999999835,
+                    "TIME_PER_SAMPLE_US": 10.570199999998902,
+                    "STRUCTURAL_LATENCY_MS": 0.1,
+                    "optimal_params": "Q0.01,R10.0"
+                },
+                "EKF2": {
+                    "RMSE": 0.012362121626736626,
+                    "MAX_PEAK": 0.07466336545108021,
+                    "SETTLING": 0.0,
+                    "ENERGY": 0.00020630976900420974,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.37293799999997646,
+                    "TIME_PER_SAMPLE_US": 24.86253333333176,
+                    "STRUCTURAL_LATENCY_MS": 0.1,
+                    "optimal_params": "Q0.01,R10.0,InnRef0.2,EvTh1.5,Fast80.0ms"
+                },
+                "SOGI": {
+                    "RMSE": 0.4727641395698845,
+                    "MAX_PEAK": 2.3392557715513007,
+                    "SETTLING": 1.2801,
+                    "ENERGY": 0.3017330077453919,
+                    "TRIP_TIME_0p5": 0.07400000000000001,
+                    "MAX_CONTIGUOUS_0p5": 0.07400000000000001,
+                    "COMPLEXITY": 0.03693399999974645,
+                    "TIME_PER_SAMPLE_US": 2.4622666666497635,
+                    "STRUCTURAL_LATENCY_MS": 16.6,
+                    "optimal_params": "k0.5,g10"
+                },
+                "RLS": {
+                    "RMSE": 0.14830515494609978,
+                    "MAX_PEAK": 0.2585916698219819,
+                    "SETTLING": 0.23520000000000002,
+                    "ENERGY": 0.029692465627842002,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.08320599999979095,
+                    "TIME_PER_SAMPLE_US": 5.54706666665273,
+                    "STRUCTURAL_LATENCY_MS": 2500.0,
+                    "optimal_params": "Lam0.9995,Win500"
+                },
+                "Teager": {
+                    "RMSE": 8.877032413018533,
+                    "MAX_PEAK": 19.81212531156939,
+                    "SETTLING": 1.1706,
+                    "ENERGY": 106.38230102340519,
+                    "TRIP_TIME_0p5": 0.9939,
+                    "MAX_CONTIGUOUS_0p5": 0.1262,
+                    "COMPLEXITY": 0.14430999999967753,
+                    "TIME_PER_SAMPLE_US": 9.620666666645167,
+                    "STRUCTURAL_LATENCY_MS": 5.0,
+                    "optimal_params": "Win50"
+                },
+                "TFT": {
+                    "RMSE": 0.48013120911665025,
+                    "MAX_PEAK": 2.7433277624168113,
+                    "SETTLING": 0.09340000000000001,
+                    "ENERGY": 0.31121007025655234,
+                    "TRIP_TIME_0p5": 0.0873,
+                    "MAX_CONTIGUOUS_0p5": 0.0873,
+                    "COMPLEXITY": 0.34601500000007945,
+                    "TIME_PER_SAMPLE_US": 23.067666666671965,
+                    "STRUCTURAL_LATENCY_MS": 100.0,
+                    "optimal_params": "Cycles6"
+                },
+                "RLS-VFF": {
+                    "RMSE": 0.1498511259775259,
+                    "MAX_PEAK": 0.2649201390858593,
+                    "SETTLING": 0.2403,
+                    "ENERGY": 0.03031473594158866,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 0.08545000000003711,
+                    "TIME_PER_SAMPLE_US": 5.696666666669141,
+                    "STRUCTURAL_LATENCY_MS": 100.0,
+                    "optimal_params": "lamMin0.97,Ka0.1"
+                },
+                "UKF": {
+                    "RMSE": 0.32626632392339733,
+                    "MAX_PEAK": 1.117147934517888,
+                    "SETTLING": 0.23090000000000002,
+                    "ENERGY": 0.14370711407075779,
+                    "TRIP_TIME_0p5": 0.1652,
+                    "MAX_CONTIGUOUS_0p5": 0.1652,
+                    "COMPLEXITY": 1.1032179999997425,
+                    "TIME_PER_SAMPLE_US": 73.5478666666495,
+                    "STRUCTURAL_LATENCY_MS": 1.0,
+                    "optimal_params": "Q0.01,R10.0"
+                },
+                "Koopman-RKDPmu": {
+                    "RMSE": 0.4121234226513409,
+                    "MAX_PEAK": 1.7370225786819873,
+                    "SETTLING": 0.1829,
+                    "ENERGY": 0.2292917159221053,
+                    "TRIP_TIME_0p5": 0.149,
+                    "MAX_CONTIGUOUS_0p5": 0.149,
+                    "COMPLEXITY": 1.4889070000003812,
+                    "TIME_PER_SAMPLE_US": 99.26046666669208,
+                    "STRUCTURAL_LATENCY_MS": 100.0,
+                    "optimal_params": "Win1000"
+                },
+                "PI-GRU": {
+                    "RMSE": 0.1769286247072618,
+                    "MAX_PEAK": 0.18998680114746236,
+                    "SETTLING": 0.0,
+                    "ENERGY": 0.04226004662508418,
+                    "TRIP_TIME_0p5": 0.0,
+                    "MAX_CONTIGUOUS_0p5": 0.0,
+                    "COMPLEXITY": 22.905643000000055,
+                    "TIME_PER_SAMPLE_US": 1527.0428666666703,
+                    "STRUCTURAL_LATENCY_MS": 10.0,
+                    "optimal_params": "PI-GRU pretrained model"
+                }
+            }
+        },
+        "IBR_MultiEvent": {
+            "scenario_description": {
+                "description": "IBR Multi-Event Super Scenario",
+                "parameters": "5 s: (0-1s) IBR steady w/ 5th & 7th; (1.0s) +40\u00b0 phase jump; (1.2-2.5s) ROCOF -6 Hz/s; (2.5s) +80\u00b0 phase jump; (2.5-3.5s) 2nd-order ring-down in freq; (3.5-5s) harmonic-rich steady-state w/ impulsive noise.",
+                "harmonics": "5th (5%), 7th (3%), impulsive noise spikes",
+                "noise": "Gaussian (\u03c3=0.003) + rare impulsive spikes (\u03c3=0.05, p\u22485e-4)",
+                "dynamics": "Composite: phase jumps, fast ROCOF, ring-down, non-Gaussian disturbances."
+            },
+            "methods": {
+                "IpDFT": {
+                    "RMSE": 1.3614696597727285,
+                    "MAX_PEAK": 20.9359737527746,
+                    "SETTLING": 1.8883,
+                    "ENERGY": 8.989958227236095,
+                    "TRIP_TIME_0p5": 0.3355,
+                    "MAX_CONTIGUOUS_0p5": 0.1164,
+                    "COMPLEXITY": 1.40720599999986,
+                    "TIME_PER_SAMPLE_US": 28.1441199999972,
+                    "STRUCTURAL_LATENCY_MS": 100.0,
+                    "optimal_params": "6 cycles"
+                },
+                "PLL": {
+                    "RMSE": 0.4000079511258737,
+                    "MAX_PEAK": 7.244619120394127,
+                    "SETTLING": 1.3229,
+                    "ENERGY": 0.7760308506750089,
+                    "TRIP_TIME_0p5": 0.4707,
+                    "MAX_CONTIGUOUS_0p5": 0.12440000000000001,
+                    "COMPLEXITY": 0.34826699999985067,
+                    "TIME_PER_SAMPLE_US": 6.965339999997013,
+                    "STRUCTURAL_LATENCY_MS": 16.6,
+                    "optimal_params": "Kp60.0,Ki55.89655172413793"
+                },
+                "EKF": {
+                    "RMSE": 0.7891750187789555,
+                    "MAX_PEAK": 10.506389454983783,
+                    "SETTLING": 0.5099,
+                    "ENERGY": 3.0205664697841086,
+                    "TRIP_TIME_0p5": 0.11800000000000001,
+                    "MAX_CONTIGUOUS_0p5": 0.042300000000000004,
+                    "COMPLEXITY": 0.5365970000002562,
+                    "TIME_PER_SAMPLE_US": 10.731940000005125,
+                    "STRUCTURAL_LATENCY_MS": 0.1,
+                    "optimal_params": "Q0.01,R0.002682695795279727"
+                },
+                "EKF2": {
+                    "RMSE": 0.6311114148897389,
+                    "MAX_PEAK": 20.119412141499637,
+                    "SETTLING": 1.7162000000000002,
+                    "ENERGY": 1.9317628473200215,
+                    "TRIP_TIME_0p5": 0.0994,
+                    "MAX_CONTIGUOUS_0p5": 0.013600000000000001,
+                    "COMPLEXITY": 1.2875730000000658,
+                    "TIME_PER_SAMPLE_US": 25.751460000001316,
+                    "STRUCTURAL_LATENCY_MS": 0.1,
+                    "optimal_params": "Q2.5118864315095797,R0.01,InnRef0.2,EvTh3.0,Fast40.0ms"
+                },
+                "SOGI": {
+                    "RMSE": 1.2051520917047067,
+                    "MAX_PEAK": 20.31457268440286,
+                    "SETTLING": 4.4919,
+                    "ENERGY": 7.044099086080114,
+                    "TRIP_TIME_0p5": 0.7417,
+                    "MAX_CONTIGUOUS_0p5": 0.027700000000000002,
+                    "COMPLEXITY": 0.13525899999967805,
+                    "TIME_PER_SAMPLE_US": 2.705179999993561,
+                    "STRUCTURAL_LATENCY_MS": 16.6,
+                    "optimal_params": "k0.707,g100"
+                },
+                "RLS": {
+                    "RMSE": 0.65637294546802,
+                    "MAX_PEAK": 7.580642795199971,
+                    "SETTLING": 1.9554,
+                    "ENERGY": 2.0895034011804676,
+                    "TRIP_TIME_0p5": 0.4294,
+                    "MAX_CONTIGUOUS_0p5": 0.12100000000000001,
+                    "COMPLEXITY": 0.28945299999986673,
+                    "TIME_PER_SAMPLE_US": 5.789059999997335,
+                    "STRUCTURAL_LATENCY_MS": 250.0,
+                    "optimal_params": "Lam0.9,Win50"
+                },
+                "Teager": {
+                    "RMSE": 8.406287395509063,
+                    "MAX_PEAK": 24.70600102827032,
+                    "SETTLING": 4.3981,
+                    "ENERGY": 342.72848871308855,
+                    "TRIP_TIME_0p5": 3.8626,
+                    "MAX_CONTIGUOUS_0p5": 0.15960000000000002,
+                    "COMPLEXITY": 0.5033659999999145,
+                    "TIME_PER_SAMPLE_US": 10.06731999999829,
+                    "STRUCTURAL_LATENCY_MS": 5.0,
+                    "optimal_params": "Win50"
+                },
+                "TFT": {
+                    "RMSE": 0.8399866131027506,
+                    "MAX_PEAK": 17.450290019823484,
+                    "SETTLING": 1.6613,
+                    "ENERGY": 3.422050924430376,
+                    "TRIP_TIME_0p5": 0.7754000000000001,
+                    "MAX_CONTIGUOUS_0p5": 0.5655,
+                    "COMPLEXITY": 0.8484419999999773,
+                    "TIME_PER_SAMPLE_US": 16.968839999999545,
+                    "STRUCTURAL_LATENCY_MS": 66.60000000000001,
+                    "optimal_params": "Cycles4"
+                },
+                "RLS-VFF": {
+                    "RMSE": 1.9610673020998879,
+                    "MAX_PEAK": 7.7988,
+                    "SETTLING": 1.8601,
+                    "ENERGY": 18.652057072321867,
+                    "TRIP_TIME_0p5": 1.5330000000000001,
+                    "MAX_CONTIGUOUS_0p5": 1.2383,
+                    "COMPLEXITY": 0.3020880000003672,
+                    "TIME_PER_SAMPLE_US": 6.0417600000073435,
+                    "STRUCTURAL_LATENCY_MS": 100.0,
+                    "optimal_params": "lamMin0.97,Ka0.1"
+                },
+                "UKF": {
+                    "RMSE": 0.7917411962716867,
+                    "MAX_PEAK": 10.483972805735121,
+                    "SETTLING": 0.3637,
+                    "ENERGY": 3.0402424910875494,
+                    "TRIP_TIME_0p5": 0.1192,
+                    "MAX_CONTIGUOUS_0p5": 0.0439,
+                    "COMPLEXITY": 3.8582580000002054,
+                    "TIME_PER_SAMPLE_US": 77.16516000000411,
+                    "STRUCTURAL_LATENCY_MS": 1.0,
+                    "optimal_params": "Q0.01,R0.002682695795279727"
+                },
+                "Koopman-RKDPmu": {
+                    "RMSE": 0.47561926208210215,
+                    "MAX_PEAK": 7.532671992917514,
+                    "SETTLING": 0.8340000000000001,
+                    "ENERGY": 1.0971363599480886,
+                    "TRIP_TIME_0p5": 0.13720000000000002,
+                    "MAX_CONTIGUOUS_0p5": 0.0344,
+                    "COMPLEXITY": 2.0198630000004414,
+                    "TIME_PER_SAMPLE_US": 40.39726000000883,
+                    "STRUCTURAL_LATENCY_MS": 8.0,
+                    "optimal_params": "Win80"
+                },
+                "PI-GRU": {
+                    "RMSE": 2.2739308074327518,
+                    "MAX_PEAK": 7.628354696655272,
+                    "SETTLING": 1.8402,
+                    "ENERGY": 25.07819238741007,
+                    "TRIP_TIME_0p5": 1.5128000000000001,
+                    "MAX_CONTIGUOUS_0p5": 1.1860000000000002,
+                    "COMPLEXITY": 79.2456059999995,
+                    "TIME_PER_SAMPLE_US": 1584.91211999999,
+                    "STRUCTURAL_LATENCY_MS": 10.0,
+                    "optimal_params": "PI-GRU pretrained model"
+                }
+            }
+        }
+    }
+}
