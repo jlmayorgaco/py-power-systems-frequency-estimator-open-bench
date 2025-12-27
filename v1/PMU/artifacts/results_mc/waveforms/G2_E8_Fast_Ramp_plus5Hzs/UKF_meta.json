@@ -1,0 +1,282 @@
+{
+  "exec_t": 3.8579979999922216,
+  "latency": 1,
+  "method": "UKF",
+  "metrics": {
+    "CVAR95_ABS_ERR": {
+      "name": "CVAR95_ABS_ERR",
+      "raw": 49.88788392963353,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "Hz"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 49.88788392963353
+    },
+    "CVAR99_ABS_ERR": {
+      "name": "CVAR99_ABS_ERR",
+      "raw": 50.632812519709304,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "Hz"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 50.632812519709304
+    },
+    "FE_max_mHz": {
+      "name": "FE_max_mHz",
+      "raw": 50828.94310359778,
+      "spec": {
+        "formula": "",
+        "threshold": 5.0,
+        "units": "mHz"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 50828.94310359778
+    },
+    "LATENCY_SAMPLES": {
+      "name": "LATENCY_SAMPLES",
+      "raw": 1.0,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "samples"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 1.0
+    },
+    "MAE": {
+      "name": "MAE",
+      "raw": 23.242804998570094,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "Hz"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 23.242804998570094
+    },
+    "Nadir_Mag_Err": {
+      "name": "Nadir_Mag_Err",
+      "raw": -30.829443103597786,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "Hz"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": -30.829443103597786
+    },
+    "Nadir_Time_Err": {
+      "name": "Nadir_Time_Err",
+      "raw": 4899.9,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "ms"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 4899.9
+    },
+    "Overshoot": {
+      "name": "Overshoot",
+      "raw": 0.001007108925513478,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "Hz"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 0.001007108925513478
+    },
+    "P50_ABS_ERR": {
+      "name": "P50_ABS_ERR",
+      "raw": 20.602073263762204,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "Hz"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 20.602073263762204
+    },
+    "P5_ABS_ERR": {
+      "name": "P5_ABS_ERR",
+      "raw": 3.5861135313296755,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "Hz"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 3.5861135313296755
+    },
+    "P95_ABS_ERR": {
+      "name": "P95_ABS_ERR",
+      "raw": 48.998672353035836,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "Hz"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 48.998672353035836
+    },
+    "P99_ABS_ERR": {
+      "name": "P99_ABS_ERR",
+      "raw": 50.43790398880217,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "Hz"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 50.43790398880217
+    },
+    "RFE_RMSE": {
+      "name": "RFE_RMSE",
+      "raw": 459.6545198928422,
+      "spec": {
+        "formula": "",
+        "threshold": 0.1,
+        "units": "Hz/s^2"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 459.6545198928422
+    },
+    "RMSE": {
+      "name": "RMSE",
+      "raw": 28.23622098594882,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "Hz"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 28.23622098594882
+    },
+    "Settling_Time": {
+      "name": "Settling_Time",
+      "raw": 4.9,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "s"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 4.9
+    },
+    "TIME_PER_SAMPLE_US": {
+      "name": "TIME_PER_SAMPLE_US",
+      "raw": 77.15995999984443,
+      "spec": {
+        "formula": "",
+        "threshold": null,
+        "units": "us"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 77.15995999984443
+    },
+    "TRIP_TIME_0p2": {
+      "name": "TRIP_TIME_0p2",
+      "raw": 0.1044,
+      "spec": {
+        "formula": "",
+        "threshold": 0.2,
+        "units": "s"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 0.1044
+    },
+    "TRIP_TIME_0p5": {
+      "name": "TRIP_TIME_0p5",
+      "raw": 0.1054,
+      "spec": {
+        "formula": "",
+        "threshold": 0.5,
+        "units": "s"
+      },
+      "status": {
+        "code": "SUCCESS",
+        "reason": "Computed successfully.",
+        "triggered": true
+      },
+      "value": 0.1054
+    }
+  },
+  "tuning": {
+    "Q": 0.01,
+    "R": 0.0001,
+    "smooth_win": 10
+  }
+}

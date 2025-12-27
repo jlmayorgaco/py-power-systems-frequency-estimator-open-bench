@@ -1,0 +1,11 @@
+{
+    "scenario": "G2_E5_Voltage_Mag_Step_10pct",
+    "method": "IpDFT",
+    "seed": 124,
+    "params": {
+        "label": "cycles=100,decim=50",
+        "latency": 8333,
+        "exec_time": 0.34449708298780024
+    },
+    "fs_hz": 9999.999999978896
+}

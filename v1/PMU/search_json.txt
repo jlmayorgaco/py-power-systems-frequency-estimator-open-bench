@@ -1,0 +1,4 @@
+./project_io/config.py:14:        json.dump(cfg, f, indent=2)
+./project_io/writers.py:21:            json.dump(sanitize_json(payload), f, indent=self.indent, sort_keys=self.sort_keys)
+./project_io/writers.py:26:            json.dump(sanitize_json(payload), f, separators=(",", ":"), sort_keys=self.sort_keys)
+./experiments/io.py:54:        json.dump(payload, f, indent=2)

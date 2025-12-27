@@ -1,0 +1,11 @@
+{
+    "scenario": "G1_E3_Gaussian_Noise_5pct",
+    "method": "IpDFT",
+    "seed": 124,
+    "params": {
+        "label": "cycles=100,decim=50",
+        "latency": 8333,
+        "exec_time": 0.32262429199181497
+    },
+    "fs_hz": 9999.999999978896
+}

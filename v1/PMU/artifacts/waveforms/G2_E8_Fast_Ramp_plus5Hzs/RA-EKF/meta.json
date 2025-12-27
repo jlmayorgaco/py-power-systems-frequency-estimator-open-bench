@@ -1,0 +1,11 @@
+{
+    "scenario": "G2_E8_Fast_Ramp_plus5Hzs",
+    "method": "RA-EKF",
+    "seed": 124,
+    "params": {
+        "label": "default",
+        "latency": 1,
+        "exec_time": 0.2954227499430999
+    },
+    "fs_hz": 9999.999999978896
+}

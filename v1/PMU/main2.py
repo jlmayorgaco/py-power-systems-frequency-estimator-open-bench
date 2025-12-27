@@ -1,201 +1,258 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""
-main2.py - LIGHT benchmark:
-    - Métodos: RLS y RLS-VFF únicamente
-    - Escenarios: IEEE_Mag_Step, IEEE_Modulation
-    - Usa directamente las funciones de estimators.py:
-        * get_test_signals
-        * RLS_Estimator
-        * RLS_VFF_Estimator
-        * calculate_metrics
-        * tune_rls
-        * tune_vff_rls
-"""
-
 import numpy as np
-import time
-import sys
-import json
-import platform
-import datetime
+import matplotlib.pyplot as plt
+import scipy.linalg as la
+import os
 
-from estimators import (
-    SEED,
-    FS_PHYSICS,
-    FS_DSP,
-    RATIO,
-    get_test_signals,
-    RLS_Estimator,
-    RLS_VFF_Estimator,
-    calculate_metrics,
-    tune_rls,
-    tune_vff_rls,
-)
+# ==========================================
+# 1. CONFIGURACIÓN DE ESTILO IEEE (Ready to Publish)
+# ==========================================
+def set_ieee_style():
+    # Ancho de columna IEEE standard (3.5 pulgadas aprox)
+    fig_width = 3.5 
+    golden_mean = (np.sqrt(5) - 1.0) / 2.0  
+    fig_height = fig_width * golden_mean 
+    
+    plt.rcParams.update({
+        'font.family': 'serif',
+        'font.serif': ['Times New Roman'],
+        'axes.labelsize': 9,
+        'font.size': 9,
+        'legend.fontsize': 8,
+        'xtick.labelsize': 8,
+        'ytick.labelsize': 8,
+        'text.usetex': False, # Cambiar a True si tienes LaTeX instalado localmente
+        'figure.figsize': [fig_width, fig_height],
+        'lines.linewidth': 1.5,
+        'axes.grid': True,
+        'grid.alpha': 0.3,
+        'grid.linestyle': '--',
+        'savefig.bbox': 'tight',
+        'savefig.dpi': 300
+    })
 
-from plotting import (
-    OUTPUT_DIR,
-    save_plots,
-    save_metrics_summary,
-)
+set_ieee_style()
 
+# Crear carpeta de salida
+output_dir = "paper_plots"
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 
-# =============================================================
-# MAIN LIGHT
-# =============================================================
-def run_benchmark_light():
+# ==========================================
+# 2. MODELO DEL SISTEMA (WSCC 9-BUS KRON-REDUCED)
+# ==========================================
 
-    signals = get_test_signals()
+# Parámetros Base (P.U.)
+M_base = np.array([10.0, 8.0, 6.0]) # Nodos 1, 2, 3
+D_base = np.array([2.0, 1.5, 1.0])  # Amortiguamiento base
+# Pesos de las líneas (Susceptancia efectiva)
+w_12 = 5.0
+w_23 = 4.0
+w_13 = 3.0
 
-    json_export = {
-        "metadata": {
-            "timestamp": str(datetime.datetime.now()),
-            "description": (
-                "LIGHT benchmark: RLS & RLS-VFF únicamente, "
-                "solo escenarios IEEE_Mag_Step y IEEE_Modulation."
-            ),
-            "pc_hostname": platform.node(),
-            "machine_arch": platform.machine(),
-            "cpu_processor": platform.processor(),
-            "os_platform": platform.platform(),
-            "python_version": sys.version.split()[0],
-            "random_seed": SEED,
-            "fs_physics_hz": FS_PHYSICS,
-            "fs_dsp_hz": FS_DSP,
-            "downsampling_ratio": RATIO,
-        },
-        "results": {},
-    }
+def get_laplacian(w12, w23, w13):
+    """Construye la matriz Laplaciana L 3x3"""
+    L = np.array([
+        [w12 + w13, -w12, -w13],
+        [-w12, w12 + w23, -w23],
+        [-w13, -w23, w13 + w23]
+    ])
+    return L
 
-    # Grids pequeños para LIGHT run
-    p_rls_lam = [0.95]
-    p_rls_win = [40]
+def get_spectral_metrics(M, L):
+    """Calcula el autovalor crítico nu_c y el autovector q_c"""
+    # Mass-Normalized Laplacian: L_tilde = M^(-1/2) L M^(-1/2)
+    M_sqrt_inv = np.diag(1.0 / np.sqrt(M))
+    L_tilde = M_sqrt_inv @ L @ M_sqrt_inv
+    
+    # Autovalores
+    eigvals, eigvecs = la.eigh(L_tilde)
+    
+    # Ordenar (nu1=0, nu2=critico, nu3=rapido)
+    idx = np.argsort(eigvals)
+    eigvals = eigvals[idx]
+    eigvecs = eigvecs[:, idx]
+    
+    nu_c = eigvals[1] # El segundo más pequeño (Fiedler generalizado)
+    q_c = eigvecs[:, 1]
+    
+    return nu_c, q_c, L_tilde
 
-    p_vff_lam_min = [0.90, 0.95]
-    p_vff_alpha = [1.0, 2.0, 5.0]
-    vff_win_smooth = 20
-    decim_common = 50  # debe coincidir con tune_rls / tune_vff_rls
+# ==========================================
+# 3. FIGURA 1: THE HOSTING POLYTOPE
+# ==========================================
+print("Generando Figura 1: Hosting Polytope...")
 
-    print(f"Running LIGHT Benchmark (RLS & RLS-VFF only) @ {FS_DSP} Hz ...")
-    print("-" * 80)
+# Barrido de parámetros (Penetración de Inversores en Nodos 1 y 2)
+# rho = 0 (SG), rho = 1 (GFL casi puro)
+N = 100
+rho_vals = np.linspace(0, 0.9, N) # Hasta 90% para evitar singularidad M=0
+X, Y = np.meshgrid(rho_vals, rho_vals)
+Z_exact = np.zeros((N, N))
+Z_poly = np.zeros((N, N))
 
-    scenarios_light = ["IEEE_Mag_Step", "IEEE_Modulation"]
+# Estado Base (rho=0)
+L_base = get_laplacian(w_12, w_23, w_13)
+nu_base, q_base, _ = get_spectral_metrics(M_base, L_base)
+nu_min = 0.2 # Umbral de seguridad definido
 
-    for sc_name in scenarios_light:
-        if sc_name not in signals:
-            print(f"[WARN] Scenario {sc_name} no está en get_test_signals(), se omite.")
-            continue
+# Cálculo de Pesos del Politopo (Sensibilidad Analítica)
+# w_i = (nu_c / M_i) * q_ci^2 * Delta_M
+Delta_M1 = M_base[0] # Asumiendo reemplazo total
+Delta_M2 = M_base[1]
+weight_1 = (nu_base / M_base[0]) * (q_base[0]**2) * Delta_M1
+weight_2 = (nu_base / M_base[1]) * (q_base[1]**2) * Delta_M2
+budget = nu_base - nu_min
 
-        print(f">> Processing SCENARIO (LIGHT): {sc_name}")
+for i in range(N):
+    for j in range(N):
+        rho1 = X[i, j]
+        rho2 = Y[i, j]
+        
+        # Inercia actual
+        M_curr = M_base.copy()
+        M_curr[0] *= (1 - rho1)
+        M_curr[1] *= (1 - rho2)
+        
+        # Exacto
+        nu_curr, _, _ = get_spectral_metrics(M_curr, L_base)
+        Z_exact[i, j] = nu_curr
+        
+        # Aproximación Lineal (Politopo)
+        # Condición: w1*rho1 + w2*rho2 <= budget
+        # Visualizamos el margen: Margen = Budget - Costo
+        margin = budget - (weight_1 * rho1 + weight_2 * rho2)
+        Z_poly[i, j] = nu_base - (weight_1 * rho1 + weight_2 * rho2)
 
-        t_phys, v_ana, f_true, meta = signals[sc_name]
+# Plotting
+fig1, ax1 = plt.subplots()
+# Región de Estabilidad Exacta
+cs = ax1.contourf(X, Y, Z_exact, levels=20, cmap='RdYlBu', alpha=0.8)
+# Frontera Exacta (nu_c = nu_min)
+exact_line = ax1.contour(X, Y, Z_exact, levels=[nu_min], colors='black', linewidths=2, linestyles='-')
+# Frontera del Politopo (Lineal)
+poly_line = ax1.contour(X, Y, Z_poly, levels=[nu_min], colors='white', linewidths=2, linestyles='--')
 
-        # Downsample a 10 kHz
-        v_dsp = v_ana[::RATIO]
-        f_target = f_true[::RATIO]
-        t_dsp = t_phys[::RATIO]
+ax1.set_xlabel(r'Inv. Penetration Node 1 ($\rho_1$)')
+ax1.set_ylabel(r'Inv. Penetration Node 2 ($\rho_2$)')
+ax1.set_title('Spectral Hosting Polytope')
 
-        results_map = {}
-        json_export["results"][sc_name] = {
-            "scenario_description": meta,
-            "methods": {},
-        }
+# Leyenda manual
+from matplotlib.lines import Line2D
+legend_elements = [
+    Line2D([0], [0], color='black', lw=2, label='Exact Boundary'),
+    Line2D([0], [0], color='white', lw=2, ls='--', label='Linear Certificate'),
+    Line2D([0], [0], marker='s', color='w', markerfacecolor='blue', alpha=0.3, label='Safe Region')
+]
+ax1.legend(handles=legend_elements, loc='upper right', frameon=True)
 
-        # =========================================================
-        # 1) RLS (baseline)
-        # =========================================================
-        p_str_rls, (lam_rls, win_rls) = tune_rls(
-            v_dsp,
-            f_target,
-            lam_vals=p_rls_lam,
-            win_vals=p_rls_win,
-            sc_name=sc_name,
-        )
+plt.savefig(f"{output_dir}/fig1_hosting_polytope.pdf")
+plt.savefig(f"{output_dir}/fig1_hosting_polytope.png")
+print("--> Figura 1 guardada.")
 
-        t0 = time.process_time()
-        algo_rls = RLS_Estimator(
-            lam=lam_rls,
-            win_smooth=win_rls,
-            decim=decim_common,
-        )
-        tr_rls = np.array([algo_rls.step(x) for x in v_dsp])
-        exec_t_rls = time.process_time() - t0
+# ==========================================
+# 4. FIGURA 2: FRAGILITY MAP
+# ==========================================
+print("Generando Figura 2: Fragility Map...")
 
-        m_rls = calculate_metrics(
-            tr_rls,
-            f_target,
-            exec_t_rls,
-            structural_samples=algo_rls.smooth_win * algo_rls.decim,
-        )
-        m_rls["optimal_params"] = p_str_rls
-        results_map["RLS"] = {**m_rls, "trace": tr_rls}
+# Nodal Fragility: F_i = (nu_c / M_i) * q_i^2
+nodal_frag = (nu_base / M_base) * (q_base**2)
 
-        # =========================================================
-        # 2) RLS-VFF (usa tune_vff_rls de estimators.py)
-        # =========================================================
-        p_str_vff, (lam_min_vff, Ka_vff) = tune_vff_rls(
-            v_dsp,
-            f_target,
-            lam_min_vals=p_vff_lam_min,
-            alpha_vals=p_vff_alpha,
-            sc_name=sc_name,
-        )
+# Edge Fragility: E_ij = (q_i/sqrt(M_i) - q_j/sqrt(M_j))^2
+# Links: (1,2), (2,3), (1,3)
+def calc_edge_frag(i, j, q, M):
+    return (q[i]/np.sqrt(M[i]) - q[j]/np.sqrt(M[j]))**2
 
-        t0 = time.process_time()
-        algo_vff = RLS_VFF_Estimator(
-            lam_min=lam_min_vff,
-            lam_max=0.9995,
-            Ka=Ka_vff,       # Ka controla la ventana exponencial
-            Kb=None,         # Kb = Ka internamente
-            win_smooth=vff_win_smooth,
-            decim=decim_common,
-        )
-        tr_vff = np.array([algo_vff.step(x) for x in v_dsp])
-        exec_t_vff = time.process_time() - t0
+edge_frag = [
+    calc_edge_frag(0, 1, q_base, M_base), # Line 1-2
+    calc_edge_frag(1, 2, q_base, M_base), # Line 2-3
+    calc_edge_frag(0, 2, q_base, M_base)  # Line 1-3
+]
+edge_labels = ['L1-2', 'L2-3', 'L1-3']
 
-        m_vff = calculate_metrics(
-            tr_vff,
-            f_target,
-            exec_t_vff,
-            structural_samples=algo_vff.smooth_win * algo_vff.decim,
-        )
-        m_vff["optimal_params"] = p_str_vff
-        results_map["RLS-VFF"] = {**m_vff, "trace": tr_vff}
+fig2, (ax2a, ax2b) = plt.subplots(1, 2, figsize=(4, 2.5), constrained_layout=True)
 
-        # =========================================================
-        # PLOTS por escenario
-        # =========================================================
-        save_plots(sc_name, t_dsp, f_target, results_map)
+# Nodal Bar Chart
+bars1 = ax2a.bar(['N1', 'N2', 'N3'], nodal_frag, color='#1f77b4', alpha=0.8)
+ax2a.set_ylabel(r'Nodal Fragility $\mathcal{F}_i$')
+ax2a.set_title('Node Sensitivity')
+ax2a.grid(axis='x')
 
-        # Export JSON por escenario (sin el trace)
-        for method, vals in results_map.items():
-            json_export["results"][sc_name]["methods"][method] = {
-                key: val for key, val in vals.items() if key != "trace"
-            }
-            print(
-                f"   [{method:<10}] RMSE={vals['RMSE']:.4f} | "
-                f"Peak={vals['MAX_PEAK']:.2f} | "
-                f"TripTime={vals['TRIP_TIME_0p5']:.4f}s | "
-                f"CPU={vals['TIME_PER_SAMPLE_US']:.2e}µs"
-            )
+# Highlight critical node
+max_idx = np.argmax(nodal_frag)
+bars1[max_idx].set_color('#d62728') # Rojo para el crítico
 
-    # =============================================================
-    # GLOBAL SUMMARY
-    # =============================================================
-    save_metrics_summary(json_export)
+# Edge Bar Chart
+bars2 = ax2b.bar(edge_labels, edge_frag, color='#2ca02c', alpha=0.8)
+ax2b.set_ylabel(r'Edge Fragility $\mathcal{E}_{ij}$')
+ax2b.set_title('Link Sensitivity')
+ax2b.grid(axis='x')
 
-    with open(f"{OUTPUT_DIR}/benchmark_results_light.json", "w") as f:
-        json.dump(json_export, f, indent=4)
+plt.savefig(f"{output_dir}/fig2_fragility_map.pdf")
+plt.savefig(f"{output_dir}/fig2_fragility_map.png")
+print("--> Figura 2 guardada.")
 
-    print(
-        f"\nLIGHT Benchmark Complete. "
-        f"Results saved in {OUTPUT_DIR}/benchmark_results_light.json"
-    )
+# ==========================================
+# 5. FIGURA 3: DYNAMIC BRAESS EFFECT
+# ==========================================
+print("Generando Figura 3: Braess Effect...")
 
+# Simulación: Aumentar w_13 (Línea 1-3)
+# Efecto físico: Aumentar w mejora rigidez (nu_c sube)
+# Efecto adverso: Interacción PLL reduce amortiguamiento efectivo (delta baja)
+# Modelo: D_eff = D_base - alpha * Delta_w
+alpha_braess = 0.6 
+w_vals = np.linspace(3.0, 8.0, 50)
+real_parts = []
+stiffness_vals = []
 
-# =============================================================
-# Entry point
-# =============================================================
-if __name__ == "__main__":
-    run_benchmark_light()
+for w in w_vals:
+    # 1. Actualizar Topología
+    L_curr = get_laplacian(w_12, w_23, w)
+    
+    # 2. Actualizar Rigidez Espectral
+    nu_c, _, _ = get_spectral_metrics(M_base, L_curr)
+    stiffness_vals.append(nu_c)
+    
+    # 3. Calcular Amortiguamiento Efectivo (Braess Interaction)
+    delta_w = w - 3.0
+    D_eff = D_base * (1 - 0.1 * delta_w * alpha_braess) # Reducción fenomenológica
+    
+    # 4. Calcular Polo Dominante Exacto (s = -delta/2 +/- sqrt(...))
+    # Aproximación modal: Re(s) ~ -delta_eff / 2
+    # Modal damping delta_k = q^T D_tilde q
+    M_sqrt_inv = np.diag(1.0 / np.sqrt(M_base))
+    D_tilde = M_sqrt_inv @ np.diag(D_eff) @ M_sqrt_inv
+    _, q_curr, _ = get_spectral_metrics(M_base, L_curr)
+    
+    modal_damping = q_curr.T @ D_tilde @ q_curr
+    real_parts.append(-modal_damping / 2.0)
+
+fig3, ax3 = plt.subplots()
+
+# Eje primario: Margen de Estabilidad (Parte Real)
+ln1 = ax3.plot(w_vals, real_parts, 'r-', label='Stability Margin (Re{s})', linewidth=2)
+ax3.set_xlabel(r'Link Strength $w_{13}$ [p.u.]')
+ax3.set_ylabel(r'Stability Margin ($\sigma$)', color='r')
+ax3.tick_params(axis='y', labelcolor='r')
+
+# Zona de Inestabilidad
+ax3.axhspan(-0.02, min(real_parts), color='red', alpha=0.1)
+ax3.text(6.5, min(real_parts)*0.9, 'UNSTABLE\n(Braess)', color='red', fontsize=8, ha='center')
+
+# Eje secundario: Rigidez Espectral (nu_c)
+ax3b = ax3.twinx()
+ln2 = ax3b.plot(w_vals, stiffness_vals, 'b--', label=r'Spectral Stiffness ($\nu_c$)', alpha=0.6)
+ax3b.set_ylabel(r'Spectral Stiffness $\nu_c$', color='b')
+ax3b.tick_params(axis='y', labelcolor='b')
+
+# Leyenda combinada
+lns = ln1 + ln2
+labs = [l.get_label() for l in lns]
+ax3.legend(lns, labs, loc='upper center', frameon=False)
+
+plt.title('Dynamic Braess Effect')
+plt.savefig(f"{output_dir}/fig3_braess_effect.pdf")
+plt.savefig(f"{output_dir}/fig3_braess_effect.png")
+print("--> Figura 3 guardada.")
+
+print("\n¡Todo listo! Gráficos guardados en la carpeta 'paper_plots'.")

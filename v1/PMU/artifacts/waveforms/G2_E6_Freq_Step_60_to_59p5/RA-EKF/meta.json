@@ -1,0 +1,11 @@
+{
+    "scenario": "G2_E6_Freq_Step_60_to_59p5",
+    "method": "RA-EKF",
+    "seed": 124,
+    "params": {
+        "label": "default",
+        "latency": 1,
+        "exec_time": 0.29276587499771267
+    },
+    "fs_hz": 9999.999999978896
+}

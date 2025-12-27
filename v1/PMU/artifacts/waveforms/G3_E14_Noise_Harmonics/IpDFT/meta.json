@@ -1,0 +1,11 @@
+{
+    "scenario": "G3_E14_Noise_Harmonics",
+    "method": "IpDFT",
+    "seed": 124,
+    "params": {
+        "label": "cycles=100,decim=50",
+        "latency": 8333,
+        "exec_time": 0.3476924579590559
+    },
+    "fs_hz": 9999.999999978896
+}

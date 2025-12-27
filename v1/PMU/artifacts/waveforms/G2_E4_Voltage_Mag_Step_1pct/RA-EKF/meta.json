@@ -1,0 +1,11 @@
+{
+    "scenario": "G2_E4_Voltage_Mag_Step_1pct",
+    "method": "RA-EKF",
+    "seed": 124,
+    "params": {
+        "label": "default",
+        "latency": 1,
+        "exec_time": 0.29511862504296005
+    },
+    "fs_hz": 9999.999999978896
+}

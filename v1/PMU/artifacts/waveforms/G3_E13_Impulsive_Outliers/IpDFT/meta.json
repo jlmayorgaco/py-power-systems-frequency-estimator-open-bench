@@ -1,0 +1,11 @@
+{
+    "scenario": "G3_E13_Impulsive_Outliers",
+    "method": "IpDFT",
+    "seed": 124,
+    "params": {
+        "label": "cycles=100,decim=50",
+        "latency": 8333,
+        "exec_time": 0.378380540991202
+    },
+    "fs_hz": 9999.999999978896
+}

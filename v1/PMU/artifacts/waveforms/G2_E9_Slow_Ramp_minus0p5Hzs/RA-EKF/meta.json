@@ -1,0 +1,11 @@
+{
+    "scenario": "G2_E9_Slow_Ramp_minus0p5Hzs",
+    "method": "RA-EKF",
+    "seed": 124,
+    "params": {
+        "label": "default",
+        "latency": 1,
+        "exec_time": 0.2954477909952402
+    },
+    "fs_hz": 9999.999999978896
+}

@@ -1,0 +1,11 @@
+{
+    "scenario": "G3_E11_FM_Modulation",
+    "method": "RA-EKF",
+    "seed": 124,
+    "params": {
+        "label": "default",
+        "latency": 1,
+        "exec_time": 0.2926504169590771
+    },
+    "fs_hz": 9999.999999978896
+}

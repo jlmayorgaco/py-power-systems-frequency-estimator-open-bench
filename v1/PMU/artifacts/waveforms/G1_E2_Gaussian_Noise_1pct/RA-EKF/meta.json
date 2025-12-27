@@ -1,0 +1,11 @@
+{
+    "scenario": "G1_E2_Gaussian_Noise_1pct",
+    "method": "RA-EKF",
+    "seed": 124,
+    "params": {
+        "label": "default",
+        "latency": 1,
+        "exec_time": 0.3049999999348074
+    },
+    "fs_hz": 9999.999999978896
+}

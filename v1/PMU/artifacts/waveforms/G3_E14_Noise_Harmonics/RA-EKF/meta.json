@@ -1,0 +1,11 @@
+{
+    "scenario": "G3_E14_Noise_Harmonics",
+    "method": "RA-EKF",
+    "seed": 124,
+    "params": {
+        "label": "default",
+        "latency": 1,
+        "exec_time": 0.29186741705052555
+    },
+    "fs_hz": 9999.999999978896
+}
