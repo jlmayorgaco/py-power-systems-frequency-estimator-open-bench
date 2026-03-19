@@ -8,32 +8,34 @@ All canonical definitions have moved to:
 This module re-exports those symbols so that existing imports continue to work
 without modification.  New code should import directly from the canonical paths.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
-from openfreqbench.estimators.common.base import BaseEstimator          # noqa: F401
-from openfreqbench.estimators.common.types import TuningParam, TuningSpec  # noqa: F401
-
+from openfreqbench.estimators.common.base import BaseEstimator
+from openfreqbench.estimators.common.types import TuningParam, TuningSpec
 
 # ── Kept here for backward compat (not in common/ — it's an instance snapshot) ──
+
 
 @dataclass
 class EstimatorMeta:
     """Lightweight instance metadata snapshot (backward-compat)."""
-    name:         str
-    family:       str
-    family_path:  str
-    params:       Dict[str, Any]
-    latency:      int
-    complexity:   str
+
+    name: str
+    family: str
+    family_path: str
+    params: dict[str, Any]
+    latency: int
+    complexity: str
     latency_type: str
 
 
 __all__ = [
     "BaseEstimator",
+    "EstimatorMeta",
     "TuningParam",
     "TuningSpec",
-    "EstimatorMeta",
 ]

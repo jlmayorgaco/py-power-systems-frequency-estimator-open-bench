@@ -1,10 +1,11 @@
 """Integration test: ScenarioMethodRunner MC loop."""
+
 from __future__ import annotations
 
-from openfreqbench.scenarios.g1.e1_pure_60hz import G1_E1_Pure_60Hz
 from openfreqbench.estimators.zero_crossing import ZeroCrossingEstimator
-from openfreqbench.runners.scenario_method_runner import ScenarioMethodRunner
 from openfreqbench.metrics.frequency import MetricConfig
+from openfreqbench.runners.scenario_method_runner import ScenarioMethodRunner
+from openfreqbench.scenarios.g1.e1_pure_60hz import G1_E1_Pure_60Hz
 
 
 def test_scenario_method_runner_three_seeds():

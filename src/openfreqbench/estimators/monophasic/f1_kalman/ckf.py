@@ -13,11 +13,12 @@ Algorithm sketch
 References
 ──────────
   Arasaratnam, I. & Haykin, S. (2009). "Cubature Kalman Filters."
-  IEEE Trans. Automatic Control, 54(6), 1254–1269.
+  IEEE Trans. Automatic Control, 54(6), 1254-1269.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -43,19 +44,27 @@ class CKFEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "q_omega": 1.0, "r": 0.01}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="q_omega", default=1.0, type="float",
-                            range=(1e-4, 10.0, 8),
-                            description="Process noise std-dev on angular frequency."),
-                TuningParam(name="r", default=0.01, type="float",
-                            range=(1e-4, 1.0, 8),
-                            description="Measurement noise variance."),
+                TuningParam(
+                    name="q_omega",
+                    default=1.0,
+                    type="float",
+                    range=(1e-4, 10.0, 8),
+                    description="Process noise std-dev on angular frequency.",
+                ),
+                TuningParam(
+                    name="r",
+                    default=0.01,
+                    type="float",
+                    range=(1e-4, 1.0, 8),
+                    description="Measurement noise variance.",
+                ),
             ],
             objective="RMSE_HZ",
         )

@@ -1,6 +1,7 @@
 """Smoke test: ofb doctor command."""
-from typer.testing import CliRunner
+
 from openfreqbench.cli.app import app
+from typer.testing import CliRunner
 
 
 def test_doctor_exits_ok():

@@ -1,8 +1,8 @@
 """Integration test: ArtifactStore save/load."""
+
 from __future__ import annotations
 
-from pathlib import Path
-from openfreqbench.io.artifact_store import ArtifactStore, ArtifactIdentity
+from openfreqbench.io.artifact_store import ArtifactIdentity, ArtifactStore
 
 
 def test_artifact_store_save_and_exists(tmp_path):

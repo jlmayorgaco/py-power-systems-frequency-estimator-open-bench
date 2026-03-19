@@ -13,11 +13,12 @@ References
 ──────────
   Roy, R. & Kailath, T. (1989). "ESPRIT — Estimation of signal
   parameters via rotational invariance techniques." IEEE Trans. ASSP,
-  37(7), 984–995.
+  37(7), 984-995.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -43,19 +44,27 @@ class ESPRITEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "window_size": 512, "model_order": 2}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="window_size", default=512, type="int",
-                            values=[256, 512, 1024],
-                            description="Signal snapshot window length."),
-                TuningParam(name="model_order", default=2, type="int",
-                            values=[1, 2, 3, 4],
-                            description="Number of complex poles to extract."),
+                TuningParam(
+                    name="window_size",
+                    default=512,
+                    type="int",
+                    values=[256, 512, 1024],
+                    description="Signal snapshot window length.",
+                ),
+                TuningParam(
+                    name="model_order",
+                    default=2,
+                    type="int",
+                    values=[1, 2, 3, 4],
+                    description="Number of complex poles to extract.",
+                ),
             ],
             objective="RMSE_HZ",
         )

@@ -11,7 +11,7 @@ Algorithm sketch
   reservoir activations.
 
   Update law (per sample):
-    x[n] = tanh(W_in · v[n] + W_res · x[n−1])
+    x[n] = tanh(W_in · v[n] + W_res · x[n-1])
     f_hat[n] = W_out · x[n]   (online: updated by recursive LS)
 
   The reservoir must satisfy the Echo State Property (ESP):
@@ -24,11 +24,12 @@ References
   Research Center for Information Technology.
 
   Lukoševičius, M. & Jaeger, H. (2009). "Reservoir computing approaches
-  to recurrent neural network training." Computer Science Review, 3(3), 127–149.
+  to recurrent neural network training." Computer Science Review, 3(3), 127-149.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.ml_base import BaseMLEstimator
 from openfreqbench.estimators.common.ml_types import (
@@ -59,7 +60,7 @@ class ReservoirEchoStateEstimator(BaseMLEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {
             "fs": 10_000.0,
             "reservoir_size": 200,
@@ -71,15 +72,27 @@ class ReservoirEchoStateEstimator(BaseMLEstimator):
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="reservoir_size", default=200, type="int",
-                            values=[50, 100, 200, 500, 1000],
-                            description="Number of reservoir neurons."),
-                TuningParam(name="spectral_radius", default=0.9, type="float",
-                            values=[0.5, 0.7, 0.9, 0.95, 0.99],
-                            description="Spectral radius of reservoir weight matrix."),
-                TuningParam(name="input_scale", default=0.1, type="float",
-                            values=[0.01, 0.05, 0.1, 0.5, 1.0],
-                            description="Scaling factor for input weight matrix."),
+                TuningParam(
+                    name="reservoir_size",
+                    default=200,
+                    type="int",
+                    values=[50, 100, 200, 500, 1000],
+                    description="Number of reservoir neurons.",
+                ),
+                TuningParam(
+                    name="spectral_radius",
+                    default=0.9,
+                    type="float",
+                    values=[0.5, 0.7, 0.9, 0.95, 0.99],
+                    description="Spectral radius of reservoir weight matrix.",
+                ),
+                TuningParam(
+                    name="input_scale",
+                    default=0.1,
+                    type="float",
+                    values=[0.01, 0.05, 0.1, 0.5, 1.0],
+                    description="Scaling factor for input weight matrix.",
+                ),
             ],
             objective="RMSE_HZ",
         )

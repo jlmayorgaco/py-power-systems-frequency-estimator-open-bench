@@ -1,12 +1,11 @@
 """Shared pytest fixtures for OpenFreqBench test suite."""
+
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
-from openfreqbench.scenarios.g1.e1_pure_60hz import G1_E1_Pure_60Hz
 from openfreqbench.estimators.zero_crossing import ZeroCrossingEstimator
-from openfreqbench.core.config_models import BenchmarkConfig
+from openfreqbench.scenarios.g1.e1_pure_60hz import G1_E1_Pure_60Hz
+import pytest
 
 
 @pytest.fixture

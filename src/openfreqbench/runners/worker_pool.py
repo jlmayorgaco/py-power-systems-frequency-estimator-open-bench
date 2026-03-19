@@ -1,1 +1,1 @@
-"""ProcessPoolExecutor worker pool for parallel (scenario × method) execution."""
+"""ProcessPoolExecutor worker pool for parallel (scenario x method) execution."""

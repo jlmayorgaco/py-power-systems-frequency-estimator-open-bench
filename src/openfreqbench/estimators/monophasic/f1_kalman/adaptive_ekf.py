@@ -10,9 +10,10 @@ Algorithm sketch
   - Adjusts R̂ accordingly without the Huber M-weighting step.
   - Suitable for smoothly varying noise levels (not impulsive).
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -38,21 +39,34 @@ class AdaptiveEKFEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
-        return {"fs": 10_000.0, "q_omega": 1.0, "r": 0.01,
-                "window_size": 50, "forget_factor": 0.98}
+    def default_config(cls) -> dict[str, Any]:
+        return {"fs": 10_000.0, "q_omega": 1.0, "r": 0.01, "window_size": 50, "forget_factor": 0.98}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="q_omega", default=1.0, type="float",
-                            range=(1e-4, 10.0, 8), description="Process noise (ω)."),
-                TuningParam(name="r", default=0.01, type="float",
-                            range=(1e-4, 1.0, 8), description="Initial measurement noise."),
-                TuningParam(name="forget_factor", default=0.98, type="float",
-                            values=[0.95, 0.97, 0.98, 0.99, 0.995],
-                            description="Exponential forgetting for R adaptation."),
+                TuningParam(
+                    name="q_omega",
+                    default=1.0,
+                    type="float",
+                    range=(1e-4, 10.0, 8),
+                    description="Process noise (ω).",
+                ),
+                TuningParam(
+                    name="r",
+                    default=0.01,
+                    type="float",
+                    range=(1e-4, 1.0, 8),
+                    description="Initial measurement noise.",
+                ),
+                TuningParam(
+                    name="forget_factor",
+                    default=0.98,
+                    type="float",
+                    values=[0.95, 0.97, 0.98, 0.99, 0.995],
+                    description="Exponential forgetting for R adaptation.",
+                ),
             ],
             objective="RMSE_HZ",
         )

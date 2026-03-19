@@ -15,20 +15,20 @@ Covers:
   - FAMILY_PATH set correctly
   - set_params triggers reset
 """
+
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
-from openfreqbench.estimators.monophasic.f2_window.fft_peak import FFTPeakEstimator
 # Also verify backward-compat re-export still works
 from openfreqbench.estimators.families.spectral import FFTPeakEstimator as FFTPeakAlias
+from openfreqbench.estimators.monophasic.f2_window.fft_peak import FFTPeakEstimator
+import pytest
 
-
-FS   = 10_000.0
-F0   = 60.0
-T_S  = 1.0
-N    = int(FS * T_S)
+FS = 10_000.0
+F0 = 60.0
+T_S = 1.0
+N = int(FS * T_S)
 
 
 def _sine(fs=FS, f0=F0, n=N, phi0=0.0, A=1.0) -> np.ndarray:
@@ -39,6 +39,7 @@ def _sine(fs=FS, f0=F0, n=N, phi0=0.0, A=1.0) -> np.ndarray:
 # ─────────────────────────────────────────────────────────────────────────────
 # Instantiation
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_instantiate_default():
     est = FFTPeakEstimator()
@@ -60,6 +61,7 @@ def test_backward_compat_alias():
 # Latency
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.parametrize("ws", [64, 128, 256, 512])
 def test_latency_samples(ws):
     est = FFTPeakEstimator(params={"window_size": ws})
@@ -70,16 +72,17 @@ def test_latency_samples(ws):
 # run() output shape
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_run_output_length():
     est = FFTPeakEstimator()
-    v   = _sine()
+    v = _sine()
     out = est.run(v)
     assert len(out) == len(v)
 
 
 def test_run_short_signal():
     est = FFTPeakEstimator(params={"window_size": 512})
-    v   = _sine(n=100)   # shorter than one window
+    v = _sine(n=100)  # shorter than one window
     out = est.run(v)
     assert len(out) == 100
     assert all(np.isfinite(out))
@@ -89,18 +92,21 @@ def test_run_short_signal():
 # NaN / inf
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_no_nan_clean_signal():
     est = FFTPeakEstimator(params={"window_size": 256})
     est._fs_hint = FS
-    v   = _sine()
+    v = _sine()
     out = est.run(v)
-    assert np.all(np.isfinite(out)), f"NaN/inf in output at positions {np.where(~np.isfinite(out))[0]}"
+    assert np.all(np.isfinite(out)), (
+        f"NaN/inf in output at positions {np.where(~np.isfinite(out))[0]}"
+    )
 
 
 def test_handles_zeros():
     est = FFTPeakEstimator()
     est._fs_hint = FS
-    v   = np.zeros(N)
+    v = np.zeros(N)
     out = est.run(v)
     assert all(np.isfinite(out))
 
@@ -109,6 +115,7 @@ def test_handles_zeros():
 # Frequency accuracy
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.parametrize("f0", [50.0, 60.0, 65.0])
 def test_steady_state_accuracy(f0):
     """
@@ -116,19 +123,19 @@ def test_steady_state_accuracy(f0):
 
     With fs=10 kHz and ws=512 the DFT bin spacing is fs/ws ≈ 19.5 Hz.
     Parabolic (Quinn) interpolation on Hann-windowed magnitude spectra
-    achieves roughly 5–10 % of the bin width on a pure sinusoid, i.e.
-    ~1–2 Hz.  A tolerance of 2.0 Hz is the correct spec for this setting.
+    achieves roughly 5-10 % of the bin width on a pure sinusoid, i.e.
+    ~1-2 Hz.  A tolerance of 2.0 Hz is the correct spec for this setting.
     """
     est = FFTPeakEstimator(params={"window_size": 512})
     est._fs_hint = FS
-    v   = _sine(f0=f0)
+    v = _sine(f0=f0)
     out = est.run(v)
     # Drop first latency + 20% warm-up
     start = est.latency_samples + int(0.2 * N)
     valid = out[start:]
     valid = valid[np.isfinite(valid)]
     assert len(valid) > 10, "Too few valid samples after warm-up"
-    err   = float(np.mean(valid)) - f0
+    err = float(np.mean(valid)) - f0
     assert abs(err) < 2.0, f"Mean error {err:.4f} Hz for f0={f0} Hz (ws=512)"
 
 
@@ -140,13 +147,13 @@ def test_accuracy_improves_with_larger_window():
     60 Hz peak inside [40, 80] Hz without falling back to the nominal value.
     Bin spacing: 1024→9.77 Hz, 2048→4.88 Hz.
     """
-    v = _sine()   # 60 Hz, 10 000 samples
+    v = _sine()  # 60 Hz, 10 000 samples
     errs = []
     for ws in [1024, 2048]:
         est = FFTPeakEstimator(params={"window_size": ws})
         est._fs_hint = FS
-        out  = est.run(v)
-        L    = est.latency_samples
+        out = est.run(v)
+        L = est.latency_samples
         errs.append(float(np.sqrt(np.mean((out[L:] - F0) ** 2))))
     # ws=2048 (finer resolution) should match or beat ws=1024
     assert errs[1] <= errs[0] + 0.01, (
@@ -157,6 +164,7 @@ def test_accuracy_improves_with_larger_window():
 # ─────────────────────────────────────────────────────────────────────────────
 # Self-description API
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_tuning_ranges_nonempty():
     params = FFTPeakEstimator.tuning_ranges()
@@ -182,8 +190,15 @@ def test_default_in_grid():
 
 def test_descriptor_keys():
     desc = FFTPeakEstimator.descriptor()
-    required = {"name", "family", "family_path", "complexity",
-                "latency_type", "suggested_objective", "tuning_params"}
+    required = {
+        "name",
+        "family",
+        "family_path",
+        "complexity",
+        "latency_type",
+        "suggested_objective",
+        "tuning_params",
+    }
     assert required.issubset(set(desc.keys()))
 
 
@@ -211,6 +226,7 @@ def test_latency_type():
 # ─────────────────────────────────────────────────────────────────────────────
 # set_params / reset
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_set_params_changes_window():
     est = FFTPeakEstimator(params={"window_size": 256})

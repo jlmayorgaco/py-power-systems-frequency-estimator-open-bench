@@ -3,11 +3,14 @@ openfreqbench/core/config_models.py
 
 Pydantic v2 config models + YAML loader for benchmark.yaml.
 """
+
 from __future__ import annotations
+
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional
-import yaml
+from typing import Any, Literal
+
 from pydantic import BaseModel, Field
+import yaml
 
 
 class BenchmarkMeta(BaseModel):
@@ -17,26 +20,27 @@ class BenchmarkMeta(BaseModel):
     seed_start: int = 0
     mode: int = Field(default=1, ge=1, le=5)
     plots: bool = False
-    n_tune_eval: int = Field(default=5, ge=1)   # seeds used during grid-search
+    n_tune_eval: int = Field(default=5, ge=1)  # seeds used during grid-search
 
 
 class MCPerturbSpec(BaseModel):
     """Describes a Monte Carlo perturbation for one scenario parameter."""
-    mode: Literal["rel", "abs"] = "rel"   # rel = fraction of nominal, abs = additive
-    scale: float = 0.0                    # std-dev of the perturbation
+
+    mode: Literal["rel", "abs"] = "rel"  # rel = fraction of nominal, abs = additive
+    scale: float = 0.0  # std-dev of the perturbation
 
     model_config = {"extra": "forbid"}
 
 
 class ScenarioCfg(BaseModel):
     id: str
-    params: Dict[str, Any] = Field(default_factory=dict)
-    mc_perturbations: Dict[str, MCPerturbSpec] = Field(default_factory=dict)
+    params: dict[str, Any] = Field(default_factory=dict)
+    mc_perturbations: dict[str, MCPerturbSpec] = Field(default_factory=dict)
 
 
 class EstimatorCfg(BaseModel):
     id: str
-    params: Dict[str, Any] = Field(default_factory=dict)
+    params: dict[str, Any] = Field(default_factory=dict)
 
 
 class MetricsCfg(BaseModel):
@@ -49,8 +53,8 @@ class MetricsCfg(BaseModel):
 
 class BenchmarkConfig(BaseModel):
     benchmark: BenchmarkMeta = Field(default_factory=BenchmarkMeta)
-    scenarios: List[ScenarioCfg] = Field(default_factory=list)
-    estimators: List[EstimatorCfg] = Field(default_factory=list)
+    scenarios: list[ScenarioCfg] = Field(default_factory=list)
+    estimators: list[EstimatorCfg] = Field(default_factory=list)
     metrics: MetricsCfg = Field(default_factory=MetricsCfg)
 
 

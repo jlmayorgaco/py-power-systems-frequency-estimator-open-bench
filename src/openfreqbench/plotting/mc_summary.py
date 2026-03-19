@@ -11,24 +11,27 @@ plot_metric_heatmap(result, metric, out_path)
     N_scenarios x N_estimators colour-coded heatmap of a scalar metric
     (e.g. mean RMSE, p95 error, CV).
 """
+
 from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import List, Optional
 
 import numpy as np
 
 os.environ.setdefault("MPLBACKEND", "Agg")
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-import matplotlib.colors as mcolors
 
 from openfreqbench.plotting.styles import (
-    C, apply_ieee_style, annotate_box, color_for_estimator,
-    DOUBLE_COL_W, FIG_H_UNIT,
+    DOUBLE_COL_W,
+    FIG_H_UNIT,
+    C,
+    apply_ieee_style,
+    color_for_estimator,
 )
 
 
@@ -48,13 +51,14 @@ def _despine(ax) -> None:
 # 1. RMSE violin / box strip plot
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def plot_mc_distributions(
-    result,               # SmokeResult
+    result,  # SmokeResult
     out_path: Path,
     *,
-    metric:   str  = "RMSE_HZ",
+    metric: str = "RMSE_HZ",
     unit_mhz: bool = True,
-    dpi:      int  = 300,
+    dpi: int = 300,
 ) -> Path:
     """
     Grouped violin plots: one row per scenario, one violin per estimator.
@@ -69,20 +73,21 @@ def plot_mc_distributions(
     """
     apply_ieee_style()
 
-    scenarios   = result.scenarios
-    estimators  = result.estimators
-    n_scen      = len(scenarios)
-    n_est       = len(estimators)
+    scenarios = result.scenarios
+    estimators = result.estimators
+    n_scen = len(scenarios)
+    n_est = len(estimators)
 
     if n_scen == 0 or n_est == 0:
         return Path(out_path)
 
-    scale  = 1e3 if unit_mhz else 1.0
+    scale = 1e3 if unit_mhz else 1.0
     ylabel = f"{metric} [mHz]" if unit_mhz else f"{metric} [Hz]"
 
     fig_h = FIG_H_UNIT * n_scen + 0.6
     fig, axes = plt.subplots(
-        n_scen, 1,
+        n_scen,
+        1,
         figsize=(DOUBLE_COL_W, fig_h),
         squeeze=False,
         gridspec_kw={"hspace": 0.55},
@@ -93,12 +98,12 @@ def plot_mc_distributions(
     for row, scen_id in enumerate(scenarios):
         ax = axes[row, 0]
 
-        all_data: List[np.ndarray] = []
-        colors:   List[str]        = []
-        labels:   List[str]        = []
-        any_data  = False
+        all_data: list[np.ndarray] = []
+        colors: list[str] = []
+        labels: list[str] = []
+        any_data = False
 
-        for col, est_id in enumerate(estimators):
+        for _col, est_id in enumerate(estimators):
             pair = result.get_pair(scen_id, est_id)
             color = color_for_estimator(est_id)
             colors.append(color)
@@ -111,10 +116,7 @@ def plot_mc_distributions(
             vals = []
             for tr in pair.traces:
                 entry = tr.metrics.get(metric)
-                if isinstance(entry, dict):
-                    v = entry.get("value")
-                else:
-                    v = entry
+                v = entry.get("value") if isinstance(entry, dict) else entry
                 if v is not None and np.isfinite(float(v)):
                     vals.append(float(v) * scale)
             arr = np.array(vals, dtype=float)
@@ -123,17 +125,27 @@ def plot_mc_distributions(
                 any_data = True
 
         if not any_data:
-            ax.text(0.5, 0.5, "No data", ha="center", va="center",
-                    transform=ax.transAxes, color=C.ZERO_LINE)
+            ax.text(
+                0.5,
+                0.5,
+                "No data",
+                ha="center",
+                va="center",
+                transform=ax.transAxes,
+                color=C.ZERO_LINE,
+            )
             ax.set_axis_off()
             continue
 
         # Violin plot — only for distributions with >= 4 points
-        for pos, (arr, color, lbl) in enumerate(zip(all_data, colors, labels)):
+        for pos, (arr, color, _lbl) in enumerate(zip(all_data, colors, labels)):
             if arr.size >= 4:
                 parts = ax.violinplot(
-                    arr, positions=[pos],
-                    showmeans=False, showmedians=False, showextrema=False,
+                    arr,
+                    positions=[pos],
+                    showmeans=False,
+                    showmedians=False,
+                    showextrema=False,
                     widths=0.7,
                 )
                 for pc in parts["bodies"]:
@@ -143,18 +155,21 @@ def plot_mc_distributions(
 
             if arr.size > 0:
                 # Median line
-                ax.hlines(np.median(arr), pos - 0.3, pos + 0.3,
-                          color=color, linewidth=1.5, zorder=4)
+                ax.hlines(
+                    np.median(arr),
+                    pos - 0.3,
+                    pos + 0.3,
+                    color=color,
+                    linewidth=1.5,
+                    zorder=4,
+                )
                 # IQR box
                 q25, q75 = np.percentile(arr, [25, 75])
-                ax.vlines(pos, q25, q75, color=color, linewidth=3.5,
-                          alpha=0.6, zorder=3)
+                ax.vlines(pos, q25, q75, color=color, linewidth=3.5, alpha=0.6, zorder=3)
                 # Individual points (jittered)
                 rng = np.random.default_rng(42)
                 jitter = rng.uniform(-0.08, 0.08, size=arr.size)
-                ax.scatter(pos + jitter, arr,
-                           color=color, s=8, alpha=0.45, zorder=5,
-                           linewidths=0)
+                ax.scatter(pos + jitter, arr, color=color, s=8, alpha=0.45, zorder=5, linewidths=0)
 
         ax.set_xticks(positions)
         ax.set_xticklabels(labels, fontsize=7)
@@ -175,7 +190,9 @@ def plot_mc_distributions(
 
     fig.suptitle(
         f"Monte Carlo Distribution — {metric}",
-        fontsize=9, fontweight="bold", y=1.02,
+        fontsize=9,
+        fontweight="bold",
+        y=1.02,
     )
     return _save(fig, Path(out_path), dpi=dpi)
 
@@ -184,14 +201,15 @@ def plot_mc_distributions(
 # 2. Metric heatmap
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def plot_metric_heatmap(
     result,
     out_path: Path,
     *,
-    metric:   str   = "RMSE_HZ",
-    stat:     str   = "mean",
-    unit_mhz: bool  = True,
-    dpi:      int   = 300,
+    metric: str = "RMSE_HZ",
+    stat: str = "mean",
+    unit_mhz: bool = True,
+    dpi: int = 300,
 ) -> Path:
     """
     N_scenarios x N_estimators heatmap of a scalar metric statistic.
@@ -205,15 +223,15 @@ def plot_metric_heatmap(
     """
     apply_ieee_style()
 
-    scenarios  = result.scenarios
+    scenarios = result.scenarios
     estimators = result.estimators
-    n_rows     = len(scenarios)
-    n_cols     = len(estimators)
+    n_rows = len(scenarios)
+    n_cols = len(estimators)
 
     if n_rows == 0 or n_cols == 0:
         return Path(out_path)
 
-    scale    = 1e3 if unit_mhz else 1.0
+    scale = 1e3 if unit_mhz else 1.0
     unit_str = "mHz" if unit_mhz else "Hz"
 
     # Build matrix
@@ -233,9 +251,13 @@ def plot_metric_heatmap(
 
     # Mask NaN for colourmap
     masked = np.ma.masked_invalid(mat)
-    im = ax.imshow(masked, cmap="viridis_r", aspect="auto",
-                   vmin=np.nanmin(mat) if not np.all(np.isnan(mat)) else 0,
-                   vmax=np.nanmax(mat) if not np.all(np.isnan(mat)) else 1)
+    im = ax.imshow(
+        masked,
+        cmap="viridis_r",
+        aspect="auto",
+        vmin=np.nanmin(mat) if not np.all(np.isnan(mat)) else 0,
+        vmax=np.nanmax(mat) if not np.all(np.isnan(mat)) else 1,
+    )
 
     # Colorbar
     cb = fig.colorbar(im, ax=ax, shrink=0.85, pad=0.02)
@@ -249,9 +271,17 @@ def plot_metric_heatmap(
             txt = f"{val:.3f}" if np.isfinite(val) else "N/A"
             # Choose contrast colour
             norm_val = (val - np.nanmin(mat)) / max(np.nanmax(mat) - np.nanmin(mat), 1e-10)
-            txt_col  = "white" if (not np.isnan(norm_val) and norm_val < 0.55) else "#222222"
-            ax.text(col, row, txt, ha="center", va="center",
-                    fontsize=7, color=txt_col, fontweight="bold")
+            txt_col = "white" if (not np.isnan(norm_val) and norm_val < 0.55) else "#222222"
+            ax.text(
+                col,
+                row,
+                txt,
+                ha="center",
+                va="center",
+                fontsize=7,
+                color=txt_col,
+                fontweight="bold",
+            )
 
     ax.set_xticks(range(n_cols))
     ax.set_xticklabels(estimators, fontsize=7, rotation=20, ha="right")
@@ -259,7 +289,9 @@ def plot_metric_heatmap(
     ax.set_yticklabels(scenarios, fontsize=7)
     ax.set_title(
         f"{metric} [{stat}] [{unit_str}] — lower is better",
-        fontsize=8, fontweight="bold", pad=6,
+        fontsize=8,
+        fontweight="bold",
+        pad=6,
     )
     _despine(ax)
 

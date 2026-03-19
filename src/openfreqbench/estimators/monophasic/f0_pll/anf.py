@@ -9,17 +9,18 @@ Algorithm sketch
   The notch frequency is adapted by a gradient rule that drives
   the notch output (residual) toward zero.
 
-  IIR notch: H(z) = (1 − 2cos(ω̂)z⁻¹ + z⁻²) / (1 − 2r·cos(ω̂)z⁻¹ + r²z⁻²)
-  Adaptation: ω̂[n] = ω̂[n−1] + μ·y_notch[n]·∂y/∂ω̂
+  IIR notch: H(z) = (1 - 2cos(ω̂)z⁻¹ + z⁻²) / (1 - 2r·cos(ω̂)z⁻¹ + r²z⁻²)
+  Adaptation: ω̂[n] = ω̂[n-1] + μ·y_notch[n]·∂y/∂ω̂
 
 References
 ──────────
   Regalia, P.A. (1991). "An improved lattice-based adaptive IIR notch filter."
-  IEEE Trans. SP, 39(9), 2124–2128.
+  IEEE Trans. SP, 39(9), 2124-2128.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -45,19 +46,27 @@ class ANFEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "mu": 1e-3, "r": 0.98}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="mu", default=1e-3, type="float",
-                            range=(1e-5, 0.1, 10),
-                            description="Adaptation step size."),
-                TuningParam(name="r", default=0.98, type="float",
-                            values=[0.90, 0.95, 0.98, 0.99, 0.995],
-                            description="Notch pole radius (closer to 1 → narrower notch)."),
+                TuningParam(
+                    name="mu",
+                    default=1e-3,
+                    type="float",
+                    range=(1e-5, 0.1, 10),
+                    description="Adaptation step size.",
+                ),
+                TuningParam(
+                    name="r",
+                    default=0.98,
+                    type="float",
+                    values=[0.90, 0.95, 0.98, 0.99, 0.995],
+                    description="Notch pole radius (closer to 1 → narrower notch).",
+                ),
             ],
             objective="RMSE_HZ",
         )

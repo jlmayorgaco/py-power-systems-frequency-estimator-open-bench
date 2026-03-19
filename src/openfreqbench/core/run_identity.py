@@ -1,17 +1,21 @@
 """
 openfreqbench/core/run_identity.py
 
-RunIdentity: the canonical cache key for one (scenario × method × seed) run.
+RunIdentity: the canonical cache key for one (scenario x method x seed) run.
 """
+
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
+
 from openfreqbench.core.hashing import dict_hash
 
 
 @dataclass(frozen=True)
 class RunIdentity:
     """Deterministic identity for one benchmark trial."""
+
     scenario_id: str
     method_id: str
     seed: int
@@ -25,10 +29,10 @@ class RunIdentity:
         scenario_id: str,
         method_id: str,
         seed: int,
-        scenario_params: Dict[str, Any],
-        method_params: Dict[str, Any],
+        scenario_params: dict[str, Any],
+        method_params: dict[str, Any],
         schema_version: str = "v1",
-    ) -> "RunIdentity":
+    ) -> RunIdentity:
         return cls(
             scenario_id=scenario_id,
             method_id=method_id,
@@ -40,11 +44,13 @@ class RunIdentity:
 
     @property
     def cache_key(self) -> str:
-        return "__".join([
-            self.schema_version,
-            self.scenario_id,
-            self.scenario_params_hash,
-            self.method_id,
-            self.method_params_hash,
-            str(self.seed),
-        ])
+        return "__".join(
+            [
+                self.schema_version,
+                self.scenario_id,
+                self.scenario_params_hash,
+                self.method_id,
+                self.method_params_hash,
+                str(self.seed),
+            ],
+        )

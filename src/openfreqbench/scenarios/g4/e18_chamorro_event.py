@@ -24,10 +24,10 @@ Reference:
     Chamorro, H. R. et al. (2011). "A new method for islanding detection
     based on wavelet packet transform." IEEE PES Conference.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
 
@@ -44,18 +44,20 @@ class G4_E18_Chamorro_Event(ScenarioBase):
     all estimators in the final comparative study.
     """
 
-    fs_hz:        float = 10_000.0
-    T_s:          float = 3.0
-    seed:         int   = 42
-    rocof_hz_s:   float = 1.0
-    osc_freq_hz:  float = 5.0
-    osc_depth:    float = 0.05
-    scenario_id:  str   = "G4_E18_Chamorro_Event"
+    fs_hz: float = 10_000.0
+    T_s: float = 3.0
+    seed: int = 42
+    rocof_hz_s: float = 1.0
+    osc_freq_hz: float = 5.0
+    osc_depth: float = 0.05
+    scenario_id: str = "G4_E18_Chamorro_Event"
 
-    tuning_map: Dict[str, str] = field(default_factory=lambda: {
-        "seed":       "seed",
-        "rocof_hz_s": "rocof_hz_s",
-    })
+    tuning_map: dict[str, str] = field(
+        default_factory=lambda: {
+            "seed": "seed",
+            "rocof_hz_s": "rocof_hz_s",
+        },
+    )
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

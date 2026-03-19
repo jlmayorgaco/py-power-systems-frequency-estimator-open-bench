@@ -20,11 +20,12 @@ Algorithm sketch
 References
 ──────────
   Hornik, K., Stinchcombe, M., & White, H. (1989). "Multilayer feedforward
-  networks are universal approximators." Neural Networks, 2(5), 359–366.
+  networks are universal approximators." Neural Networks, 2(5), 359-366.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 from openfreqbench.estimators.common.ml_base import BaseMLEstimator
 from openfreqbench.estimators.common.ml_types import (
@@ -55,7 +56,7 @@ class MLPWindowRegressorEstimator(BaseMLEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {
             "fs": 10_000.0,
             "window_size": 256,
@@ -67,12 +68,20 @@ class MLPWindowRegressorEstimator(BaseMLEstimator):
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="window_size", default=256, type="int",
-                            values=[128, 256, 512],
-                            description="Input window length (samples), flattened to MLP input."),
-                TuningParam(name="activation", default="relu", type="categorical",
-                            values=["relu", "tanh", "gelu"],
-                            description="Hidden layer activation function."),
+                TuningParam(
+                    name="window_size",
+                    default=256,
+                    type="int",
+                    values=[128, 256, 512],
+                    description="Input window length (samples), flattened to MLP input.",
+                ),
+                TuningParam(
+                    name="activation",
+                    default="relu",
+                    type="categorical",
+                    values=["relu", "tanh", "gelu"],
+                    description="Hidden layer activation function.",
+                ),
             ],
             objective="RMSE_HZ",
         )

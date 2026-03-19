@@ -1,8 +1,10 @@
 """ofb list — show registered estimators and scenarios."""
+
 from __future__ import annotations
-import typer
+
 from rich.console import Console
 from rich.table import Table
+import typer
 
 console = Console()
 
@@ -12,6 +14,7 @@ def list_cmd(
 ) -> None:
     """List registered estimators and/or scenarios."""
     from openfreqbench.core.registry import EstimatorRegistry, ScenarioRegistry
+
     show_est = kind in ("all", "estimators")
     show_scen = kind in ("all", "scenarios")
     if show_est:

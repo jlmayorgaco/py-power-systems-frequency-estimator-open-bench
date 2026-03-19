@@ -9,9 +9,10 @@ Algorithm sketch
   between the two bracketing samples to estimate the exact fractional
   zero-crossing time, giving sub-sample frequency resolution.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -37,19 +38,27 @@ class InterpolatedZeroCrossingEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "interpolation": "linear", "filter_win": 5}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="filter_win", default=5, type="int",
-                            values=[1, 3, 5, 7, 11],
-                            description="Output smoothing window (samples)."),
-                TuningParam(name="interpolation", default="linear", type="categorical",
-                            values=["linear", "parabolic"],
-                            description="Interpolation order at zero crossing."),
+                TuningParam(
+                    name="filter_win",
+                    default=5,
+                    type="int",
+                    values=[1, 3, 5, 7, 11],
+                    description="Output smoothing window (samples).",
+                ),
+                TuningParam(
+                    name="interpolation",
+                    default="linear",
+                    type="categorical",
+                    values=["linear", "parabolic"],
+                    description="Interpolation order at zero crossing.",
+                ),
             ],
             objective="RMSE_HZ",
         )

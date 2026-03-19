@@ -16,10 +16,10 @@ which are one of the primary benchmark outputs for noise sensitivity analysis.
 
 True frequency is constant at 60 Hz throughout.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
 
@@ -36,17 +36,19 @@ class G5_E20_SNR_Sweep(ScenarioBase):
     in a single batch run.
     """
 
-    fs_hz:       float = 10_000.0
-    T_s:         float = 2.0
-    seed:        int   = 42
+    fs_hz: float = 10_000.0
+    T_s: float = 2.0
+    seed: int = 42
     noise_sigma: float = 0.01
-    sweep_value: float = 0.01    # set by MC tuning via tuning_map
-    scenario_id: str   = "G5_E20_SNR_Sweep"
+    sweep_value: float = 0.01  # set by MC tuning via tuning_map
+    scenario_id: str = "G5_E20_SNR_Sweep"
 
-    tuning_map: Dict[str, str] = field(default_factory=lambda: {
-        "seed":        "seed",
-        "noise_sigma": "sweep_value",
-    })
+    tuning_map: dict[str, str] = field(
+        default_factory=lambda: {
+            "seed": "seed",
+            "noise_sigma": "sweep_value",
+        },
+    )
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

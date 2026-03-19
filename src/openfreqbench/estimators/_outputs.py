@@ -7,6 +7,7 @@ Canonical definitions have moved to:
 This module re-exports those symbols so existing imports continue to work.
 New code should import directly from the canonical path.
 """
-from openfreqbench.estimators.common.types import EstimatorOutput, EstimatorSpec  # noqa: F401
+
+from openfreqbench.estimators.common.types import EstimatorOutput, EstimatorSpec
 
 __all__ = ["EstimatorOutput", "EstimatorSpec"]

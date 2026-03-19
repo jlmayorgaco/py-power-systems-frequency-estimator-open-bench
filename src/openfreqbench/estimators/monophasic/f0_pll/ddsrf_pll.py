@@ -16,11 +16,12 @@ Algorithm sketch
 References
 ──────────
   Rodriguez, P., et al. (2007). "Decoupled Double Synchronous Reference
-  Frame PLL for Power Converters Control." IEEE Trans. PE, 22(2), 584–592.
+  Frame PLL for Power Converters Control." IEEE Trans. PE, 22(2), 584-592.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -46,19 +47,27 @@ class DDSRFPLLEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "kp": 125.0, "ki": 3906.25, "k_sogi": 1.414}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="kp", default=125.0, type="float",
-                            values=[31.4, 62.8, 125.0, 250.0, 500.0],
-                            description="PI proportional gain."),
-                TuningParam(name="ki", default=3906.25, type="float",
-                            values=[250.0, 1000.0, 3906.0, 15625.0],
-                            description="PI integral gain."),
+                TuningParam(
+                    name="kp",
+                    default=125.0,
+                    type="float",
+                    values=[31.4, 62.8, 125.0, 250.0, 500.0],
+                    description="PI proportional gain.",
+                ),
+                TuningParam(
+                    name="ki",
+                    default=3906.25,
+                    type="float",
+                    values=[250.0, 1000.0, 3906.0, 15625.0],
+                    description="PI integral gain.",
+                ),
             ],
             objective="RMSE_HZ",
         )

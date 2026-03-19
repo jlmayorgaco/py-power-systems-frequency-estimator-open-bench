@@ -1,27 +1,41 @@
 """ofb status — show current run state, artifact counts, and last run summary."""
+
 from __future__ import annotations
 
-import json
 from pathlib import Path
+from typing import Annotated
 
-import typer
 from rich.console import Console
 from rich.table import Table
+import typer
 
 console = Console()
 
 
 def status_cmd(
-    artifacts_dir: Path = typer.Option(Path("artifacts"), "--dir", "-d", help="Artifacts directory to scan."),
+    artifacts_dir: Annotated[
+        Path,
+        typer.Option(
+            "--dir",
+            "-d",
+            help="Artifacts directory to scan.",
+        ),
+    ] = Path("artifacts"),
 ) -> None:
-    """Show what has been computed: scenarios × estimators × seed counts."""
+    """Show what has been computed: scenarios x estimators x seed counts."""
     root = Path(artifacts_dir)
     if not root.exists():
         console.print(f"[yellow]No artifacts directory found at:[/yellow] {root.resolve()}")
         console.print("Run [bold]ofb run <config.yaml>[/bold] first.")
         raise typer.Exit(code=0)
 
-    table = Table("Scenario", "Estimator", "Reports", "Last run", title=f"Artifacts in {root.resolve()}")
+    table = Table(
+        "Scenario",
+        "Estimator",
+        "Reports",
+        "Last run",
+        title=f"Artifacts in {root.resolve()}",
+    )
     found = False
 
     for scenario_dir in sorted(root.iterdir()):

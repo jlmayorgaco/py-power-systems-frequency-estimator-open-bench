@@ -4,11 +4,12 @@ estimators/common/baseline_passthrough.py  [CANONICAL]
 BaselinePassthrough — returns the nominal frequency every sample.
 
 This is the error floor for all benchmarks.  An estimator that cannot beat
-the passthrough on a given scenario × metric pair is not useful.
+the passthrough on a given scenario x metric pair is not useful.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -38,7 +39,7 @@ class BaselinePassthrough(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "f_nom": 60.0}
 
     @classmethod

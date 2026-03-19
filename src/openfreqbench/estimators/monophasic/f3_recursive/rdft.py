@@ -7,7 +7,7 @@ Algorithm
 ─────────
   1. Maintain a complex phasor at the nominal frequency bin using the
      sliding-DFT identity (O(1) per sample):
-       X[n] = (X[n-1] + v[n] − v[n-N]) · e^(j·2π·k₀/N)
+       X[n] = (X[n-1] + v[n] - v[n-N]) · e^(j·2π·k₀/N)
      where k₀ = round(f_nom · N / fs).
 
   2. Extract frequency from the inter-sample phase difference:
@@ -22,13 +22,14 @@ Latency:     window_size samples (one full buffer fill).
 References
 ──────────
   Jacobsen, E. & Lyons, R. (2003). "The sliding DFT." IEEE Signal Process.
-  Mag., 20(2), 74–80.
+  Mag., 20(2), 74-80.
 """
+
 from __future__ import annotations
 
-import math
 from collections import deque
-from typing import Any, Dict
+import math
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -59,7 +60,7 @@ class RDFTEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "window_size": 256, "phase_avg": 8}
 
     @classmethod
@@ -91,27 +92,27 @@ class RDFTEstimator(BaseEstimator):
         )
 
     def reset(self) -> None:
-        fs        = float(self._config.get("fs",          10_000.0))
-        N         = int(self._config.get("window_size",   256))
-        avg       = int(self._config.get("phase_avg",     8))
+        fs = float(self._config.get("fs", 10_000.0))
+        N = int(self._config.get("window_size", 256))
+        avg = int(self._config.get("phase_avg", 8))
 
-        self._fs      = fs
-        self._N       = N
-        self._avg     = avg
+        self._fs = fs
+        self._N = N
+        self._avg = avg
 
         # Nominal DFT bin and rotation factor
-        k0            = max(1, round(self.NOMINAL_FREQ_HZ * N / fs))
-        self._k0      = k0
-        angle         = 2.0 * math.pi * k0 / N
-        self._W       = complex(math.cos(angle), math.sin(angle))
+        k0 = max(1, round(self.NOMINAL_FREQ_HZ * N / fs))
+        self._k0 = k0
+        angle = 2.0 * math.pi * k0 / N
+        self._W = complex(math.cos(angle), math.sin(angle))
 
         # State
-        self._buf:          deque = deque([0.0] * N, maxlen=N)
-        self._X:            complex = 0j
-        self._X_prev:       complex = 0j
-        self._n:            int = 0
-        self._f_est:        float = self.NOMINAL_FREQ_HZ
-        self._phase_diffs:  deque = deque(maxlen=avg)
+        self._buf: deque = deque([0.0] * N, maxlen=N)
+        self._X: complex = 0j
+        self._X_prev: complex = 0j
+        self._n: int = 0
+        self._f_est: float = self.NOMINAL_FREQ_HZ
+        self._phase_diffs: deque = deque(maxlen=avg)
 
     def structural_latency_samples(self) -> int:
         return int(self._config.get("window_size", 256))
@@ -127,8 +128,8 @@ class RDFTEstimator(BaseEstimator):
     # ── Internal algorithm ────────────────────────────────────────────────────
 
     def _step(self, v_sample: float) -> float:
-        v        = float(v_sample)
-        oldest   = self._buf[0]
+        v = float(v_sample)
+        oldest = self._buf[0]
         self._buf.append(v)
         self._n += 1
 
@@ -136,16 +137,16 @@ class RDFTEstimator(BaseEstimator):
 
         if self._n > self._N:
             if abs(self._X_prev) > 1e-10 and abs(X_new) > 1e-10:
-                pd         = X_new * self._X_prev.conjugate()
+                pd = X_new * self._X_prev.conjugate()
                 phase_diff = math.atan2(pd.imag, pd.real)
                 self._phase_diffs.append(phase_diff)
 
             if self._phase_diffs:
-                avg_pd  = sum(self._phase_diffs) / len(self._phase_diffs)
-                f_raw   = self.NOMINAL_FREQ_HZ + avg_pd * self._fs / (2.0 * math.pi)
+                avg_pd = sum(self._phase_diffs) / len(self._phase_diffs)
+                f_raw = self.NOMINAL_FREQ_HZ + avg_pd * self._fs / (2.0 * math.pi)
                 if self.MIN_VALID_FREQ_HZ < f_raw < self.MAX_VALID_FREQ_HZ:
                     self._f_est = f_raw
 
         self._X_prev = self._X
-        self._X      = X_new
+        self._X = X_new
         return self._f_est

@@ -1,12 +1,11 @@
 """Smoke test: end-to-end TraceRunner pipeline."""
+
 from __future__ import annotations
 
-import numpy as np
-
-from openfreqbench.scenarios.g1.e1_pure_60hz import G1_E1_Pure_60Hz
 from openfreqbench.estimators.zero_crossing import ZeroCrossingEstimator
-from openfreqbench.runners.trace_runner import TraceRunner
 from openfreqbench.metrics.frequency import MetricConfig
+from openfreqbench.runners.trace_runner import TraceRunner
+from openfreqbench.scenarios.g1.e1_pure_60hz import G1_E1_Pure_60Hz
 
 
 def test_trace_runner_smoke():

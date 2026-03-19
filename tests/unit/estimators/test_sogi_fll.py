@@ -16,22 +16,21 @@ Covers:
   - set_params triggers reset
   - amplitude_pu in output
 """
+
 from __future__ import annotations
 
 import math
 
 import numpy as np
+from openfreqbench.estimators._base import TuningSpec
+from openfreqbench.estimators._outputs import EstimatorOutput, EstimatorSpec
+from openfreqbench.estimators.monophasic.f0_pll.sogi_fll import SOGIFLLEstimator
 import pytest
 
-from openfreqbench.estimators.monophasic.f0_pll.sogi_fll import SOGIFLLEstimator
-from openfreqbench.estimators._outputs import EstimatorOutput, EstimatorSpec
-from openfreqbench.estimators._base import TuningSpec
-
-
-FS  = 10_000.0
-F0  = 60.0
+FS = 10_000.0
+F0 = 60.0
 T_S = 0.5
-N   = int(FS * T_S)
+N = int(FS * T_S)
 
 
 def _sine(fs=FS, f0=F0, n=N, A=1.0) -> np.ndarray:
@@ -42,6 +41,7 @@ def _sine(fs=FS, f0=F0, n=N, A=1.0) -> np.ndarray:
 # ─────────────────────────────────────────────────────────────────────────────
 # Instantiation
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_instantiate_default():
     est = SOGIFLLEstimator()
@@ -67,6 +67,7 @@ def test_latency_positive():
 # update() interface
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_update_returns_estimator_output():
     est = SOGIFLLEstimator()
     est._fs_hint = FS
@@ -87,9 +88,8 @@ def test_update_valid_true_after_warmup():
     est = SOGIFLLEstimator()
     est._fs_hint = FS
     est.reset()
-    v   = _sine()
-    Ts  = 1.0 / FS
-    lat = est.latency_samples
+    v = _sine()
+    Ts = 1.0 / FS
     for i, x in enumerate(v):
         result = est.update(float(x), timestamp=i * Ts)
     assert result.valid is True
@@ -122,10 +122,11 @@ def test_update_phase_rad_set():
 # run() batch interface
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_run_output_length():
     est = SOGIFLLEstimator()
     est._fs_hint = FS
-    v   = _sine()
+    v = _sine()
     out = est.run(v)
     assert len(out) == len(v)
 
@@ -133,9 +134,9 @@ def test_run_output_length():
 def test_run_no_nan_after_settling():
     est = SOGIFLLEstimator()
     est._fs_hint = FS
-    v   = _sine()
+    v = _sine()
     out = est.run(v)
-    L   = est.latency_samples
+    L = est.latency_samples
     assert np.all(np.isfinite(out[L:])), "NaN/inf after latency window"
 
 
@@ -143,9 +144,9 @@ def test_run_frequency_settles_near_60hz():
     """After warm-up, mean frequency estimate < 1.0 Hz from 60 Hz."""
     est = SOGIFLLEstimator()
     est._fs_hint = FS
-    v   = _sine()
+    v = _sine()
     out = est.run(v)
-    L   = est.latency_samples + int(0.1 * N)
+    L = est.latency_samples + int(0.1 * N)
     valid = out[L:]
     valid = valid[np.isfinite(valid)]
     assert len(valid) > 10
@@ -156,6 +157,7 @@ def test_run_frequency_settles_near_60hz():
 # ─────────────────────────────────────────────────────────────────────────────
 # Self-description API
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_spec_returns_estimator_spec():
     s = SOGIFLLEstimator.spec()
@@ -186,14 +188,22 @@ def test_tuning_spec_candidate_grid_nonempty():
 
 def test_descriptor_required_keys():
     desc = SOGIFLLEstimator.descriptor()
-    for key in ("name", "family", "family_path", "complexity",
-                "latency_type", "suggested_objective", "tuning_params"):
+    for key in (
+        "name",
+        "family",
+        "family_path",
+        "complexity",
+        "latency_type",
+        "suggested_objective",
+        "tuning_params",
+    ):
         assert key in desc, f"Missing descriptor key: {key}"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # set_params / reset
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_set_params_updates_gamma():
     est = SOGIFLLEstimator()
@@ -211,6 +221,5 @@ def test_set_params_triggers_reset():
     v = _sine(n=100)
     for x in v:
         est.step(x)
-    alpha_before = est._alpha
     est.set_params(k=2.0)
-    assert est._alpha == 0.0   # reset to initial state
+    assert est._alpha == 0.0  # reset to initial state

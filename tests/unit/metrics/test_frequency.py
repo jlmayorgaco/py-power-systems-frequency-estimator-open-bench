@@ -1,9 +1,9 @@
 """Unit tests for compute_metrics."""
+
 from __future__ import annotations
 
 import numpy as np
-import pytest
-from openfreqbench.metrics.frequency import compute_metrics, MetricConfig
+from openfreqbench.metrics.frequency import MetricConfig, compute_metrics
 
 
 def test_compute_metrics_perfect_estimate():

@@ -11,19 +11,18 @@ Covers:
   - larger window gives lower or equal RMSE
   - default in tuning grid
 """
+
 from __future__ import annotations
 
 import numpy as np
+from openfreqbench.estimators._base import TuningSpec
+from openfreqbench.estimators._outputs import EstimatorSpec
+from openfreqbench.estimators.monophasic.f2_window.ipdft import IpDFTEstimator
 import pytest
 
-from openfreqbench.estimators.monophasic.f2_window.ipdft import IpDFTEstimator
-from openfreqbench.estimators._outputs import EstimatorSpec
-from openfreqbench.estimators._base import TuningSpec
-
-
-FS  = 10_000.0
-F0  = 60.0
-N   = int(FS * 1.0)
+FS = 10_000.0
+F0 = 60.0
+N = int(FS * 1.0)
 
 
 def _sine(f0=F0, n=N, fs=FS) -> np.ndarray:
@@ -34,6 +33,7 @@ def _sine(f0=F0, n=N, fs=FS) -> np.ndarray:
 # ─────────────────────────────────────────────────────────────────────────────
 # Instantiation
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_instantiate_default():
     assert IpDFTEstimator() is not None
@@ -57,6 +57,7 @@ def test_latency_equals_half_window(ws):
 # run() shape
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_run_output_length():
     est = IpDFTEstimator()
     est._fs_hint = FS
@@ -75,6 +76,7 @@ def test_run_short_signal():
 # NaN / accuracy
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_no_nan_clean_signal():
     est = IpDFTEstimator(params={"window_size": 1024})
     est._fs_hint = FS
@@ -89,14 +91,14 @@ def test_steady_state_accuracy(f0):
     At fs=10 kHz, ws=1024 gives bin spacing ≈9.77 Hz.  The Hann two-point
     interpolation formula used here is derived for a rectangular window and
     introduces a systematic overestimation of the fractional bin offset under
-    a Hann window, yielding typical errors of 2–3 Hz for this window size.
+    a Hann window, yielding typical errors of 2-3 Hz for this window size.
     Accuracy improves proportionally with larger windows (see
     test_accuracy_improves_with_larger_window).
     """
     est = IpDFTEstimator(params={"window_size": 1024})
     est._fs_hint = FS
     out = est.run(_sine(f0=f0))
-    L   = est.latency_samples + int(0.2 * N)
+    L = est.latency_samples + int(0.2 * N)
     valid = out[L:]
     valid = valid[np.isfinite(valid)]
     assert len(valid) > 10
@@ -111,8 +113,8 @@ def test_accuracy_improves_with_larger_window():
     for ws in [1024, 2048]:
         est = IpDFTEstimator(params={"window_size": ws})
         est._fs_hint = FS
-        out  = est.run(v)
-        L    = est.latency_samples
+        out = est.run(v)
+        L = est.latency_samples
         errs.append(float(np.sqrt(np.mean((out[L:] - F0) ** 2))))
     assert errs[1] <= errs[0] + 0.01
 
@@ -120,6 +122,7 @@ def test_accuracy_improves_with_larger_window():
 # ─────────────────────────────────────────────────────────────────────────────
 # Self-description API
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_spec_type():
     assert isinstance(IpDFTEstimator.spec(), EstimatorSpec)
@@ -140,6 +143,13 @@ def test_default_in_grid():
 
 def test_descriptor_keys():
     desc = IpDFTEstimator.descriptor()
-    for key in ("name", "family", "family_path", "complexity",
-                "latency_type", "suggested_objective", "tuning_params"):
+    for key in (
+        "name",
+        "family",
+        "family_path",
+        "complexity",
+        "latency_type",
+        "suggested_objective",
+        "tuning_params",
+    ):
         assert key in desc

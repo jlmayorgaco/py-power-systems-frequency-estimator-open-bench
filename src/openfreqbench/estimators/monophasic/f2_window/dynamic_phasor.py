@@ -6,18 +6,19 @@ DynamicPhasorEstimator — Dynamic Phasor (Taylor-Fourier) estimator.
 Algorithm sketch
 ─────────────────
   Fits a Taylor-series expansion to the phasor over a sliding window:
-    x(t) ≈ Σ_k (X_k / k!) · (t − t_c)^k
+    x(t) ≈ Σ_k (X_k / k!) · (t - t_c)^k
   where X_k are the k-th order phasor Taylor coefficients.
   Frequency derived from the first-order phasor derivative.
 
 References
 ──────────
   Lobos, T. & Rezmer, J. (1997). "Real-time determination of power system
-  frequency." IEEE Trans. Instrumentation & Measurement, 46(4), 877–881.
+  frequency." IEEE Trans. Instrumentation & Measurement, 46(4), 877-881.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -43,19 +44,27 @@ class DynamicPhasorEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "window_size": 512, "taylor_order": 2}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="window_size", default=512, type="int",
-                            values=[256, 512, 1024],
-                            description="Analysis window length (samples)."),
-                TuningParam(name="taylor_order", default=2, type="int",
-                            values=[0, 1, 2, 3],
-                            description="Taylor expansion order (0=static phasor)."),
+                TuningParam(
+                    name="window_size",
+                    default=512,
+                    type="int",
+                    values=[256, 512, 1024],
+                    description="Analysis window length (samples).",
+                ),
+                TuningParam(
+                    name="taylor_order",
+                    default=2,
+                    type="int",
+                    values=[0, 1, 2, 3],
+                    description="Taylor expansion order (0=static phasor).",
+                ),
             ],
             objective="RMSE_HZ",
         )

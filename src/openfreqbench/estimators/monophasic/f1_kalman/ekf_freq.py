@@ -31,12 +31,13 @@ References
 
   Dash, P.K., Pradhan, A.K., Panda, G. (1999). "Frequency estimation of
   distorted power system signals using extended complex Kalman filter."
-  IEEE Trans. Power Del., 14(3), 761–766.
+  IEEE Trans. Power Del., 14(3), 761-766.
 """
+
 from __future__ import annotations
 
 import math
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -69,7 +70,7 @@ class EKFFreqEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "q_omega": 1.0, "r": 0.01}
 
     @classmethod
@@ -101,27 +102,27 @@ class EKFFreqEstimator(BaseEstimator):
         )
 
     def reset(self) -> None:
-        fs          = float(self._config.get("fs",      10_000.0))
-        self._fs    = fs
-        self._Ts    = 1.0 / fs
-        self._q_w   = float(self._config.get("q_omega", 1.0))
-        self._r     = float(self._config.get("r",       0.01))
+        fs = float(self._config.get("fs", 10_000.0))
+        self._fs = fs
+        self._Ts = 1.0 / fs
+        self._q_w = float(self._config.get("q_omega", 1.0))
+        self._r = float(self._config.get("r", 0.01))
 
         # State: [phi, omega]
-        self._x     = np.array([0.0, 2.0 * math.pi * self.NOMINAL_FREQ_HZ])
+        self._x = np.array([0.0, 2.0 * math.pi * self.NOMINAL_FREQ_HZ])
 
-        # Covariance (2×2); Joseph-form update keeps it PSD
-        self._P     = np.eye(2) * 10.0
+        # Covariance (2x2); Joseph-form update keeps it PSD
+        self._P = np.eye(2) * 10.0
 
         # Amplitude estimate (exponential moving average of |v|·√2)
-        self._A          = 1.0
-        self._alpha_amp  = 0.01      # smoothing coefficient
-        self._f_est      = self.NOMINAL_FREQ_HZ
+        self._A = 1.0
+        self._alpha_amp = 0.01  # smoothing coefficient
+        self._f_est = self.NOMINAL_FREQ_HZ
         self._n_samples: int = 0
 
     def structural_latency_samples(self) -> int:
         fs = float(self._config.get("fs", 10_000.0))
-        return int(2 * fs / self.NOMINAL_FREQ_HZ)   # ≈ 2 fundamental cycles
+        return int(2 * fs / self.NOMINAL_FREQ_HZ)  # ≈ 2 fundamental cycles
 
     def update(self, voltage: float, timestamp: float = 0.0) -> EstimatorOutput:
         self._n_samples += 1
@@ -136,44 +137,44 @@ class EKFFreqEstimator(BaseEstimator):
             and self.MIN_VALID_FREQ_HZ <= f <= self.MAX_VALID_FREQ_HZ
         )
         return EstimatorOutput(
-            frequency_hz = f,
-            valid        = valid,
-            phase_rad    = float(self._x[0]),
-            amplitude_pu = self._A,
+            frequency_hz=f,
+            valid=valid,
+            phase_rad=float(self._x[0]),
+            amplitude_pu=self._A,
         )
 
     # ── Internal EKF algorithm ─────────────────────────────────────────────────
 
     def _ekf_step(self, v: float) -> float:
-        Ts  = self._Ts
+        Ts = self._Ts
         q_w = self._q_w
-        r   = self._r
-        A   = self._A
+        r = self._r
+        A = self._A
 
         phi, omega = self._x
 
         # ── Predict ───────────────────────────────────────────────────────────
-        phi_pred   = phi + omega * Ts
+        phi_pred = phi + omega * Ts
         omega_pred = omega
 
         F = np.array([[1.0, Ts], [0.0, 1.0]])
-        Q = np.array([[0.0, 0.0], [0.0, q_w ** 2]])
+        Q = np.array([[0.0, 0.0], [0.0, q_w**2]])
 
         P_pred = F @ self._P @ F.T + Q
         np.clip(P_pred, -1e8, 1e8, out=P_pred)  # prevent covariance blow-up
 
         # ── Update ────────────────────────────────────────────────────────────
         z_pred = A * math.sin(phi_pred)
-        innov  = v - z_pred
+        innov = v - z_pred
 
         H = np.array([[A * math.cos(phi_pred), 0.0]])
 
-        S  = float((H @ P_pred @ H.T).item()) + r
-        K  = (P_pred @ H.T) / S
+        S = float((H @ P_pred @ H.T).item()) + r
+        K = (P_pred @ H.T) / S
 
         self._x = np.array([phi_pred, omega_pred]) + K.ravel() * innov
 
-        IKH     = np.eye(2) - K @ H
+        IKH = np.eye(2) - K @ H
         self._P = IKH @ P_pred @ IKH.T + r * (K @ K.T)  # Joseph form
 
         # Wrap phase to [0, 2π)
@@ -186,7 +187,7 @@ class EKFFreqEstimator(BaseEstimator):
 
         # Update amplitude estimate
         self._A += self._alpha_amp * (abs(v) * math.sqrt(2.0) - self._A)
-        self._A  = max(1e-3, self._A)
+        self._A = max(1e-3, self._A)
 
         self._f_est = self._x[1] / (2.0 * math.pi)
         return self._f_est

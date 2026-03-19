@@ -16,37 +16,50 @@ Scaffold estimators are NOT expected to implement signal-processing logic.
 update() and _step() must raise NotImplementedError — that is intentional.
 These tests only verify the *metadata contract* and *registration*.
 """
+
 from __future__ import annotations
 
-import pytest
-
 from openfreqbench.estimators.common.types import TuningSpec
+from openfreqbench.estimators.monophasic.f0_pll.anf import ANFEstimator
 
 # ── Scaffold estimator classes ────────────────────────────────────────────────
-
-from openfreqbench.estimators.monophasic.f0_pll.ddsrf_pll        import DDSRFPLLEstimator
-from openfreqbench.estimators.monophasic.f0_pll.dsogi_fll        import DSOGIFLLEstimator
-from openfreqbench.estimators.monophasic.f0_pll.epll             import EPLLEstimator
-from openfreqbench.estimators.monophasic.f0_pll.anf              import ANFEstimator
+from openfreqbench.estimators.monophasic.f0_pll.ddsrf_pll import DDSRFPLLEstimator
+from openfreqbench.estimators.monophasic.f0_pll.dsogi_fll import DSOGIFLLEstimator
+from openfreqbench.estimators.monophasic.f0_pll.epll import EPLLEstimator
+from openfreqbench.estimators.monophasic.f1_kalman.adaptive_ekf import AdaptiveEKFEstimator
+from openfreqbench.estimators.monophasic.f1_kalman.ckf import CKFEstimator
 from openfreqbench.estimators.monophasic.f1_kalman.linear_kalman import LinearKalmanEstimator
-from openfreqbench.estimators.monophasic.f1_kalman.ckf           import CKFEstimator
-from openfreqbench.estimators.monophasic.f1_kalman.adaptive_ekf  import AdaptiveEKFEstimator
-from openfreqbench.estimators.monophasic.f2_window.goertzel      import GoertzelEstimator
 from openfreqbench.estimators.monophasic.f2_window.dynamic_phasor import DynamicPhasorEstimator
-from openfreqbench.estimators.monophasic.f3_recursive.interp_zero_crossing import InterpolatedZeroCrossingEstimator
-from openfreqbench.estimators.monophasic.f3_recursive.windowed_ls import WindowedLeastSquaresEstimator
-from openfreqbench.estimators.monophasic.f5_parametric.prony     import PronyEstimator
-from openfreqbench.estimators.monophasic.f5_parametric.music     import MUSICEstimator
-from openfreqbench.estimators.monophasic.f5_parametric.esprit    import ESPRITEstimator
-from openfreqbench.estimators.monophasic.f6_time_frequency.hilbert_freq import HilbertFrequencyEstimator
-from openfreqbench.estimators.monophasic.f4_data_driven.gru_regressor      import GRURegressorEstimator
-from openfreqbench.estimators.monophasic.f4_data_driven.lstm_regressor     import LSTMRegressorEstimator
-from openfreqbench.estimators.monophasic.f4_data_driven.bilstm_regressor   import BiLSTMRegressorEstimator
-from openfreqbench.estimators.monophasic.f4_data_driven.temporal_cnn       import TemporalCNNEstimator
-from openfreqbench.estimators.monophasic.f4_data_driven.tcn_frequency      import TCNFrequencyEstimator
-from openfreqbench.estimators.monophasic.f4_data_driven.transformer_regressor import TransformerRegressorEstimator
-from openfreqbench.estimators.monophasic.f4_data_driven.reservoir_echo     import ReservoirEchoStateEstimator
-from openfreqbench.estimators.monophasic.f4_data_driven.mlp_window         import MLPWindowRegressorEstimator
+from openfreqbench.estimators.monophasic.f2_window.goertzel import GoertzelEstimator
+from openfreqbench.estimators.monophasic.f3_recursive.interp_zero_crossing import (
+    InterpolatedZeroCrossingEstimator,
+)
+from openfreqbench.estimators.monophasic.f3_recursive.windowed_ls import (
+    WindowedLeastSquaresEstimator,
+)
+from openfreqbench.estimators.monophasic.f4_data_driven.bilstm_regressor import (
+    BiLSTMRegressorEstimator,
+)
+from openfreqbench.estimators.monophasic.f4_data_driven.gru_regressor import GRURegressorEstimator
+from openfreqbench.estimators.monophasic.f4_data_driven.lstm_regressor import LSTMRegressorEstimator
+from openfreqbench.estimators.monophasic.f4_data_driven.mlp_window import (
+    MLPWindowRegressorEstimator,
+)
+from openfreqbench.estimators.monophasic.f4_data_driven.reservoir_echo import (
+    ReservoirEchoStateEstimator,
+)
+from openfreqbench.estimators.monophasic.f4_data_driven.tcn_frequency import TCNFrequencyEstimator
+from openfreqbench.estimators.monophasic.f4_data_driven.temporal_cnn import TemporalCNNEstimator
+from openfreqbench.estimators.monophasic.f4_data_driven.transformer_regressor import (
+    TransformerRegressorEstimator,
+)
+from openfreqbench.estimators.monophasic.f5_parametric.esprit import ESPRITEstimator
+from openfreqbench.estimators.monophasic.f5_parametric.music import MUSICEstimator
+from openfreqbench.estimators.monophasic.f5_parametric.prony import PronyEstimator
+from openfreqbench.estimators.monophasic.f6_time_frequency.hilbert_freq import (
+    HilbertFrequencyEstimator,
+)
+import pytest
 
 SCAFFOLD_CLASSES = [
     # f0_pll
@@ -82,8 +95,13 @@ SCAFFOLD_CLASSES = [
 ]
 
 _REQUIRED_DESCRIPTOR_KEYS = (
-    "name", "family", "family_path", "complexity",
-    "latency_type", "suggested_objective", "tuning_params",
+    "name",
+    "family",
+    "family_path",
+    "complexity",
+    "latency_type",
+    "suggested_objective",
+    "tuning_params",
 )
 
 
@@ -129,10 +147,9 @@ class TestScaffoldEstimatorContract:
     def test_in_registry(self, cls):
         """Every scaffold must be findable by name in the EstimatorRegistry."""
         from openfreqbench.estimators.registry import EstimatorRegistry
+
         names = EstimatorRegistry.list_names()
-        assert cls.SPEC.name in names, (
-            f"{cls.SPEC.name} not found in EstimatorRegistry"
-        )
+        assert cls.SPEC.name in names, f"{cls.SPEC.name} not found in EstimatorRegistry"
 
 
 # ── ML-specific: BaseMLEstimator API ─────────────────────────────────────────
@@ -168,8 +185,10 @@ class TestMLEstimatorMetadataAPI:
 
 # ── Registry round-trip ───────────────────────────────────────────────────────
 
+
 def test_all_scaffold_estimators_in_registry():
     from openfreqbench.estimators.registry import EstimatorRegistry
+
     names = set(EstimatorRegistry.list_names())
     expected = {cls.SPEC.name for cls in SCAFFOLD_CLASSES}
     missing = expected - names
@@ -179,5 +198,6 @@ def test_all_scaffold_estimators_in_registry():
 def test_total_registered_estimator_count():
     """Registry must have at least 38 estimators (9 real + 6 stub + 23 scaffold)."""
     from openfreqbench.estimators.registry import EstimatorRegistry
+
     count = len(EstimatorRegistry.list_names())
     assert count >= 38, f"Expected ≥38 registered estimators, got {count}"

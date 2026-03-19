@@ -6,7 +6,7 @@ PronyEstimator — Prony's method for parametric signal decomposition.
 Algorithm sketch
 ─────────────────
   Fits the signal to a sum of damped sinusoids:
-    x[n] ≈ Σ_k A_k · e^{(σ_k + jω_k)·n·Ts}
+    x[n] ≈ Σ_k A_k · e^{(sigma_k + jω_k)·n·Ts}
   Solves a linear prediction equation for the poles, then extracts
   the dominant real-frequency component.
 
@@ -14,9 +14,10 @@ References
 ──────────
   Marple, S.L. (1987). Digital Spectral Analysis. Prentice-Hall.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -42,19 +43,27 @@ class PronyEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "window_size": 512, "model_order": 4}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="window_size", default=512, type="int",
-                            values=[256, 512, 1024],
-                            description="Analysis window length."),
-                TuningParam(name="model_order", default=4, type="int",
-                            values=[2, 4, 6, 8, 10],
-                            description="Number of complex exponential modes."),
+                TuningParam(
+                    name="window_size",
+                    default=512,
+                    type="int",
+                    values=[256, 512, 1024],
+                    description="Analysis window length.",
+                ),
+                TuningParam(
+                    name="model_order",
+                    default=4,
+                    type="int",
+                    values=[2, 4, 6, 8, 10],
+                    description="Number of complex exponential modes.",
+                ),
             ],
             objective="RMSE_HZ",
         )

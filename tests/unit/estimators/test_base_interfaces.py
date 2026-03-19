@@ -9,21 +9,21 @@ Covers:
   - EstimatorRegistry has all expected built-ins
   - EstimatorRegistry.list_by_family() grouping
 """
+
 from __future__ import annotations
 
 import math
 
 import numpy as np
-import pytest
-
+from openfreqbench.estimators._base import TuningParam, TuningSpec
 from openfreqbench.estimators._outputs import EstimatorOutput, EstimatorSpec
-from openfreqbench.estimators._base import TuningParam, TuningSpec, BaseEstimator
 from openfreqbench.estimators.registry import EstimatorRegistry
-
+import pytest
 
 # ─────────────────────────────────────────────────────────────────────────────
 # EstimatorOutput
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_estimator_output_valid_finite():
     o = EstimatorOutput(frequency_hz=60.0, valid=True)
@@ -62,19 +62,26 @@ def test_estimator_output_to_dict():
 # EstimatorSpec
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_estimator_spec_frozen():
     s = EstimatorSpec(
-        name="Test", family="TestFam", family_path="test/path",
-        complexity="O(1)", latency_type="causal",
+        name="Test",
+        family="TestFam",
+        family_path="test/path",
+        complexity="O(1)",
+        latency_type="causal",
     )
-    with pytest.raises(Exception):
+    with pytest.raises((AttributeError, TypeError)):
         s.name = "Other"  # type: ignore[misc]
 
 
 def test_estimator_spec_to_dict():
     s = EstimatorSpec(
-        name="X", family="Y", family_path="z/path",
-        complexity="O(N)", latency_type="semi-causal",
+        name="X",
+        family="Y",
+        family_path="z/path",
+        complexity="O(N)",
+        latency_type="semi-causal",
     )
     d = s.to_dict()
     assert d["name"] == "X"
@@ -86,6 +93,7 @@ def test_estimator_spec_to_dict():
 # TuningSpec.candidate_grid()
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_tuning_spec_empty_returns_single_empty_dict():
     ts = TuningSpec(params=[], objective="RMSE_HZ")
     grid = ts.candidate_grid()
@@ -93,9 +101,11 @@ def test_tuning_spec_empty_returns_single_empty_dict():
 
 
 def test_tuning_spec_single_param_grid():
-    ts = TuningSpec(params=[
-        TuningParam(name="k", default=1.0, type="float", values=[0.5, 1.0, 2.0])
-    ])
+    ts = TuningSpec(
+        params=[
+            TuningParam(name="k", default=1.0, type="float", values=[0.5, 1.0, 2.0]),
+        ],
+    )
     grid = ts.candidate_grid()
     assert len(grid) == 3
     assert {"k": 0.5} in grid
@@ -103,10 +113,12 @@ def test_tuning_spec_single_param_grid():
 
 
 def test_tuning_spec_cartesian_product():
-    ts = TuningSpec(params=[
-        TuningParam("a", 1, "int", values=[1, 2]),
-        TuningParam("b", 10, "int", values=[10, 20, 30]),
-    ])
+    ts = TuningSpec(
+        params=[
+            TuningParam("a", 1, "int", values=[1, 2]),
+            TuningParam("b", 10, "int", values=[10, 20, 30]),
+        ],
+    )
     grid = ts.candidate_grid()
     assert len(grid) == 6
     assert {"a": 1, "b": 10} in grid
@@ -114,16 +126,19 @@ def test_tuning_spec_cartesian_product():
 
 
 def test_tuning_spec_n_candidates():
-    ts = TuningSpec(params=[
-        TuningParam("a", 1, "int", values=[1, 2]),
-        TuningParam("b", 10, "int", values=[10, 20, 30]),
-    ])
+    ts = TuningSpec(
+        params=[
+            TuningParam("a", 1, "int", values=[1, 2]),
+            TuningParam("b", 10, "int", values=[10, 20, 30]),
+        ],
+    )
     assert ts.n_candidates() == 6
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # BaseEstimator.update() on all built-ins
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.parametrize("name", EstimatorRegistry.list_names())
 def test_all_registered_update_returns_output(name):
@@ -139,8 +154,8 @@ def test_all_registered_update_returns_output(name):
 def test_all_registered_run_no_crash(name):
     est = EstimatorRegistry.build(name)
     est._fs_hint = 10_000.0
-    t   = np.arange(500) / 10_000.0
-    v   = np.sin(2 * np.pi * 60.0 * t)
+    t = np.arange(500) / 10_000.0
+    v = np.sin(2 * np.pi * 60.0 * t)
     out = est.run(v)
     assert len(out) == len(v)
     assert all(np.isfinite(out))
@@ -150,11 +165,17 @@ def test_all_registered_run_no_crash(name):
 # EstimatorRegistry
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_registry_contains_all_expected_names():
     names = set(EstimatorRegistry.list_names())
     expected = {
-        "Baseline_Passthrough", "SOGI_FLL", "EKF_Freq",
-        "FFTPeak", "IpDFT", "ZeroCrossing", "RDFT",
+        "Baseline_Passthrough",
+        "SOGI_FLL",
+        "EKF_Freq",
+        "FFTPeak",
+        "IpDFT",
+        "ZeroCrossing",
+        "RDFT",
     }
     assert expected.issubset(names), f"Missing: {expected - names}"
 
@@ -162,18 +183,24 @@ def test_registry_contains_all_expected_names():
 def test_registry_list_by_family():
     groups = EstimatorRegistry.list_by_family()
     # All built-in families should be present
-    assert any("f0_pll"      in fp for fp in groups)
-    assert any("f1_kalman"   in fp for fp in groups)
-    assert any("f2_window"   in fp for fp in groups)
+    assert any("f0_pll" in fp for fp in groups)
+    assert any("f1_kalman" in fp for fp in groups)
+    assert any("f2_window" in fp for fp in groups)
     assert any("f3_recursive" in fp for fp in groups)
 
 
 def test_registry_descriptors_all_complete():
     descs = EstimatorRegistry.list_descriptors()
-    required = {"name", "family", "family_path", "complexity",
-                "latency_type", "suggested_objective", "tuning_params"}
+    required = {
+        "name",
+        "family",
+        "family_path",
+        "complexity",
+        "latency_type",
+        "suggested_objective",
+        "tuning_params",
+    }
     for d in descs:
         assert required.issubset(set(d.keys())), (
-            f"Descriptor for {d.get('name')} missing keys: "
-            f"{required - set(d.keys())}"
+            f"Descriptor for {d.get('name')} missing keys: {required - set(d.keys())}"
         )

@@ -15,10 +15,10 @@ RoCoF = +5 Hz/s is representative of fast frequency excursions following
 sudden loss of generation or load, and exceeds typical RoCoF relay trip
 thresholds (2 Hz/s in many jurisdictions).
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
 
@@ -35,18 +35,20 @@ class G2_E8_Fast_Ramp_plus5Hzs(ScenarioBase):
     Phase continuity is maintained throughout.
     """
 
-    fs_hz:         float = 10_000.0
-    T_s:           float = 3.0
-    seed:          int   = 42
-    f_start:       float = 60.0
-    rocof_hz_s:    float = 5.0
-    t_ramp_start:  float = 0.5
-    t_ramp_end:    float = 1.5
-    scenario_id:   str   = "G2_E8_Fast_Ramp_plus5Hzs"
+    fs_hz: float = 10_000.0
+    T_s: float = 3.0
+    seed: int = 42
+    f_start: float = 60.0
+    rocof_hz_s: float = 5.0
+    t_ramp_start: float = 0.5
+    t_ramp_end: float = 1.5
+    scenario_id: str = "G2_E8_Fast_Ramp_plus5Hzs"
 
-    tuning_map: Dict[str, str] = field(default_factory=lambda: {
-        "seed": "seed",
-    })
+    tuning_map: dict[str, str] = field(
+        default_factory=lambda: {
+            "seed": "seed",
+        },
+    )
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

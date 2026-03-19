@@ -6,21 +6,21 @@ Covers:
   - SRF-PLL-specific: phase tracking, vq→0 at lock, anti-windup
   - Comparison with SOGI-FLL on pure 60 Hz (both should converge)
 """
+
 from __future__ import annotations
 
 import math
 
 import numpy as np
+from openfreqbench.estimators._base import TuningSpec
+from openfreqbench.estimators._outputs import EstimatorOutput, EstimatorSpec
+from openfreqbench.estimators.monophasic.f0_pll.srf_pll import SRFPLLEstimator
 import pytest
 
-from openfreqbench.estimators.monophasic.f0_pll.srf_pll import SRFPLLEstimator
-from openfreqbench.estimators._outputs import EstimatorOutput, EstimatorSpec
-from openfreqbench.estimators._base import TuningSpec
-
-FS  = 10_000.0
-F0  = 60.0
+FS = 10_000.0
+F0 = 60.0
 T_S = 1.0
-N   = int(FS * T_S)
+N = int(FS * T_S)
 
 
 def _sine(fs: float = FS, f0: float = F0, n: int = N, A: float = 1.0) -> np.ndarray:
@@ -37,6 +37,7 @@ def _make_est(**kwargs) -> SRFPLLEstimator:
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. Mandatory: instantiation
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_instantiate_with_default_config():
     e = SRFPLLEstimator()
@@ -56,6 +57,7 @@ def test_family_path():
 # 2. Mandatory: reset restores initial state
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_reset_restores_initial_state():
     est = _make_est()
     v = _sine()
@@ -63,7 +65,7 @@ def test_reset_restores_initial_state():
         est.update(float(s))
     est.reset()
     assert abs(est._f_est - F0) < 0.1
-    assert est._ui == pytest.approx(0.0)   # integrator cleared
+    assert est._ui == pytest.approx(0.0)  # integrator cleared
 
 
 def test_reset_clears_sample_counter():
@@ -78,6 +80,7 @@ def test_reset_clears_sample_counter():
 # 3. Mandatory: update() returns EstimatorOutput
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_step_returns_estimator_output():
     est = _make_est()
     result = est.update(0.5)
@@ -87,6 +90,7 @@ def test_step_returns_estimator_output():
 # ─────────────────────────────────────────────────────────────────────────────
 # 4. Mandatory: no NaN
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_step_output_no_nan():
     est = _make_est()
@@ -107,6 +111,7 @@ def test_no_nan_on_zero_signal():
 # 5. Mandatory: valid range [40, 80] Hz
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_step_output_in_valid_range():
     est = _make_est()
     v = _sine()
@@ -118,6 +123,7 @@ def test_step_output_in_valid_range():
 # ─────────────────────────────────────────────────────────────────────────────
 # 6. Mandatory: pure 60 Hz converges
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_pure_60hz_converges():
     est = _make_est()
@@ -135,7 +141,7 @@ def test_steady_state_converges():
     v = _sine(n=N)
     out = est.run(v)
     # Use last 30 % of signal
-    steady = out[int(0.7 * N):]
+    steady = out[int(0.7 * N) :]
     bias = abs(float(np.mean(steady)) - F0)
     assert bias < 0.5, f"Bias {bias:.4f} Hz exceeds 0.5 Hz"
 
@@ -143,6 +149,7 @@ def test_steady_state_converges():
 # ─────────────────────────────────────────────────────────────────────────────
 # 7. Mandatory: reproducible with seed
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_mc_reproducible_with_seed():
     rng = np.random.default_rng(42)
@@ -159,6 +166,7 @@ def test_mc_reproducible_with_seed():
 # ─────────────────────────────────────────────────────────────────────────────
 # SRF-PLL-specific: phase tracking
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_phase_rad_is_finite():
     est = _make_est()
@@ -192,9 +200,11 @@ def test_amplitude_pu_positive_after_warmup():
 # SRF-PLL-specific: PI anti-windup
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_anti_windup_limits_integrator():
     """Feed a constant 1.0 V offset (DC) — integrator must stay bounded."""
     from openfreqbench.estimators.monophasic.f0_pll.srf_pll import _UI_MAX
+
     est = _make_est()
     for _ in range(5000):
         est.update(1.0)
@@ -202,12 +212,12 @@ def test_anti_windup_limits_integrator():
 
 
 def test_frequency_stays_in_range_after_impulse():
-    """After a spike 10× signal amplitude, frequency must stay in [40, 80] Hz."""
+    """After a spike 10x signal amplitude, frequency must stay in [40, 80] Hz."""
     est = _make_est()
     v = _sine(n=int(3 * FS / F0))
     for s in v:
         est.update(float(s))
-    est.update(10.0)   # impulse
+    est.update(10.0)  # impulse
     out = est.update(0.0)
     assert 40.0 <= out.frequency_hz <= 80.0
 
@@ -215,6 +225,7 @@ def test_frequency_stays_in_range_after_impulse():
 # ─────────────────────────────────────────────────────────────────────────────
 # SRF-PLL-specific: run() batch
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_run_output_length():
     est = _make_est()
@@ -240,11 +251,12 @@ def test_latency_positive():
 # SRF-PLL-specific: gain sensitivity
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_higher_kp_locks_faster():
     """Higher Kp should produce lower RMSE at early samples (faster lock)."""
     v = _sine(n=N)
 
-    est_slow = SRFPLLEstimator(config={"fs": FS, "kp": 31.4,  "ki": 250.0})
+    est_slow = SRFPLLEstimator(config={"fs": FS, "kp": 31.4, "ki": 250.0})
     est_fast = SRFPLLEstimator(config={"fs": FS, "kp": 250.0, "ki": 15625.0})
 
     out_slow = est_slow.run(v)
@@ -262,6 +274,7 @@ def test_higher_kp_locks_faster():
 # ─────────────────────────────────────────────────────────────────────────────
 # Self-description API
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_spec_type():
     assert isinstance(SRFPLLEstimator.spec(), EstimatorSpec)
@@ -283,14 +296,22 @@ def test_tuning_spec_has_ki():
 
 def test_descriptor_keys():
     desc = SRFPLLEstimator.descriptor()
-    for key in ("name", "family", "family_path", "complexity",
-                "latency_type", "suggested_objective", "tuning_params"):
+    for key in (
+        "name",
+        "family",
+        "family_path",
+        "complexity",
+        "latency_type",
+        "suggested_objective",
+        "tuning_params",
+    ):
         assert key in desc
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # set_params
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_set_params_kp():
     est = _make_est()

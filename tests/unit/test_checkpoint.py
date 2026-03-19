@@ -5,18 +5,16 @@ Unit tests for CheckpointManager (BLOCK 0).
 
 All tests use tmp_path so nothing is written to the real results directory.
 """
+
 from __future__ import annotations
 
 import json
-import time
-from pathlib import Path
-
-import pytest
 
 from openfreqbench.core.checkpoint import CheckpointManager, _pair_key
-
+import pytest
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def mgr(tmp_path):
@@ -27,6 +25,7 @@ CONFIG = {"methods": ["EKF_Freq"], "scenarios": ["G1_E1"], "n_runs": 10}
 
 
 # ── Creation and persistence ──────────────────────────────────────────────────
+
 
 def test_load_returns_none_when_no_file(mgr):
     assert mgr.load() is None
@@ -50,6 +49,7 @@ def test_load_after_create(mgr):
 def test_session_id_is_uuid(mgr):
     mgr.create(CONFIG)
     import uuid
+
     uuid.UUID(mgr.session_id)  # raises if invalid
 
 
@@ -64,6 +64,7 @@ def test_two_creates_have_different_session_ids(tmp_path):
 
 
 # ── Pair lifecycle ────────────────────────────────────────────────────────────
+
 
 def test_mark_started_sets_in_progress(mgr):
     mgr.create(CONFIG)
@@ -106,6 +107,7 @@ def test_mark_completed_removes_from_failed(mgr):
 
 # ── should_run ────────────────────────────────────────────────────────────────
 
+
 def test_should_run_restart_always_true(mgr):
     mgr.create(CONFIG)
     mgr.mark_completed("EKF_Freq", "G1_E1", n_mc=10)
@@ -137,6 +139,7 @@ def test_should_run_partial_runs_failed(mgr):
 
 # ── Atomic write ──────────────────────────────────────────────────────────────
 
+
 def test_atomic_write_no_partial_files(mgr, tmp_path):
     """After mark_completed the .tmp file must not exist."""
     mgr.create(CONFIG)
@@ -160,6 +163,7 @@ def test_file_is_valid_json_after_each_operation(mgr, tmp_path):
 
 # ── Delete ────────────────────────────────────────────────────────────────────
 
+
 def test_delete_removes_file(mgr, tmp_path):
     mgr.create(CONFIG)
     assert (tmp_path / ".ofb_checkpoint.json").exists()
@@ -176,6 +180,7 @@ def test_delete_resets_state(mgr):
 
 
 # ── Counts ────────────────────────────────────────────────────────────────────
+
 
 def test_count_completed(mgr):
     mgr.create(CONFIG)
@@ -202,6 +207,7 @@ def test_list_completed_pairs(mgr):
 
 # ── Startup dialog (non-interactive path) ─────────────────────────────────────
 
+
 def test_startup_dialog_no_checkpoint_creates_fresh(mgr):
     mode = mgr.startup_dialog(CONFIG, n_total=4)
     assert mode == "restart"
@@ -225,6 +231,7 @@ def test_startup_dialog_auto_restart(mgr, tmp_path):
 
 
 # ── Pair key helper ───────────────────────────────────────────────────────────
+
 
 def test_pair_key_format():
     assert _pair_key("EKF_Freq", "G1_E1") == "EKF_Freq::G1_E1"

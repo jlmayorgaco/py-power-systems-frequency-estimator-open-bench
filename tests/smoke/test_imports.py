@@ -19,8 +19,8 @@ def test_import_metrics():
 
 
 def test_import_runners():
-    from openfreqbench.runners.trace_runner import TraceRunner  # noqa: F401
     from openfreqbench.runners.scenario_method_runner import ScenarioMethodRunner  # noqa: F401
+    from openfreqbench.runners.trace_runner import TraceRunner  # noqa: F401
 
 
 def test_import_core():

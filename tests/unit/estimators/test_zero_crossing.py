@@ -1,9 +1,8 @@
 """Unit tests for ZeroCrossingEstimator."""
+
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
 from openfreqbench.estimators.zero_crossing import ZeroCrossingEstimator
 
 
@@ -22,7 +21,9 @@ def test_run_pure_60hz_returns_near_60():
     # Trim latency
     lat = est.latency_samples
     valid = f_hat[lat:]
-    assert np.abs(np.nanmean(valid) - 60.0) < 0.5, f"Mean freq {np.nanmean(valid):.3f} not near 60 Hz"
+    assert np.abs(np.nanmean(valid) - 60.0) < 0.5, (
+        f"Mean freq {np.nanmean(valid):.3f} not near 60 Hz"
+    )
 
 
 def test_set_params_then_reset():

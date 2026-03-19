@@ -7,7 +7,7 @@ Algorithm sketch
 ─────────────────
   Uses two SOGI cells in quadrature to simultaneously generate
   in-phase and 90°-lagged replicas for both the positive (+) and
-  negative (−) sequence components of a potentially unbalanced signal.
+  negative (-) sequence components of a potentially unbalanced signal.
   The FLL error signal is computed from the combined orthogonal outputs.
 
 References
@@ -16,9 +16,10 @@ References
   "Online Grid Impedance Estimation for Single-Phase Grid-Connected Systems
   Using PQ Variations." IEEE PESC 2006.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -44,19 +45,27 @@ class DSOGIFLLEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "k": 1.414, "gamma": 50.0}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="k", default=1.414, type="float",
-                            values=[0.5, 0.707, 1.0, 1.414, 2.0, 2.828],
-                            description="SOGI damping factor."),
-                TuningParam(name="gamma", default=50.0, type="float",
-                            values=[5.0, 10.0, 20.0, 50.0, 100.0, 200.0],
-                            description="FLL loop gain."),
+                TuningParam(
+                    name="k",
+                    default=1.414,
+                    type="float",
+                    values=[0.5, 0.707, 1.0, 1.414, 2.0, 2.828],
+                    description="SOGI damping factor.",
+                ),
+                TuningParam(
+                    name="gamma",
+                    default=50.0,
+                    type="float",
+                    values=[5.0, 10.0, 20.0, 50.0, 100.0, 200.0],
+                    description="FLL loop gain.",
+                ),
             ],
             objective="RMSE_HZ",
         )

@@ -1,14 +1,16 @@
 """ofb run <config.yaml> — execute a benchmark suite."""
+
 from __future__ import annotations
 
-import time
+import contextlib
 from pathlib import Path
-from typing import List, Optional
+import time
+from typing import Annotated
 
-import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
+import typer
 
 from openfreqbench.core.checkpoint import CheckpointManager
 from openfreqbench.core.config_models import load_config
@@ -21,13 +23,35 @@ console = Console()
 
 
 def run_cmd(
-    config: Path = typer.Argument(..., help="Path to benchmark.yaml"),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Validate config and exit."),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Override output directory."),
-    plots: bool = typer.Option(False, "--plots", help="Generate waveform, tracking, and error plots."),
-    resume: bool = typer.Option(False, "--resume", help="Auto-resume from checkpoint (skip completed pairs)."),
-    restart: bool = typer.Option(False, "--restart", help="Ignore checkpoint and restart from scratch."),
-    status: bool = typer.Option(False, "--status", help="Show checkpoint status and exit."),
+    config: Annotated[Path, typer.Argument(help="Path to benchmark.yaml")],
+    dry_run: Annotated[bool, typer.Option("--dry-run", help="Validate config and exit.")] = False,
+    output: Annotated[
+        Path | None, typer.Option("--output", "-o", help="Override output directory."),
+    ] = None,
+    plots: Annotated[
+        bool,
+        typer.Option(
+            "--plots",
+            help="Generate waveform, tracking, and error plots.",
+        ),
+    ] = False,
+    resume: Annotated[
+        bool,
+        typer.Option(
+            "--resume",
+            help="Auto-resume from checkpoint (skip completed pairs).",
+        ),
+    ] = False,
+    restart: Annotated[
+        bool,
+        typer.Option(
+            "--restart",
+            help="Ignore checkpoint and restart from scratch.",
+        ),
+    ] = False,
+    status: Annotated[
+        bool, typer.Option("--status", help="Show checkpoint status and exit."),
+    ] = False,
 ) -> None:
     """Run a benchmark suite defined in a YAML configuration file."""
     if not config.exists():
@@ -37,7 +61,7 @@ def run_cmd(
         cfg = load_config(config)
     except Exception as exc:
         console.print(f"[red]Config parse error:[/red] {exc}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from exc
 
     out_dir = output or Path(cfg.benchmark.output_dir)
     store = ArtifactStore(out_dir)
@@ -45,7 +69,7 @@ def run_cmd(
 
     # ── Checkpoint setup ──────────────────────────────────────────────────────
     checkpoint = CheckpointManager(out_dir)
-    n_total    = len(cfg.scenarios) * len(cfg.estimators)
+    n_total = len(cfg.scenarios) * len(cfg.estimators)
 
     if status:
         _print_checkpoint_status(checkpoint, n_total)
@@ -78,7 +102,13 @@ def run_cmd(
         ieee_rfe_limit_hzs=cfg.metrics.ieee_rfe_limit_hzs,
     )
 
-    results_table = Table("Scenario", "Estimator", "RMSE_HZ (mean)", "FE_MAX_MHZ (mean)", "Time/sample (us)")
+    results_table = Table(
+        "Scenario",
+        "Estimator",
+        "RMSE_HZ (mean)",
+        "FE_MAX_MHZ (mean)",
+        "Time/sample (us)",
+    )
     all_ok = True
 
     for scen_cfg in cfg.scenarios:
@@ -93,12 +123,15 @@ def run_cmd(
             checkpoint.mark_started(est_cfg.id, scen_cfg.id)
 
             with Progress(
-                SpinnerColumn(), TextColumn(f"[cyan]{label}"), TimeElapsedColumn(),
-                console=console, transient=True,
+                SpinnerColumn(),
+                TextColumn(f"[cyan]{label}"),
+                TimeElapsedColumn(),
+                console=console,
+                transient=True,
             ) as prog:
                 prog.add_task("running", total=None)
                 try:
-                    scenario  = ScenarioRegistry.build(scen_cfg.id, scen_cfg.params or None)
+                    scenario = ScenarioRegistry.build(scen_cfg.id, scen_cfg.params or None)
                     estimator = EstimatorRegistry.build(est_cfg.id, est_cfg.params or None)
                 except KeyError as exc:
                     console.print(f"[red]Registry error:[/red] {exc}")
@@ -132,7 +165,7 @@ def run_cmd(
             # ── Build enhanced JSON report ─────────────────────────────────
             report_data = _build_report(result, cfg.benchmark.n_runs, cfg.benchmark.seed_start)
 
-            plot_paths: List[Path] = []
+            plot_paths: list[Path] = []
             if do_plots:
                 plot_paths = _generate_plots(
                     scenario=scenario,
@@ -144,28 +177,32 @@ def run_cmd(
                 )
                 report_data["plots"] = [str(p) for p in plot_paths]
                 if plot_paths:
-                    console.print(f"  [green]Plots saved:[/green] {len(plot_paths)} files in "
-                                  f"{(out_dir / result.scenario_id / result.method_id / 'plots').resolve()}")
+                    console.print(
+                        f"  [green]Plots saved:[/green] {len(plot_paths)} files in "
+                        f"{(out_dir / result.scenario_id / result.method_id / 'plots').resolve()}",
+                    )
 
             saved = store.save_json(identity, "report", report_data, ts=ts)
             result_file = str(saved) if saved else ""
 
             # ── Checkpoint: mark completed atomically ─────────────────────
             checkpoint.mark_completed(
-                est_cfg.id, scen_cfg.id,
+                est_cfg.id,
+                scen_cfg.id,
                 result_file=result_file,
                 n_mc=cfg.benchmark.n_runs,
             )
 
             agg = result.aggregated
             rmse_mean = agg.get("RMSE_HZ", {}).get("mean", float("nan"))
-            fe_mean   = agg.get("FE_MAX_MHZ", {}).get("mean", float("nan"))
-            tps_mean  = agg.get("TIME_PER_SAMPLE_US", {}).get("mean", float("nan"))
+            fe_mean = agg.get("FE_MAX_MHZ", {}).get("mean", float("nan"))
+            tps_mean = agg.get("TIME_PER_SAMPLE_US", {}).get("mean", float("nan"))
             results_table.add_row(
-                result.scenario_id, result.method_id,
+                result.scenario_id,
+                result.method_id,
                 f"{rmse_mean:.6f}" if rmse_mean == rmse_mean else "nan",
-                f"{fe_mean:.3f}"   if fe_mean   == fe_mean   else "nan",
-                f"{tps_mean:.2f}"  if tps_mean  == tps_mean  else "nan",
+                f"{fe_mean:.3f}" if fe_mean == fe_mean else "nan",
+                f"{tps_mean:.2f}" if tps_mean == tps_mean else "nan",
             )
 
     console.print(results_table)
@@ -178,16 +215,15 @@ def run_cmd(
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def _print_checkpoint_status(checkpoint: "CheckpointManager", n_total: int) -> None:
+def _print_checkpoint_status(checkpoint: CheckpointManager, n_total: int) -> None:
     """Print human-readable checkpoint status to the console."""
-    from openfreqbench.core.checkpoint import CheckpointManager  # avoid circular at top
     state = checkpoint.load()
     if state is None:
         console.print("[yellow]No checkpoint found.[/yellow]")
         return
-    n_done   = checkpoint.count_completed()
+    n_done = checkpoint.count_completed()
     n_failed = checkpoint.count_failed()
-    console.print(f"\n[bold]Checkpoint status[/bold]")
+    console.print("\n[bold]Checkpoint status[/bold]")
     console.print(f"  Session  : {checkpoint.session_id[:8]}...")
     console.print(f"  Started  : {checkpoint.started_at}")
     console.print(f"  Elapsed  : {checkpoint.elapsed}")
@@ -200,6 +236,7 @@ def _print_checkpoint_status(checkpoint: "CheckpointManager", n_total: int) -> N
         console.print(f"  [yellow]In-progress: {checkpoint.in_progress.get('pair')}[/yellow]")
     console.print()
 
+
 def _build_report(result: ScenarioMethodResult, n_runs: int, seed_start: int) -> dict:
     """Build a rich JSON report including aggregated stats + per-seed key metrics."""
     per_seed = []
@@ -211,13 +248,13 @@ def _build_report(result: ScenarioMethodResult, n_runs: int, seed_start: int) ->
         per_seed.append(row)
 
     return {
-        "scenario_id":   result.scenario_id,
-        "method_id":     result.method_id,
-        "n_runs":        n_runs,
-        "seed_start":    seed_start,
+        "scenario_id": result.scenario_id,
+        "method_id": result.method_id,
+        "n_runs": n_runs,
+        "seed_start": seed_start,
         "method_params": result.method_params,
-        "aggregated":    result.aggregated,
-        "per_seed":      per_seed,
+        "aggregated": result.aggregated,
+        "per_seed": per_seed,
     }
 
 
@@ -229,7 +266,7 @@ def _generate_plots(
     out_dir: Path,
     ts: str,
     metric_cfg: MetricConfig,
-) -> List[Path]:
+) -> list[Path]:
     """Run a reference trace (seed=0), collect MC f_hats, generate 3 plots."""
     try:
         from openfreqbench.plotting.scenario_plots import generate_scenario_method_plots
@@ -239,10 +276,8 @@ def _generate_plots(
         return []
 
     # Reference waveform: re-build scenario at seed=0
-    try:
+    with contextlib.suppress(Exception):
         scenario.set_montecarlo_tuning({"seed": 0})
-    except Exception:
-        pass
     waveform = scenario.build()
 
     # Reference f_hat

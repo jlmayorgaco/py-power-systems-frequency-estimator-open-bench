@@ -1,21 +1,31 @@
-"""ofb analyze — post-run analysis and comparison of existing artifacts."""
+"""ofb analyze -- post-run analysis and comparison of existing artifacts."""
+
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Annotated
 
-import typer
 from rich.console import Console
 from rich.table import Table
+import typer
 
 console = Console()
 
 
 def analyze_cmd(
-    artifacts_dir: Path = typer.Argument(Path("artifacts"), help="Artifacts directory to analyze."),
-    metric: str = typer.Option("RMSE_HZ", "--metric", "-m", help="Primary metric to rank by."),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Write Markdown report to this file."),
+    artifacts_dir: Annotated[
+        Path,
+        typer.Argument(help="Artifacts directory to analyze."),
+    ] = Path("artifacts"),
+    metric: Annotated[
+        str,
+        typer.Option("--metric", "-m", help="Primary metric to rank by."),
+    ] = "RMSE_HZ",
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", help="Write Markdown report to this file."),
+    ] = None,
 ) -> None:
     """Analyze computed artifacts: load all report.json files and print a ranking table."""
     root = Path(artifacts_dir)
@@ -49,11 +59,21 @@ def analyze_cmd(
     # Sort by metric value ascending (lower = better for error metrics)
     rows.sort(key=lambda r: (r[2] != r[2], r[2]))  # NaN last
 
-    table = Table("Rank", "Scenario", "Estimator", f"{metric} mean", f"{metric} std", "µs/sample", "n",
-                  title=f"Ranking by {metric}")
+    table = Table(
+        "Rank",
+        "Scenario",
+        "Estimator",
+        f"{metric} mean",
+        f"{metric} std",
+        "us/sample",
+        "n",
+        title=f"Ranking by {metric}",
+    )
     for i, (sc, m, v, s, tps, n) in enumerate(rows, 1):
         table.add_row(
-            str(i), sc, m,
+            str(i),
+            sc,
+            m,
             f"{v:.6f}" if v == v else "nan",
             f"{s:.6f}" if s == s else "nan",
             f"{tps:.2f}" if tps == tps else "nan",
@@ -63,9 +83,12 @@ def analyze_cmd(
     console.print(table)
 
     if output:
-        lines = [f"# Analysis — {metric}\n", f"Artifacts: `{root.resolve()}`\n\n",
-                 f"| Rank | Scenario | Estimator | {metric} mean | {metric} std | µs/sample | n |\n",
-                 "|------|----------|-----------|--------------|--------------|-----------|---|\n"]
+        lines = [
+            f"# Analysis -- {metric}\n",
+            f"Artifacts: `{root.resolve()}`\n\n",
+            f"| Rank | Scenario | Estimator | {metric} mean | {metric} std | us/sample | n |\n",
+            "|------|----------|-----------|--------------|--------------|-----------|---|\n",
+        ]
         for i, (sc, m, v, s, tps, n) in enumerate(rows, 1):
             vf = f"{v:.6f}" if v == v else "nan"
             sf = f"{s:.6f}" if s == s else "nan"

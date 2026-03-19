@@ -12,17 +12,18 @@ Algorithm sketch
 
   Architecture:
     Input:  [batch, window_size, 1]
-    Conv1D(n_filters, kernel_size, padding='causal') × n_layers
+    Conv1D(n_filters, kernel_size, padding='causal') x n_layers
     GlobalAvgPool → Linear → f_hat (Hz)
 
 References
 ──────────
   LeCun, Y., et al. (1998). "Gradient-based learning applied to document
-  recognition." Proc. IEEE, 86(11), 2278–2324.
+  recognition." Proc. IEEE, 86(11), 2278-2324.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.ml_base import BaseMLEstimator
 from openfreqbench.estimators.common.ml_types import (
@@ -53,7 +54,7 @@ class TemporalCNNEstimator(BaseMLEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {
             "fs": 10_000.0,
             "window_size": 256,
@@ -66,18 +67,34 @@ class TemporalCNNEstimator(BaseMLEstimator):
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="window_size", default=256, type="int",
-                            values=[128, 256, 512],
-                            description="Input window length (samples)."),
-                TuningParam(name="n_filters", default=32, type="int",
-                            values=[16, 32, 64, 128],
-                            description="Number of convolutional filters per layer."),
-                TuningParam(name="kernel_size", default=3, type="int",
-                            values=[3, 5, 7, 11],
-                            description="Convolutional kernel size."),
-                TuningParam(name="n_layers", default=4, type="int",
-                            values=[2, 3, 4, 6],
-                            description="Number of convolutional layers."),
+                TuningParam(
+                    name="window_size",
+                    default=256,
+                    type="int",
+                    values=[128, 256, 512],
+                    description="Input window length (samples).",
+                ),
+                TuningParam(
+                    name="n_filters",
+                    default=32,
+                    type="int",
+                    values=[16, 32, 64, 128],
+                    description="Number of convolutional filters per layer.",
+                ),
+                TuningParam(
+                    name="kernel_size",
+                    default=3,
+                    type="int",
+                    values=[3, 5, 7, 11],
+                    description="Convolutional kernel size.",
+                ),
+                TuningParam(
+                    name="n_layers",
+                    default=4,
+                    type="int",
+                    values=[2, 3, 4, 6],
+                    description="Number of convolutional layers.",
+                ),
             ],
             objective="RMSE_HZ",
         )

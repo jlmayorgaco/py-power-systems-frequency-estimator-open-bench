@@ -17,9 +17,9 @@ Measurement model:
 
 Robustness — Huber M-estimator on normalised innovation
 ─────────────────────────────────────────────────────────
-  r_n  = y[n] − z_pred[n]               (raw innovation)
-  σ_n  = sqrt(S[n])                      (predicted innovation std-dev)
-  ξ_n  = r_n / σ_n                      (normalised innovation)
+  r_n  = y[n] - z_pred[n]               (raw innovation)
+  sigma_n  = sqrt(S[n])                      (predicted innovation std-dev)
+  ξ_n  = r_n / sigma_n                      (normalised innovation)
 
   ψ(ξ) = ξ              if |ξ| ≤ δ      (Gaussian zone)
         = δ · sign(ξ)   if |ξ| > δ      (clipped zone)
@@ -34,15 +34,15 @@ Robustness — Huber M-estimator on normalised innovation
 Adaptivity — Sage-Husa innovation-covariance matching
 ───────────────────────────────────────────────────────
   Residual history (exponential window, forget factor b ∈ (0,1)):
-    C_zz[n] = (1−b)·C_zz[n-1] + b·r_n²
+    C_zz[n] = (1-b)·C_zz[n-1] + b·r_n²
 
   Adaptive R:
-    R̂[n] = max(C_zz[n] − H·P_pred·Hᵀ,  R_min)
+    R̂[n] = max(C_zz[n] - H·P_pred·Hᵀ,  R_min)
 
   Adaptive Q (scalar adaptation on ω diagonal):
     e_x   = K·r_n                           (state correction)
-    C_xx[n] = (1−b)·C_xx[n-1] + b·e_x·e_xᵀ
-    Q̂[n] = max(C_xx[n] − P + F·P·Fᵀ, 0)   (clamp negative to 0)
+    C_xx[n] = (1-b)·C_xx[n-1] + b·e_x·e_xᵀ
+    Q̂[n] = max(C_xx[n] - P + F·P·Fᵀ, 0)   (clamp negative to 0)
 
   The forget factor b trades off adaptation speed vs. noise:
     large b  → fast adaptation (good for dynamic signals)
@@ -63,12 +63,13 @@ References
   estimation of prior statistics." Proc. IEEE Symposium Adaptive Processes.
 
   Ding, W., Wang, J., Rizos, C., Kinlyside, D. (2007). "Improving adaptive
-  Kalman estimation in GPS/INS integration." J. Navigation, 60(3), 517–529.
+  Kalman estimation in GPS/INS integration." J. Navigation, 60(3), 517-529.
 """
+
 from __future__ import annotations
 
 import math
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -82,11 +83,11 @@ from openfreqbench.estimators.common.types import (
 
 # ── module constants ───────────────────────────────────────────────────────────
 _TWO_PI = 2.0 * math.pi
-_HUBER_DEFAULT = 1.345       # 95 % efficiency under Gaussian noise (classic)
-_FORGET_DEFAULT = 0.98       # Sage-Husa forget factor
-_Q_OMEGA_DEFAULT = 1.0       # initial process noise σ_ω  (rad/s)
-_R_DEFAULT = 0.01            # initial measurement noise variance (V²)
-_ALPHA_AMP = 0.01            # amplitude EMA coefficient for E[v²] running estimate
+_HUBER_DEFAULT = 1.345  # 95 % efficiency under Gaussian noise (classic)
+_FORGET_DEFAULT = 0.98  # Sage-Husa forget factor
+_Q_OMEGA_DEFAULT = 1.0  # initial process noise sigma_ω  (rad/s)
+_R_DEFAULT = 0.01  # initial measurement noise variance (V²)
+_ALPHA_AMP = 0.01  # amplitude EMA coefficient for E[v²] running estimate
 
 
 class RAEKFEstimator(BaseEstimator):
@@ -121,7 +122,7 @@ class RAEKFEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {
             "fs": 10_000.0,
             "q_omega": _Q_OMEGA_DEFAULT,
@@ -172,7 +173,7 @@ class RAEKFEstimator(BaseEstimator):
                     values=[0.95, 0.97, 0.98, 0.99, 0.995],
                     description=(
                         "Sage-Husa exponential forgetting factor b ∈ (0,1). "
-                        "Controls the effective window: N_eff ≈ 1/(1−b). "
+                        "Controls the effective window: N_eff ≈ 1/(1-b). "
                         "b=0.98 → N_eff≈50 samples (5 ms at 10 kHz)."
                     ),
                 ),
@@ -184,13 +185,13 @@ class RAEKFEstimator(BaseEstimator):
 
     def reset(self) -> None:
         fs = float(self._config.get("fs", 10_000.0))
-        self._fs    = fs
-        self._Ts    = 1.0 / fs
-        self._q_w   = float(self._config.get("q_omega",       _Q_OMEGA_DEFAULT))
-        self._r     = float(self._config.get("r",             _R_DEFAULT))
-        self._delta = float(self._config.get("huber_delta",   _HUBER_DEFAULT))
-        self._b     = float(self._config.get("forget_factor", _FORGET_DEFAULT))
-        self._b1    = 1.0 - self._b
+        self._fs = fs
+        self._Ts = 1.0 / fs
+        self._q_w = float(self._config.get("q_omega", _Q_OMEGA_DEFAULT))
+        self._r = float(self._config.get("r", _R_DEFAULT))
+        self._delta = float(self._config.get("huber_delta", _HUBER_DEFAULT))
+        self._b = float(self._config.get("forget_factor", _FORGET_DEFAULT))
+        self._b1 = 1.0 - self._b
         # R̂ floor: R can only grow (impulsive noise detected) not shrink below
         # the tuned initial value.  This prevents over-confident Kalman gains
         # on noiseless signals.
@@ -199,25 +200,25 @@ class RAEKFEstimator(BaseEstimator):
         # State: [phi (rad), omega (rad/s)]
         self._x = np.array([0.0, _TWO_PI * self.NOMINAL_FREQ_HZ])
 
-        # Covariance (2×2)
+        # Covariance (2x2)
         self._P = np.eye(2) * 10.0
 
         # Amplitude estimate via running RMS: A = sqrt(E[v²]) * sqrt(2)
         # For v = A·sin(φ): E[v²] = A²/2, so sqrt(E[v²])·√2 = A exactly.
         # This converges correctly unlike the |v|·√2 mean (which gives 0.9·A).
-        self._A    = 1.0
-        self._v2   = 0.5    # running E[v²] estimate (seeded at A²/2 for A=1)
+        self._A = 1.0
+        self._v2 = 0.5  # running E[v²] estimate (seeded at A²/2 for A=1)
 
         # Sage-Husa adaptive measurement noise (R only; Q is fixed)
-        self._r_hat = self._r           # adaptive R estimate, updated each step
-        self._C_zz  = self._r           # innovation variance EMA (seed with initial R)
+        self._r_hat = self._r  # adaptive R estimate, updated each step
+        self._C_zz = self._r  # innovation variance EMA (seed with initial R)
 
-        self._f_est      = self.NOMINAL_FREQ_HZ
+        self._f_est = self.NOMINAL_FREQ_HZ
         self._n_samples: int = 0
 
     def structural_latency_samples(self) -> int:
         fs = float(self._config.get("fs", 10_000.0))
-        return int(2 * fs / self.NOMINAL_FREQ_HZ)   # ≈ 2 fundamental cycles
+        return int(2 * fs / self.NOMINAL_FREQ_HZ)  # ≈ 2 fundamental cycles
 
     # ── public interface ───────────────────────────────────────────────────────
 
@@ -234,66 +235,65 @@ class RAEKFEstimator(BaseEstimator):
             and self.MIN_VALID_FREQ_HZ <= f <= self.MAX_VALID_FREQ_HZ
         )
         return EstimatorOutput(
-            frequency_hz = f,
-            valid        = valid,
-            phase_rad    = float(self._x[0]),
-            amplitude_pu = self._A,
+            frequency_hz=f,
+            valid=valid,
+            phase_rad=float(self._x[0]),
+            amplitude_pu=self._A,
         )
 
     # ── algorithm ─────────────────────────────────────────────────────────────
 
     def _raekf_step(self, v: float) -> float:
-        Ts  = self._Ts
-        A   = self._A
-        b   = self._b
-        b1  = self._b1   # = 1 - b
+        Ts = self._Ts
+        A = self._A
+        b = self._b
+        b1 = self._b1  # = 1 - b
 
         phi, omega = self._x
 
         # ── Predict ───────────────────────────────────────────────────────────
-        phi_pred   = phi + omega * Ts
+        phi_pred = phi + omega * Ts
         omega_pred = omega
 
         F = np.array([[1.0, Ts], [0.0, 1.0]])
-        Q = np.array([[0.0, 0.0], [0.0, self._q_w ** 2]])   # fixed Q (no Q adaptation)
+        Q = np.array([[0.0, 0.0], [0.0, self._q_w**2]])  # fixed Q (no Q adaptation)
 
         P_pred = F @ self._P @ F.T + Q
         np.clip(P_pred, -1e8, 1e8, out=P_pred)
 
         # ── Innovation ────────────────────────────────────────────────────────
         z_pred = A * math.sin(phi_pred)
-        r_raw  = v - z_pred                          # raw innovation
+        r_raw = v - z_pred  # raw innovation
 
         H = np.array([[A * math.cos(phi_pred), 0.0]])
         S = float((H @ P_pred @ H.T).item()) + self._r_hat
-        S = max(S, 1e-12)                            # prevent divide-by-zero
+        S = max(S, 1e-12)  # prevent divide-by-zero
 
         # ── Standard Kalman gain (computed with adaptive R̂) ──────────────────
-        K = (P_pred @ H.T) / S                       # (2,1)
+        K = (P_pred @ H.T) / S  # (2,1)
 
         # ── Huber M-weighting: scale the effective innovation ─────────────────
         # Normalise the innovation by the predicted innovation std-dev
         sigma = math.sqrt(S)
-        xi    = r_raw / sigma                        # normalised innovation
-        if abs(xi) <= self._delta:
-            w = 1.0                                  # Gaussian zone: full update
-        else:
-            w = self._delta / max(abs(xi), 1e-12)   # clipped zone: w ∈ (0, 1)
+        xi = r_raw / sigma  # normalised innovation
+        w = (
+            1.0 if abs(xi) <= self._delta else self._delta / max(abs(xi), 1e-12)
+        )  # Gaussian zone: full update; clipped zone: w in (0, 1)
 
         # Effective Kalman gain after Huber down-weighting
-        K_eff = K * w                                # (2,1)
+        K_eff = K * w  # (2,1)
 
         # ── State and covariance update ────────────────────────────────────────
-        x_new     = np.array([phi_pred, omega_pred]) + K_eff.ravel() * r_raw
-        IKH       = np.eye(2) - K_eff @ H
-        P_new     = IKH @ P_pred @ IKH.T + (w ** 2) * self._r_hat * (K @ K.T)  # Joseph form
+        x_new = np.array([phi_pred, omega_pred]) + K_eff.ravel() * r_raw
+        IKH = np.eye(2) - K_eff @ H
+        P_new = IKH @ P_pred @ IKH.T + (w**2) * self._r_hat * (K @ K.T)  # Joseph form
         np.clip(P_new, -1e8, 1e8, out=P_new)
 
         # ── Sage-Husa: adapt R̂ only ───────────────────────────────────────────
         # Use raw (un-weighted) innovation to track true measurement noise level.
         # C_zz ≈ E[r²] via exponential window.
-        self._C_zz = b * self._C_zz + b1 * (r_raw ** 2)
-        # R̂ = C_zz − H·P_pred·Hᵀ  (subtract predicted contribution)
+        self._C_zz = b * self._C_zz + b1 * (r_raw**2)
+        # R̂ = C_zz - H·P_pred·Hᵀ  (subtract predicted contribution)
         HP_HT = float((H @ P_pred @ H.T).item())
         self._r_hat = max(self._C_zz - HP_HT, self._r_min)
 
@@ -311,7 +311,7 @@ class RAEKFEstimator(BaseEstimator):
 
         # RMS amplitude estimate: E[v²] EMA → A = sqrt(E[v²]) * sqrt(2)
         self._v2 += _ALPHA_AMP * (v * v - self._v2)
-        self._A   = max(math.sqrt(max(self._v2, 0.0)) * math.sqrt(2.0), 1e-3)
+        self._A = max(math.sqrt(max(self._v2, 0.0)) * math.sqrt(2.0), 1e-3)
 
         self._f_est = self._x[1] / _TWO_PI
         return self._f_est

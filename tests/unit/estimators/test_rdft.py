@@ -10,19 +10,18 @@ Covers:
   - spec() / tuning_spec() / descriptor() API
   - set_params triggers reset
 """
+
 from __future__ import annotations
 
 import numpy as np
+from openfreqbench.estimators._base import TuningSpec
+from openfreqbench.estimators._outputs import EstimatorSpec
+from openfreqbench.estimators.monophasic.f3_recursive.rdft import RDFTEstimator
 import pytest
 
-from openfreqbench.estimators.monophasic.f3_recursive.rdft import RDFTEstimator
-from openfreqbench.estimators._outputs import EstimatorSpec
-from openfreqbench.estimators._base import TuningSpec
-
-
-FS  = 10_000.0
-F0  = 60.0
-N   = int(FS * 1.0)
+FS = 10_000.0
+F0 = 60.0
+N = int(FS * 1.0)
 
 
 def _sine(f0=F0, n=N, fs=FS) -> np.ndarray:
@@ -33,6 +32,7 @@ def _sine(f0=F0, n=N, fs=FS) -> np.ndarray:
 # ─────────────────────────────────────────────────────────────────────────────
 # Instantiation
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_instantiate_default():
     assert RDFTEstimator() is not None
@@ -58,6 +58,7 @@ def test_latency_equals_window_size(ws):
 # run() shape
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_run_output_length():
     est = RDFTEstimator()
     est._fs_hint = FS
@@ -68,6 +69,7 @@ def test_run_output_length():
 # ─────────────────────────────────────────────────────────────────────────────
 # NaN / accuracy
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_no_nan_clean_signal():
     est = RDFTEstimator(params={"window_size": 256})
@@ -81,7 +83,7 @@ def test_steady_state_accuracy():
     est = RDFTEstimator(params={"window_size": 256, "phase_avg": 16})
     est._fs_hint = FS
     out = est.run(_sine())
-    L   = est.latency_samples + int(0.1 * N)
+    L = est.latency_samples + int(0.1 * N)
     valid = out[L:]
     valid = valid[np.isfinite(valid)]
     assert len(valid) > 10
@@ -100,6 +102,7 @@ def test_handles_zeros():
 # Self-description API
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_spec_type():
     assert isinstance(RDFTEstimator.spec(), EstimatorSpec)
 
@@ -116,14 +119,22 @@ def test_tuning_spec_candidate_grid():
 
 def test_descriptor_keys():
     desc = RDFTEstimator.descriptor()
-    for key in ("name", "family", "family_path", "complexity",
-                "latency_type", "suggested_objective", "tuning_params"):
+    for key in (
+        "name",
+        "family",
+        "family_path",
+        "complexity",
+        "latency_type",
+        "suggested_objective",
+        "tuning_params",
+    ):
         assert key in desc
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # set_params / reset
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_set_params_window_size():
     est = RDFTEstimator(params={"window_size": 256})

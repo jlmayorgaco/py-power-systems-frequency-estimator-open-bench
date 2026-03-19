@@ -10,9 +10,10 @@ Algorithm sketch
   a coarse grid scan or iterative refinement of ω̂ until residual
   norm is minimised.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -38,16 +39,20 @@ class WindowedLeastSquaresEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "window_size": 512, "hop_size": 1}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="window_size", default=512, type="int",
-                            values=[256, 512, 1024],
-                            description="LS window length (samples)."),
+                TuningParam(
+                    name="window_size",
+                    default=512,
+                    type="int",
+                    values=[256, 512, 1024],
+                    description="LS window length (samples).",
+                ),
             ],
             objective="RMSE_HZ",
         )

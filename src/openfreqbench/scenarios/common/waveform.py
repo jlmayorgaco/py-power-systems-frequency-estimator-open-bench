@@ -1,5 +1,7 @@
 """Pure sinusoid generation and phase integration."""
+
 from __future__ import annotations
+
 import numpy as np
 
 

@@ -18,10 +18,10 @@ Harmonic distortion is a pervasive power-quality issue.  DFT-based estimators
 may exhibit spectral leakage; zero-crossing estimators may be confused by
 waveform distortion.  THD = 5% is the IEC 61000-2-2 planning level.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
 
@@ -37,18 +37,20 @@ class G3_E14_Noise_Harmonics(ScenarioBase):
     and harmonic immunity of frequency estimators.
     """
 
-    fs_hz:       float      = 10_000.0
-    T_s:         float      = 2.0
-    seed:        int        = 42
-    f_fund:      float      = 60.0
-    thd:         float      = 0.05
-    harmonics:   List[int]  = field(default_factory=lambda: [3, 5, 7])
-    scenario_id: str        = "G3_E14_Noise_Harmonics"
+    fs_hz: float = 10_000.0
+    T_s: float = 2.0
+    seed: int = 42
+    f_fund: float = 60.0
+    thd: float = 0.05
+    harmonics: list[int] = field(default_factory=lambda: [3, 5, 7])
+    scenario_id: str = "G3_E14_Noise_Harmonics"
 
-    tuning_map: Dict[str, str] = field(default_factory=lambda: {
-        "seed": "seed",
-        "thd":  "thd",
-    })
+    tuning_map: dict[str, str] = field(
+        default_factory=lambda: {
+            "seed": "seed",
+            "thd": "thd",
+        },
+    )
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

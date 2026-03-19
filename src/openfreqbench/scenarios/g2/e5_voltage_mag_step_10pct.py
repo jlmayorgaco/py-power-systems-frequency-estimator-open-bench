@@ -11,13 +11,13 @@ Signal model:
     v(t)   = A(t) * sin(phi(t))
 
 True frequency is constant at 60 Hz throughout; only amplitude changes.
-The larger step (10×) compared to E4 exposes estimators that conflate
+The larger step (10x) compared to E4 exposes estimators that conflate
 instantaneous amplitude and frequency (e.g., envelope-based methods).
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
 
@@ -33,17 +33,19 @@ class G2_E5_Voltage_Mag_Step_10pct(ScenarioBase):
     and analytic-signal based estimators.
     """
 
-    fs_hz:       float = 10_000.0
-    T_s:         float = 2.0
-    seed:        int   = 42
-    t_step:      float = 0.5
-    delta_pu:    float = 0.10
-    scenario_id: str   = "G2_E5_Voltage_Mag_Step_10pct"
+    fs_hz: float = 10_000.0
+    T_s: float = 2.0
+    seed: int = 42
+    t_step: float = 0.5
+    delta_pu: float = 0.10
+    scenario_id: str = "G2_E5_Voltage_Mag_Step_10pct"
 
-    tuning_map: Dict[str, str] = field(default_factory=lambda: {
-        "seed":   "seed",
-        "t_step": "t_step",
-    })
+    tuning_map: dict[str, str] = field(
+        default_factory=lambda: {
+            "seed": "seed",
+            "t_step": "t_step",
+        },
+    )
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

@@ -1,1 +1,1 @@
-"""SuiteRunner: run all (scenario × estimator) pairs from a BenchmarkConfig."""
+"""SuiteRunner: run all (scenario x estimator) pairs from a BenchmarkConfig."""

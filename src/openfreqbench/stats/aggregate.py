@@ -13,10 +13,11 @@ Computes per-metric:
 Also provides:
   compare_estimators()  -- Welch t-test between two metric distributions
 """
+
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -25,11 +26,11 @@ import numpy as np
 # MetricConfig is used only as an optional type hint inside functions;
 # we import it lazily there.
 if TYPE_CHECKING:
-    from openfreqbench.metrics.frequency import MetricConfig
+    pass
 
 
 _N_BOOTSTRAP = 500
-_PERCENTILES  = (1, 5, 25, 50, 75, 95, 99)
+_PERCENTILES = (1, 5, 25, 50, 75, 95, 99)
 
 
 def _bootstrap_ci_mean(
@@ -37,7 +38,7 @@ def _bootstrap_ci_mean(
     n_boot: int = _N_BOOTSTRAP,
     level: float = 95.0,
     rng_seed: int = 0,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Bootstrap confidence interval for the mean.
 
     Returns (ci_lo, ci_hi) at `level`% confidence.
@@ -55,41 +56,50 @@ def _bootstrap_ci_mean(
     return lo, hi
 
 
-def _stat_block(a: np.ndarray, n_total: int) -> Dict[str, Any]:
+def _stat_block(a: np.ndarray, n_total: int) -> dict[str, Any]:
     """Compute the full statistical block for a 1-D array of finite values."""
     n_valid = int(a.size)
-    n_nan   = n_total - n_valid
+    n_nan = n_total - n_valid
 
     if n_valid == 0:
         nan = float("nan")
-        base = {k: nan for k in (
-            "mean", "std", "median", "min", "max", "cov",
-            "ci95_lo", "ci95_hi",
-            *(f"p{p}" for p in _PERCENTILES),
-        )}
+        base = {
+            k: nan
+            for k in (
+                "mean",
+                "std",
+                "median",
+                "min",
+                "max",
+                "cov",
+                "ci95_lo",
+                "ci95_hi",
+                *(f"p{p}" for p in _PERCENTILES),
+            )
+        }
         base.update({"n": n_total, "n_valid": 0, "n_nan": n_nan})
         return base
 
-    mean   = float(np.mean(a))
-    std    = float(np.std(a, ddof=min(1, n_valid - 1)))
+    mean = float(np.mean(a))
+    std = float(np.std(a, ddof=min(1, n_valid - 1)))
     median = float(np.median(a))
-    mn     = float(np.min(a))
-    mx     = float(np.max(a))
-    cov    = (std / abs(mean)) if abs(mean) > 1e-300 else float("nan")
+    mn = float(np.min(a))
+    mx = float(np.max(a))
+    cov = (std / abs(mean)) if abs(mean) > 1e-300 else float("nan")
     ci_lo, ci_hi = _bootstrap_ci_mean(a)
 
     pct_vals = {f"p{p}": float(np.percentile(a, p)) for p in _PERCENTILES}
 
     return {
-        "n":       n_total,
+        "n": n_total,
         "n_valid": n_valid,
-        "n_nan":   n_nan,
-        "mean":    mean,
-        "std":     std,
-        "median":  median,
-        "min":     mn,
-        "max":     mx,
-        "cov":     cov,
+        "n_nan": n_nan,
+        "mean": mean,
+        "std": std,
+        "median": median,
+        "min": mn,
+        "max": mx,
+        "cov": cov,
         "ci95_lo": ci_lo,
         "ci95_hi": ci_hi,
         **pct_vals,
@@ -97,9 +107,9 @@ def _stat_block(a: np.ndarray, n_total: int) -> Dict[str, Any]:
 
 
 def aggregate_monte_carlo(
-    runs: List[Dict[str, Any]],
-    cfg: Optional[Any] = None,          # Optional[MetricConfig] — lazy to avoid circular
-) -> Dict[str, Dict[str, Any]]:
+    runs: list[dict[str, Any]],
+    cfg: Any | None = None,  # Optional[MetricConfig] — lazy to avoid circular
+) -> dict[str, dict[str, Any]]:
     """
     Aggregate N run-level metric dicts into a full statistical summary.
 
@@ -114,24 +124,21 @@ def aggregate_monte_carlo(
     if not runs:
         return {}
 
-    keys    = list(runs[0].keys())
+    keys = list(runs[0].keys())
     n_total = len(runs)
-    agg: Dict[str, Dict[str, Any]] = {}
+    agg: dict[str, dict[str, Any]] = {}
 
     for k in keys:
-        raw_vals: List[float] = []
+        raw_vals: list[float] = []
         for r in runs:
             entry = r.get(k)
             if entry is None:
                 continue
-            if isinstance(entry, dict):
-                v = entry.get("value")
-            else:
-                v = entry
+            v = entry.get("value") if isinstance(entry, dict) else entry
             if v is not None and isinstance(v, (int, float)) and math.isfinite(float(v)):
                 raw_vals.append(float(v))
 
-        a      = np.asarray(raw_vals, dtype=float)
+        a = np.asarray(raw_vals, dtype=float)
         agg[k] = _stat_block(a, n_total)
 
     if cfg is not None:
@@ -145,11 +152,12 @@ def aggregate_monte_carlo(
 # Paired comparison utilities
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def compare_estimators(
-    runs_a: List[Dict[str, Any]],
-    runs_b: List[Dict[str, Any]],
+    runs_a: list[dict[str, Any]],
+    runs_b: list[dict[str, Any]],
     metric: str = "RMSE_HZ",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Welch's t-test comparison of metric distributions for two estimators.
 
@@ -163,14 +171,11 @@ def compare_estimators(
     except ImportError:
         return {"error": "scipy not available for statistical comparison"}
 
-    def _extract(runs: List[Dict[str, Any]]) -> np.ndarray:
+    def _extract(runs: list[dict[str, Any]]) -> np.ndarray:
         vals = []
         for r in runs:
             entry = r.get(metric)
-            if isinstance(entry, dict):
-                v = entry.get("value")
-            else:
-                v = entry
+            v = entry.get("value") if isinstance(entry, dict) else entry
             if v is not None and isinstance(v, (int, float)) and math.isfinite(float(v)):
                 vals.append(float(v))
         return np.asarray(vals, dtype=float)
@@ -183,13 +188,13 @@ def compare_estimators(
 
     t_stat, p_val = ttest_ind(a, b, equal_var=False)
     return {
-        "metric":      metric,
-        "mean_a":      float(np.mean(a)),
-        "mean_b":      float(np.mean(b)),
-        "delta_mean":  float(np.mean(a) - np.mean(b)),
-        "t_stat":      float(t_stat),
-        "p_value":     float(p_val),
+        "metric": metric,
+        "mean_a": float(np.mean(a)),
+        "mean_b": float(np.mean(b)),
+        "delta_mean": float(np.mean(a) - np.mean(b)),
+        "t_stat": float(t_stat),
+        "p_value": float(p_val),
         "significant": bool(p_val < 0.05),
-        "n_a":         int(a.size),
-        "n_b":         int(b.size),
+        "n_a": int(a.size),
+        "n_b": int(b.size),
     }

@@ -1,4 +1,5 @@
 """Unit tests for G1_E1_Pure_60Hz scenario."""
+
 from __future__ import annotations
 
 import numpy as np

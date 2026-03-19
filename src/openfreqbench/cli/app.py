@@ -3,19 +3,20 @@ openfreqbench/cli/app.py
 
 Main Typer application — entry point for the `ofb` CLI command.
 """
+
 from __future__ import annotations
 
-import typer
 from rich.console import Console
+import typer
 
 from openfreqbench._version import __version__
-from openfreqbench.cli.commands.run import run_cmd
-from openfreqbench.cli.commands.list_items import list_cmd
-from openfreqbench.cli.commands.doctor import doctor_cmd
-from openfreqbench.cli.commands.status import status_cmd
-from openfreqbench.cli.commands.scaffold import scaffold_cmd
 from openfreqbench.cli.commands.analyze import analyze_cmd
+from openfreqbench.cli.commands.doctor import doctor_cmd
+from openfreqbench.cli.commands.list_items import list_cmd
+from openfreqbench.cli.commands.run import run_cmd
+from openfreqbench.cli.commands.scaffold import scaffold_cmd
 from openfreqbench.cli.commands.smoke import smoke_cmd
+from openfreqbench.cli.commands.status import status_cmd
 
 app = typer.Typer(
     name="ofb",

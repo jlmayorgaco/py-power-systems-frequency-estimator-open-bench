@@ -1,4 +1,5 @@
 """Domain exceptions for openfreqbench."""
+
 from __future__ import annotations
 
 

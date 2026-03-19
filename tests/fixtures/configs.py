@@ -1,4 +1,5 @@
 """Config fixtures for tests."""
+
 from __future__ import annotations
 
 SMOKE_CONFIG_DICT = {

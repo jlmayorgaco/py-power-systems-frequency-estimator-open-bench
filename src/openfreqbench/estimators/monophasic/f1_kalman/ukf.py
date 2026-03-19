@@ -7,16 +7,17 @@ Algorithm sketch
 ────────────────
   1. Nonlinear sinusoidal state model: x = [A·cos φ, ω],  φ propagated
      separately.
-  2. Sigma points chosen via the symmetric unscented transform (α, β, κ).
+  2. Sigma points chosen via the symmetric unscented transform (alpha, β, κ).
   3. Propagate sigma points through the nonlinear measurement function
      h(x) = A·sin(φ + ω·Ts) to form predicted mean and covariance.
   4. Standard Kalman update on the predicted/actual innovation.
 
 Status: STUB — outputs nominal frequency with valid=False until implemented.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -47,7 +48,7 @@ class UKFEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {
             "fs": 10_000.0,
             "q_omega": 1.0,
@@ -80,7 +81,7 @@ class UKFEstimator(BaseEstimator):
                     default=1e-3,
                     type="float",
                     values=[1e-4, 1e-3, 1e-2, 0.1, 1.0],
-                    description="UKF spread parameter α.",
+                    description="UKF spread parameter alpha.",
                 ),
             ],
             objective="RMSE_HZ",

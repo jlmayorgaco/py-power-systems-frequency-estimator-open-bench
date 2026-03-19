@@ -1,8 +1,9 @@
 """Regression: compute_metrics returns stable values for known input."""
+
 from __future__ import annotations
 
 import numpy as np
-from openfreqbench.metrics.frequency import compute_metrics, MetricConfig
+from openfreqbench.metrics.frequency import MetricConfig, compute_metrics
 
 
 def test_reference_metrics_stable():

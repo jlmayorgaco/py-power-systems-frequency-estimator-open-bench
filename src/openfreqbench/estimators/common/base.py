@@ -22,11 +22,12 @@ Backward-compatibility shims (kept for existing framework code)
   latency_samples  (property)          wraps structural_latency_samples()
   NAME / FAMILY / FAMILY_PATH / ...    auto-derived from SPEC via __init_subclass__
 """
+
 from __future__ import annotations
 
-import math
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Dict, List, Optional
+import math
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -61,12 +62,12 @@ class BaseEstimator(ABC):
     SPEC: ClassVar[EstimatorSpec]
 
     # ── Auto-populated from SPEC by __init_subclass__ ─────────────────────────
-    NAME:              ClassVar[str]
-    FAMILY:            ClassVar[str]
-    FAMILY_PATH:       ClassVar[str]
-    COMPLEXITY:        ClassVar[str]
-    LATENCY_TYPE:      ClassVar[str]
-    NOMINAL_FREQ_HZ:   ClassVar[float]
+    NAME: ClassVar[str]
+    FAMILY: ClassVar[str]
+    FAMILY_PATH: ClassVar[str]
+    COMPLEXITY: ClassVar[str]
+    LATENCY_TYPE: ClassVar[str]
+    NOMINAL_FREQ_HZ: ClassVar[float]
     MIN_VALID_FREQ_HZ: ClassVar[float]
     MAX_VALID_FREQ_HZ: ClassVar[float]
 
@@ -76,12 +77,12 @@ class BaseEstimator(ABC):
         super().__init_subclass__(**kwargs)
         if "SPEC" in cls.__dict__:
             spec = cls.__dict__["SPEC"]
-            cls.NAME              = spec.name
-            cls.FAMILY            = spec.family
-            cls.FAMILY_PATH       = spec.family_path
-            cls.COMPLEXITY        = spec.complexity
-            cls.LATENCY_TYPE      = spec.latency_type
-            cls.NOMINAL_FREQ_HZ   = spec.nominal_freq_hz
+            cls.NAME = spec.name
+            cls.FAMILY = spec.family
+            cls.FAMILY_PATH = spec.family_path
+            cls.COMPLEXITY = spec.complexity
+            cls.LATENCY_TYPE = spec.latency_type
+            cls.NOMINAL_FREQ_HZ = spec.nominal_freq_hz
             cls.MIN_VALID_FREQ_HZ = spec.min_valid_freq_hz
             cls.MAX_VALID_FREQ_HZ = spec.max_valid_freq_hz
 
@@ -89,9 +90,9 @@ class BaseEstimator(ABC):
 
     def __init__(
         self,
-        config: Optional[Dict[str, Any]] = None,
+        config: dict[str, Any] | None = None,
         # backward-compat alias accepted but merged into config
-        params: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialise with an optional configuration dict.
@@ -105,7 +106,7 @@ class BaseEstimator(ABC):
             params: Backward-compat alias for ``config``.  If both are given,
                     ``config`` takes precedence over ``params``.
         """
-        self._config: Dict[str, Any] = {
+        self._config: dict[str, Any] = {
             **self.default_config(),
             **(params or {}),
             **(config or {}),
@@ -140,7 +141,7 @@ class BaseEstimator(ABC):
     # ── Optional overrides ────────────────────────────────────────────────────
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         """
         Default configuration dict for this estimator class.
 
@@ -189,10 +190,10 @@ class BaseEstimator(ABC):
         Returns:
             1-D float array of frequency estimates, same length as ``v_array``.
         """
-        v   = np.asarray(v_array, dtype=float)
-        n   = len(v)
-        fs  = float(self._config.get("fs", 10_000.0))
-        Ts  = 1.0 / fs
+        v = np.asarray(v_array, dtype=float)
+        n = len(v)
+        fs = float(self._config.get("fs", 10_000.0))
+        Ts = 1.0 / fs
         out = np.empty(n, dtype=float)
         self._n_samples = 0
         self.reset()
@@ -204,7 +205,7 @@ class BaseEstimator(ABC):
 
     # ── Param management ──────────────────────────────────────────────────────
 
-    def reconfigure(self, config: Dict[str, Any]) -> None:
+    def reconfigure(self, config: dict[str, Any]) -> None:
         """Update config entries and reset internal state."""
         self._config.update(config)
         self._n_samples = 0
@@ -213,13 +214,13 @@ class BaseEstimator(ABC):
     # ── Self-description API ──────────────────────────────────────────────────
 
     @classmethod
-    def descriptor(cls) -> Dict[str, Any]:
+    def descriptor(cls) -> dict[str, Any]:
         """Full JSON-serialisable self-description of this estimator class."""
         d = cls.SPEC.to_dict()
         ts = cls.tuning_spec()
         d["suggested_objective"] = ts.objective
-        d["tuning_method"]       = ts.method
-        d["tuning_params"]       = [p.to_dict() for p in ts.params]
+        d["tuning_method"] = ts.method
+        d["tuning_params"] = [p.to_dict() for p in ts.params]
         return d
 
     # ── Backward-compatibility shims ──────────────────────────────────────────
@@ -228,7 +229,7 @@ class BaseEstimator(ABC):
     # relies on these.
 
     @property
-    def _params(self) -> Dict[str, Any]:
+    def _params(self) -> dict[str, Any]:
         """Backward-compat alias for ``_config`` used by legacy runner code."""
         return self._config
 
@@ -253,7 +254,7 @@ class BaseEstimator(ABC):
     # ── Legacy classmethod shims (used by old registry / tests) ───────────────
 
     @classmethod
-    def tuning_ranges(cls) -> List[TuningParam]:
+    def tuning_ranges(cls) -> list[TuningParam]:
         """Backward-compat: returns the list of TuningParam from tuning_spec()."""
         return cls.tuning_spec().params
 

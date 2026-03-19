@@ -21,11 +21,12 @@ Algorithm sketch
 References
 ──────────
   Schuster, M. & Paliwal, K.K. (1997). "Bidirectional recurrent neural
-  networks." IEEE Trans. Signal Processing, 45(11), 2673–2681.
+  networks." IEEE Trans. Signal Processing, 45(11), 2673-2681.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.ml_base import BaseMLEstimator
 from openfreqbench.estimators.common.ml_types import (
@@ -56,7 +57,7 @@ class BiLSTMRegressorEstimator(BaseMLEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {
             "fs": 10_000.0,
             "window_size": 256,
@@ -70,18 +71,34 @@ class BiLSTMRegressorEstimator(BaseMLEstimator):
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="window_size", default=256, type="int",
-                            values=[128, 256, 512],
-                            description="Input sequence length (samples)."),
-                TuningParam(name="hidden_dim", default=64, type="int",
-                            values=[32, 64, 128, 256],
-                            description="LSTM hidden state dimension (per direction)."),
-                TuningParam(name="num_layers", default=2, type="int",
-                            values=[1, 2, 3],
-                            description="Number of stacked BiLSTM layers."),
-                TuningParam(name="dropout", default=0.1, type="float",
-                            values=[0.0, 0.1, 0.2, 0.3],
-                            description="Dropout probability between BiLSTM layers."),
+                TuningParam(
+                    name="window_size",
+                    default=256,
+                    type="int",
+                    values=[128, 256, 512],
+                    description="Input sequence length (samples).",
+                ),
+                TuningParam(
+                    name="hidden_dim",
+                    default=64,
+                    type="int",
+                    values=[32, 64, 128, 256],
+                    description="LSTM hidden state dimension (per direction).",
+                ),
+                TuningParam(
+                    name="num_layers",
+                    default=2,
+                    type="int",
+                    values=[1, 2, 3],
+                    description="Number of stacked BiLSTM layers.",
+                ),
+                TuningParam(
+                    name="dropout",
+                    default=0.1,
+                    type="float",
+                    values=[0.0, 0.1, 0.2, 0.3],
+                    description="Dropout probability between BiLSTM layers.",
+                ),
             ],
             objective="RMSE_HZ",
         )

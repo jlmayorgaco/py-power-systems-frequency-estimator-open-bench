@@ -1,7 +1,6 @@
 # tests/test_ipdft.py
-import numpy as np
-
 from estimators.basic.ipdft import IpDFT
+import numpy as np
 from scenarios.s1_synthetic.make_clean import make_clean
 from utils.pmu.pmu_input import PMU_Input
 
@@ -9,7 +8,7 @@ from utils.pmu.pmu_input import PMU_Input
 def test_ipdft_smoke() -> None:
     fs = 5000
     duration = 0.2
-    sig, truth = make_clean(f0=60.0, df=0.1, duration=duration, fs=fs)
+    sig, _truth = make_clean(f0=60.0, df=0.1, duration=duration, fs=fs)
 
     # IpDFT ahora recibe config dict
     est = IpDFT(config={"fs": fs, "frame_len": 256, "channel": "V1", "nominal_hz": 60.0})

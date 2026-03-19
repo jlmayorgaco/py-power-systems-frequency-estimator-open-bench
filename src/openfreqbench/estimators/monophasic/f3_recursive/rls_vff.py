@@ -7,16 +7,17 @@ Algorithm sketch
 ────────────────
   Same regression as RLS but the forgetting factor λ[n] is updated each
   sample according to:
-      λ[n] = λ_min + (1 − λ_min) · exp(−|ε[n]| / σ_ref)
+      λ[n] = λ_min + (1 - λ_min) · exp(-|ε[n]| / sigma_ref)
   where ε[n] is the instantaneous prediction error.  High errors (transients)
   → λ drops toward λ_min → fast tracking.  Low errors (steady state) → λ → 1
   → noise averaging.
 
 Status: STUB — outputs nominal frequency with valid=False until implemented.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -47,7 +48,7 @@ class RLSVFFEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {
             "fs": 10_000.0,
             "window_size": 256,
@@ -71,18 +72,14 @@ class RLSVFFEstimator(BaseEstimator):
                     default=0.90,
                     type="float",
                     values=[0.80, 0.85, 0.90, 0.95, 0.99],
-                    description=(
-                        "Minimum forgetting factor λ_min applied during transients."
-                    ),
+                    description=("Minimum forgetting factor λ_min applied during transients."),
                 ),
                 TuningParam(
                     name="sigma_ref",
                     default=0.1,
                     type="float",
                     range=(0.01, 1.0, 6),
-                    description=(
-                        "Reference innovation standard deviation for VFF adaptation."
-                    ),
+                    description=("Reference innovation standard deviation for VFF adaptation."),
                 ),
             ],
             objective="RMSE_HZ",

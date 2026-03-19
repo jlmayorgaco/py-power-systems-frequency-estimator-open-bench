@@ -11,6 +11,7 @@ Extends BaseEstimator with three ML-specific classmethods:
 update() and reset() are still required from BaseEstimator.
 No training logic lives here.
 """
+
 from __future__ import annotations
 
 from openfreqbench.estimators.common.base import BaseEstimator

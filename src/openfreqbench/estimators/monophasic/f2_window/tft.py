@@ -5,7 +5,7 @@ TFTEstimator — Taylor-Fourier Transform (TFT / Taylor-Weighted-Least-Squares).
 
 Algorithm sketch
 ────────────────
-  1. Represent the signal as a Taylor–Fourier series centred on the analysis
+  1. Represent the signal as a Taylor-Fourier series centred on the analysis
      window: x(t) = Σ_k Σ_m c_{k,m} · t^m · e^(j k ω₀ t).
   2. Solve a windowed WLS problem for the complex coefficient c_{1,0} and its
      first two time-derivatives (m=0,1,2).
@@ -17,9 +17,10 @@ Compression and Reconstruction in Smart Grids", IEEE TPWRD, 2016.
 
 Status: STUB — outputs nominal frequency with valid=False until implemented.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -50,7 +51,7 @@ class TFTEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "window_size": 512, "taylor_order": 2}
 
     @classmethod

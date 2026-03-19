@@ -12,11 +12,12 @@ Algorithm sketch
 References
 ──────────
   Schmidt, R.O. (1986). "Multiple emitter location and signal parameter
-  estimation." IEEE Trans. Antennas Propag., 34(3), 276–280.
+  estimation." IEEE Trans. Antennas Propag., 34(3), 276-280.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -42,23 +43,34 @@ class MUSICEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
-        return {"fs": 10_000.0, "window_size": 512, "model_order": 2,
-                "n_freq_bins": 1024}
+    def default_config(cls) -> dict[str, Any]:
+        return {"fs": 10_000.0, "window_size": 512, "model_order": 2, "n_freq_bins": 1024}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="window_size", default=512, type="int",
-                            values=[256, 512, 1024],
-                            description="Autocorrelation snapshot length."),
-                TuningParam(name="model_order", default=2, type="int",
-                            values=[1, 2, 3, 4],
-                            description="Expected number of sinusoidal components."),
-                TuningParam(name="n_freq_bins", default=1024, type="int",
-                            values=[512, 1024, 2048],
-                            description="MUSIC pseudo-spectrum frequency resolution."),
+                TuningParam(
+                    name="window_size",
+                    default=512,
+                    type="int",
+                    values=[256, 512, 1024],
+                    description="Autocorrelation snapshot length.",
+                ),
+                TuningParam(
+                    name="model_order",
+                    default=2,
+                    type="int",
+                    values=[1, 2, 3, 4],
+                    description="Expected number of sinusoidal components.",
+                ),
+                TuningParam(
+                    name="n_freq_bins",
+                    default=1024,
+                    type="int",
+                    values=[512, 1024, 2048],
+                    description="MUSIC pseudo-spectrum frequency resolution.",
+                ),
             ],
             objective="RMSE_HZ",
         )

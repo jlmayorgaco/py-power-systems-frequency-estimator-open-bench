@@ -10,10 +10,10 @@ Signal model:
 
 SNR ≈ 26 dB.  Frequency truth is constant at f0 = 60 Hz throughout.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
 
@@ -29,16 +29,18 @@ class G1_E3_Gaussian_Noise_5pct(ScenarioBase):
     bias-variance trade-offs between window-based and recursive methods.
     """
 
-    fs_hz:       float = 10_000.0
-    T_s:         float = 2.0
-    seed:        int   = 42
+    fs_hz: float = 10_000.0
+    T_s: float = 2.0
+    seed: int = 42
     noise_sigma: float = 0.05
-    scenario_id: str   = "G1_E3_Gaussian_Noise_5pct"
+    scenario_id: str = "G1_E3_Gaussian_Noise_5pct"
 
-    tuning_map: Dict[str, str] = field(default_factory=lambda: {
-        "seed":        "seed",
-        "noise_sigma": "noise_sigma",
-    })
+    tuning_map: dict[str, str] = field(
+        default_factory=lambda: {
+            "seed": "seed",
+            "noise_sigma": "noise_sigma",
+        },
+    )
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

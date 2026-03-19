@@ -4,19 +4,22 @@ openfreqbench/profiling/timing.py
 TimingHarness: measures wall-clock time of estimator.run() externally.
 Timing must NOT happen inside BaseEstimator._step() or step().
 """
+
 from __future__ import annotations
-import time
+
 from dataclasses import dataclass, field
-from typing import List, Tuple
+import time
+
 import numpy as np
+
 from openfreqbench.estimators._base import BaseEstimator
 
 
 @dataclass
 class TimingHarness:
-    history_us: List[float] = field(default_factory=list)
+    history_us: list[float] = field(default_factory=list)
 
-    def timed_run(self, estimator: BaseEstimator, v_array: np.ndarray) -> Tuple[np.ndarray, float]:
+    def timed_run(self, estimator: BaseEstimator, v_array: np.ndarray) -> tuple[np.ndarray, float]:
         t0 = time.perf_counter_ns()
         f_hat = estimator.run(v_array)
         dt_ns = time.perf_counter_ns() - t0

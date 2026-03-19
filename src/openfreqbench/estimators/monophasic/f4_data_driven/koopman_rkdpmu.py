@@ -19,9 +19,10 @@ Identification of Coupled Swing Dynamics", IEEE TPWRS, 2011.
 
 Status: STUB — outputs nominal frequency with valid=False until implemented.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -52,7 +53,7 @@ class KoopmanRKDPMUEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {
             "fs": 10_000.0,
             "window_size": 512,
@@ -84,7 +85,7 @@ class KoopmanRKDPMUEstimator(BaseEstimator):
                     default=0.1,
                     type="float",
                     range=(0.01, 1.0, 6),
-                    description="RBF kernel bandwidth γ.",
+                    description="RBF kernel bandwidth gamma.",
                 ),
             ],
             objective="RMSE_HZ",

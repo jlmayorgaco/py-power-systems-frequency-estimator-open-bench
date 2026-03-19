@@ -13,16 +13,17 @@ Algorithm sketch
   Architecture:
     Input: [batch, window_size, 1] → linear projection → [batch, window_size, d_model]
     + positional encoding
-    → TransformerEncoderLayer × n_layers  (multi-head self-attention + FFN)
+    → TransformerEncoderLayer x n_layers  (multi-head self-attention + FFN)
     → mean-pool over sequence → Linear → f_hat (Hz)
 
 References
 ──────────
   Vaswani, A., et al. (2017). "Attention Is All You Need." NeurIPS 2017.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.ml_base import BaseMLEstimator
 from openfreqbench.estimators.common.ml_types import (
@@ -53,7 +54,7 @@ class TransformerRegressorEstimator(BaseMLEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {
             "fs": 10_000.0,
             "window_size": 256,
@@ -66,18 +67,34 @@ class TransformerRegressorEstimator(BaseMLEstimator):
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="window_size", default=256, type="int",
-                            values=[128, 256, 512],
-                            description="Sequence length (tokens = samples)."),
-                TuningParam(name="d_model", default=64, type="int",
-                            values=[32, 64, 128, 256],
-                            description="Transformer model dimension."),
-                TuningParam(name="nhead", default=4, type="int",
-                            values=[2, 4, 8],
-                            description="Number of attention heads (must divide d_model)."),
-                TuningParam(name="n_layers", default=2, type="int",
-                            values=[1, 2, 3, 4],
-                            description="Number of Transformer encoder layers."),
+                TuningParam(
+                    name="window_size",
+                    default=256,
+                    type="int",
+                    values=[128, 256, 512],
+                    description="Sequence length (tokens = samples).",
+                ),
+                TuningParam(
+                    name="d_model",
+                    default=64,
+                    type="int",
+                    values=[32, 64, 128, 256],
+                    description="Transformer model dimension.",
+                ),
+                TuningParam(
+                    name="nhead",
+                    default=4,
+                    type="int",
+                    values=[2, 4, 8],
+                    description="Number of attention heads (must divide d_model).",
+                ),
+                TuningParam(
+                    name="n_layers",
+                    default=2,
+                    type="int",
+                    values=[1, 2, 3, 4],
+                    description="Number of Transformer encoder layers.",
+                ),
             ],
             objective="RMSE_HZ",
         )

@@ -1,1 +1,0 @@
-"""Runner hierarchy: TraceRunner → ScenarioMethodRunner."""

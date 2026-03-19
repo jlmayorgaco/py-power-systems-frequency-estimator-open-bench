@@ -14,9 +14,10 @@ References
   Brown, R.G. & Hwang, P.Y.C. (1997). Introduction to Random Signals
   and Applied Kalman Filtering.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -42,17 +43,27 @@ class LinearKalmanEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "q": 1.0, "r": 0.01}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="q", default=1.0, type="float",
-                            range=(1e-4, 100.0, 8), description="Process noise variance."),
-                TuningParam(name="r", default=0.01, type="float",
-                            range=(1e-4, 1.0, 8), description="Measurement noise variance."),
+                TuningParam(
+                    name="q",
+                    default=1.0,
+                    type="float",
+                    range=(1e-4, 100.0, 8),
+                    description="Process noise variance.",
+                ),
+                TuningParam(
+                    name="r",
+                    default=0.01,
+                    type="float",
+                    range=(1e-4, 1.0, 8),
+                    description="Measurement noise variance.",
+                ),
             ],
             objective="RMSE_HZ",
         )

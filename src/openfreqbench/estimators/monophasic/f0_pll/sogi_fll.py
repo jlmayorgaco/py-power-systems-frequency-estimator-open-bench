@@ -8,11 +8,11 @@ orthogonal signal generation.  No FFT required; fully streaming, O(1).
 
 State update (discrete-time Euler forward, Ts = 1/fs)
 ──────────────────────────────────────────────────────
-  e[n]   = v[n] − α[n−1]
-  α[n]   = α[n−1] + Ts·ω̂[n−1]·(k·e[n] − β[n−1])
-  β[n]   = β[n−1] + Ts·ω̂[n−1]·α[n−1]
+  e[n]   = v[n] - alpha[n-1]
+  alpha[n]   = alpha[n-1] + Ts·ω̂[n-1]·(k·e[n] - β[n-1])
+  β[n]   = β[n-1] + Ts·ω̂[n-1]·alpha[n-1]
   εf[n]  = e[n]·β[n]         (FLL error signal)
-  ω̂[n]  = ω̂[n−1] − γ·Ts·εf[n]
+  ω̂[n]  = ω̂[n-1] - gamma·Ts·εf[n]
   f̂[n]  = ω̂[n] / (2π)
 
 Tunable
@@ -24,12 +24,13 @@ References
 ──────────
   Ciobotaru, M., Teodorescu, R., Blaabjerg, F. (2006).
   "A new single-phase PLL structure based on second order generalized
-  integrator." PESC'06, pp. 1–6.
+  integrator." PESC'06, pp. 1-6.
 """
+
 from __future__ import annotations
 
 import math
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -62,7 +63,7 @@ class SOGIFLLEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "k": 1.414, "gamma": 50.0}
 
     @classmethod
@@ -85,7 +86,7 @@ class SOGIFLLEstimator(BaseEstimator):
                     type="float",
                     values=[5.0, 10.0, 20.0, 50.0, 100.0, 200.0, 500.0],
                     description=(
-                        "FLL loop gain γ.  Higher → faster frequency tracking but "
+                        "FLL loop gain gamma.  Higher → faster frequency tracking but "
                         "more noise sensitivity.  Tune for the expected rate of "
                         "frequency change."
                     ),
@@ -95,44 +96,46 @@ class SOGIFLLEstimator(BaseEstimator):
         )
 
     def reset(self) -> None:
-        self._fs:      float = float(self._config.get("fs",    10_000.0))
-        self._Ts:      float = 1.0 / self._fs
-        self._k:       float = float(self._config.get("k",     1.414))
-        self._gamma:   float = float(self._config.get("gamma", 50.0))
-        self._omega:   float = 2.0 * math.pi * self.NOMINAL_FREQ_HZ
-        self._alpha:   float = 0.0
-        self._beta:    float = 0.0
-        self._f_est:   float = self.NOMINAL_FREQ_HZ
+        self._fs: float = float(self._config.get("fs", 10_000.0))
+        self._Ts: float = 1.0 / self._fs
+        self._k: float = float(self._config.get("k", 1.414))
+        self._gamma: float = float(self._config.get("gamma", 50.0))
+        self._omega: float = 2.0 * math.pi * self.NOMINAL_FREQ_HZ
+        self._alpha: float = 0.0
+        self._beta: float = 0.0
+        self._f_est: float = self.NOMINAL_FREQ_HZ
         self._n_samples: int = 0
 
     def structural_latency_samples(self) -> int:
         fs = float(self._config.get("fs", 10_000.0))
-        return int(fs / self.NOMINAL_FREQ_HZ)   # ≈ 1 fundamental cycle
+        return int(fs / self.NOMINAL_FREQ_HZ)  # ≈ 1 fundamental cycle
 
     def update(self, voltage: float, timestamp: float = 0.0) -> EstimatorOutput:
         self._n_samples += 1
-        v      = float(voltage)
-        Ts     = self._Ts
-        omega  = self._omega
-        k      = self._k
-        gamma  = self._gamma
+        v = float(voltage)
+        Ts = self._Ts
+        omega = self._omega
+        k = self._k
+        gamma = self._gamma
 
         # SOGI update
-        e        = v - self._alpha
-        alpha_n  = self._alpha + Ts * omega * (k * e - self._beta)
-        beta_n   = self._beta  + Ts * omega * self._alpha
+        e = v - self._alpha
+        alpha_n = self._alpha + Ts * omega * (k * e - self._beta)
+        beta_n = self._beta + Ts * omega * self._alpha
 
         # FLL frequency update
-        eps_f   = e * beta_n
+        eps_f = e * beta_n
         omega_n = omega - gamma * Ts * eps_f
-        omega_n = float(np.clip(
-            omega_n,
-            2.0 * math.pi * self.MIN_VALID_FREQ_HZ,
-            2.0 * math.pi * self.MAX_VALID_FREQ_HZ,
-        ))
+        omega_n = float(
+            np.clip(
+                omega_n,
+                2.0 * math.pi * self.MIN_VALID_FREQ_HZ,
+                2.0 * math.pi * self.MAX_VALID_FREQ_HZ,
+            ),
+        )
 
         self._alpha = alpha_n
-        self._beta  = beta_n
+        self._beta = beta_n
         self._omega = omega_n
         self._f_est = omega_n / (2.0 * math.pi)
 
@@ -141,10 +144,10 @@ class SOGIFLLEstimator(BaseEstimator):
             and self.MIN_VALID_FREQ_HZ <= self._f_est <= self.MAX_VALID_FREQ_HZ
         )
         return EstimatorOutput(
-            frequency_hz = self._f_est,
-            valid        = valid,
-            phase_rad    = math.atan2(self._beta, self._alpha),
-            amplitude_pu = math.sqrt(self._alpha ** 2 + self._beta ** 2),
+            frequency_hz=self._f_est,
+            valid=valid,
+            phase_rad=math.atan2(self._beta, self._alpha),
+            amplitude_pu=math.sqrt(self._alpha**2 + self._beta**2),
         )
 
     # Backward-compat

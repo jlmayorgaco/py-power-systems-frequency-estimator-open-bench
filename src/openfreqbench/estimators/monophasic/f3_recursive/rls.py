@@ -13,9 +13,10 @@ Algorithm sketch
 
 Status: STUB — outputs nominal frequency with valid=False until implemented.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -46,7 +47,7 @@ class RLSEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "window_size": 256, "delta": 1.0}
 
     @classmethod

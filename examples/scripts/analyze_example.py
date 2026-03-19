@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Example: load and display results from a benchmark run."""
+
 from __future__ import annotations
 
 import json

@@ -12,22 +12,21 @@ Covers:
   - spec() / tuning_spec() / descriptor() API
   - set_params triggers reset
 """
+
 from __future__ import annotations
 
 import math
 
 import numpy as np
+from openfreqbench.estimators._base import TuningSpec
+from openfreqbench.estimators._outputs import EstimatorOutput, EstimatorSpec
+from openfreqbench.estimators.monophasic.f1_kalman.ekf_freq import EKFFreqEstimator
 import pytest
 
-from openfreqbench.estimators.monophasic.f1_kalman.ekf_freq import EKFFreqEstimator
-from openfreqbench.estimators._outputs import EstimatorOutput, EstimatorSpec
-from openfreqbench.estimators._base import TuningSpec
-
-
-FS  = 10_000.0
-F0  = 60.0
+FS = 10_000.0
+F0 = 60.0
 T_S = 0.5
-N   = int(FS * T_S)
+N = int(FS * T_S)
 
 
 def _sine(fs=FS, f0=F0, n=N, A=1.0) -> np.ndarray:
@@ -38,6 +37,7 @@ def _sine(fs=FS, f0=F0, n=N, A=1.0) -> np.ndarray:
 # ─────────────────────────────────────────────────────────────────────────────
 # Instantiation
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_instantiate_default():
     est = EKFFreqEstimator()
@@ -62,6 +62,7 @@ def test_latency_positive():
 # ─────────────────────────────────────────────────────────────────────────────
 # update() interface
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_update_returns_estimator_output():
     est = EKFFreqEstimator()
@@ -97,10 +98,11 @@ def test_update_amplitude_pu_positive():
 # run() batch interface
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def test_run_output_length():
     est = EKFFreqEstimator()
     est._fs_hint = FS
-    v   = _sine()
+    v = _sine()
     out = est.run(v)
     assert len(out) == len(v)
 
@@ -108,9 +110,9 @@ def test_run_output_length():
 def test_run_no_nan_after_latency():
     est = EKFFreqEstimator()
     est._fs_hint = FS
-    v   = _sine()
+    v = _sine()
     out = est.run(v)
-    L   = est.latency_samples
+    L = est.latency_samples
     assert np.all(np.isfinite(out[L:])), "NaN/inf after latency"
 
 
@@ -118,9 +120,9 @@ def test_steady_state_frequency_accuracy():
     """Mean frequency error < 1 Hz after convergence on 60 Hz signal."""
     est = EKFFreqEstimator()
     est._fs_hint = FS
-    v   = _sine()
+    v = _sine()
     out = est.run(v)
-    L   = est.latency_samples + int(0.1 * N)
+    L = est.latency_samples + int(0.1 * N)
     valid = out[L:]
     valid = valid[np.isfinite(valid)]
     assert len(valid) > 10
@@ -131,7 +133,7 @@ def test_steady_state_frequency_accuracy():
 def test_handles_zeros():
     est = EKFFreqEstimator()
     est._fs_hint = FS
-    v   = np.zeros(N)
+    v = np.zeros(N)
     out = est.run(v)
     assert all(np.isfinite(out))
 
@@ -139,6 +141,7 @@ def test_handles_zeros():
 # ─────────────────────────────────────────────────────────────────────────────
 # Self-description API
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_spec_type():
     assert isinstance(EKFFreqEstimator.spec(), EstimatorSpec)
@@ -155,14 +158,22 @@ def test_tuning_spec_has_q_omega():
 
 def test_descriptor_keys():
     desc = EKFFreqEstimator.descriptor()
-    for key in ("name", "family", "family_path", "complexity",
-                "latency_type", "suggested_objective", "tuning_params"):
+    for key in (
+        "name",
+        "family",
+        "family_path",
+        "complexity",
+        "latency_type",
+        "suggested_objective",
+        "tuning_params",
+    ):
         assert key in desc
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # set_params / reset
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def test_set_params_q_omega():
     est = EKFFreqEstimator()

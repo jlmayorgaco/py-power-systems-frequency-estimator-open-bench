@@ -1,8 +1,9 @@
 """ofb doctor — validate installation, dependencies, and config correctness."""
+
 from __future__ import annotations
-import sys
-import typer
+
 from rich.console import Console
+import typer
 
 # Force UTF-8 on Windows to avoid cp1252 encode errors
 console = Console(highlight=False)

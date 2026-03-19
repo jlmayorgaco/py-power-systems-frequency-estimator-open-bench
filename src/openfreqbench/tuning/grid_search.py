@@ -2,9 +2,14 @@
 Grid Search Optimization (GSO) runner — external to BaseEstimator.
 Extracted from pfebench/estimators/base.py BaseEstimator.optimize().
 """
+
 from __future__ import annotations
+
 import itertools
-from typing import Any, Dict, List, Tuple
+from typing import Any
+
+import numpy as np
+
 from openfreqbench.estimators._base import BaseEstimator
 
 
@@ -17,11 +22,10 @@ class TuningRunner:
     def run(
         self,
         estimator: BaseEstimator,
-        v: "np.ndarray",
-        f_true: "np.ndarray",
+        v: np.ndarray,
+        f_true: np.ndarray,
         metric: str = "RMSE_HZ",
-    ) -> Tuple[Dict[str, Any], float]:
-        import numpy as np
+    ) -> tuple[dict[str, Any], float]:
         from openfreqbench.metrics.frequency import rmse
 
         definitions = estimator.tuning_ranges()

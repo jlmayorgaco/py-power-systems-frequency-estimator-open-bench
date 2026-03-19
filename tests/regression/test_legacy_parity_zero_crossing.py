@@ -2,14 +2,12 @@
 
 Run against a fixed seed/waveform and compare RMSE to known good value.
 """
+
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
-from openfreqbench.scenarios.g1.e1_pure_60hz import G1_E1_Pure_60Hz
 from openfreqbench.estimators.zero_crossing import ZeroCrossingEstimator
-
+from openfreqbench.scenarios.g1.e1_pure_60hz import G1_E1_Pure_60Hz
 
 KNOWN_RMSE_BOUND = 0.5  # Hz — conservative upper bound from legacy runs
 

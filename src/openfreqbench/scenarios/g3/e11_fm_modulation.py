@@ -14,10 +14,10 @@ The instantaneous frequency oscillates sinusoidally between 59.5 and 60.5 Hz
 at 2 Hz, representing inter-area power oscillations or governor-induced
 frequency swings.  This is the canonical dynamic frequency tracking test.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
 
@@ -33,19 +33,21 @@ class G3_E11_FM_Modulation(ScenarioBase):
     calculation.  Phase continuity is maintained by numerical integration.
     """
 
-    fs_hz:       float = 10_000.0
-    T_s:         float = 2.0
-    seed:        int   = 42
-    f_carrier:   float = 60.0
-    delta_f_hz:  float = 0.5
-    f_mod_hz:    float = 2.0
-    scenario_id: str   = "G3_E11_FM_Modulation"
+    fs_hz: float = 10_000.0
+    T_s: float = 2.0
+    seed: int = 42
+    f_carrier: float = 60.0
+    delta_f_hz: float = 0.5
+    f_mod_hz: float = 2.0
+    scenario_id: str = "G3_E11_FM_Modulation"
 
-    tuning_map: Dict[str, str] = field(default_factory=lambda: {
-        "seed":       "seed",
-        "delta_f_hz": "delta_f_hz",
-        "f_mod_hz":   "f_mod_hz",
-    })
+    tuning_map: dict[str, str] = field(
+        default_factory=lambda: {
+            "seed": "seed",
+            "delta_f_hz": "delta_f_hz",
+            "f_mod_hz": "f_mod_hz",
+        },
+    )
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

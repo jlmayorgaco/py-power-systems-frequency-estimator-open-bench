@@ -8,7 +8,7 @@ Algorithm sketch
   1. A compact GRU (2 layers, hidden_dim units) maps a sliding window of raw
      voltage samples directly to instantaneous frequency.
   2. Physics-informed regularisation: the training loss augments MSE with
-     a sinusoidal reconstruction penalty |v[n] − Â·sin(2π·f̂·n/fs + φ̂)|²
+     a sinusoidal reconstruction penalty |v[n] - Â·sin(2π·f̂·n/fs + φ̂)|²
      to prevent physically implausible frequency outputs.
   3. Inference is purely feed-forward after training; no online adaptation.
   4. Model weights are loaded from ``weights_path`` at construction time.
@@ -17,9 +17,10 @@ Algorithm sketch
 Status: STUB — outputs nominal frequency with valid=False until implemented /
 pretrained weights are provided.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -50,7 +51,7 @@ class PIGRUEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {
             "fs": 10_000.0,
             "window_size": 256,

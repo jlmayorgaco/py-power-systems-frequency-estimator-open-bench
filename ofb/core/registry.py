@@ -29,6 +29,7 @@ class Item:
 
 # --------------- Core API ----------------
 
+
 def register(kind: str, id: str, *, category: Optional[str] = None, **meta: Any) -> None:
     """Register an item with kind in {estimators,scenarios,metrics,reports}."""
     if kind not in KIND_KEYS:
@@ -64,28 +65,36 @@ def get_meta(kind: str, item_id: str) -> Dict[str, Any]:
 
 # --------------- Decorator helpers (optional) ----------------
 
+
 def register_estimator(id: str, *, category: Optional[str] = None, **meta: Any) -> Callable:
     def _decorator(obj: Any) -> Any:
         register("estimators", id, category=category, **meta)
         return obj
+
     return _decorator
+
 
 def register_scenario(id: str, *, category: Optional[str] = None, **meta: Any) -> Callable:
     def _decorator(obj: Any) -> Any:
         register("scenarios", id, category=category, **meta)
         return obj
+
     return _decorator
+
 
 def register_metric(id: str, *, category: Optional[str] = None, **meta: Any) -> Callable:
     def _decorator(obj: Any) -> Any:
         register("metrics", id, category=category, **meta)
         return obj
+
     return _decorator
+
 
 def register_report(id: str, *, category: Optional[str] = None, **meta: Any) -> Callable:
     def _decorator(obj: Any) -> Any:
         register("reports", id, category=category, **meta)
         return obj
+
     return _decorator
 
 
@@ -98,6 +107,7 @@ _BASE_PACKAGES = (
     "ofb.reports",
 )
 
+
 def ensure_discovered() -> None:
     """Import all submodules under base packages once, to trigger registrations."""
     global _DISCOVERED
@@ -105,6 +115,7 @@ def ensure_discovered() -> None:
         return
     autodiscover(_BASE_PACKAGES)
     _DISCOVERED = True
+
 
 def autodiscover(packages: tuple[str, ...] = _BASE_PACKAGES) -> None:
     """Walk packages and import every submodule to run their register() side-effects."""

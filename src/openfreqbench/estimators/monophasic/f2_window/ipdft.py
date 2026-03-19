@@ -11,10 +11,10 @@ Algorithm
        b. Compute the one-sided DFT via rfft.
        c. Find the peak bin k_max in [f_min, f_max] by magnitude.
        d. Identify the adjacent bin with greater magnitude:
-            k_adj = k_max+1  if |X[k_max+1]| ≥ |X[k_max−1]|
-                    k_max−1  otherwise
+            k_adj = k_max+1  if |X[k_max+1]| ≥ |X[k_max-1]|
+                    k_max-1  otherwise
        e. Apply the two-point interpolation:
-            sign  = +1 if k_adj > k_max else −1
+            sign  = +1 if k_adj > k_max else -1
             δ     = sign · |X[k_adj]| / (|X[k_max]| + |X[k_adj]|)
             f̂    = (k_max + δ) · fs / N
   3. Each output sample is assigned the estimate of the nearest frame centre.
@@ -25,15 +25,16 @@ Latency:     window_size // 2 samples (semi-causal).
 References
 ──────────
   Grandke, T. (1983). "Interpolation algorithms for discrete Fourier
-  transforms of weighted signals." IEEE Trans. Instrum. Meas., 32(2), 350–355.
+  transforms of weighted signals." IEEE Trans. Instrum. Meas., 32(2), 350-355.
 
   Toscani, S., Muscas, C., Pegoraro, P.A. (2012). "Design and performance
   comparison of PMU algorithms for smart grid applications." IEEE Trans.
-  Instrum. Meas., 61(8), 2284–2293.
+  Instrum. Meas., 61(8), 2284-2293.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 
@@ -66,7 +67,7 @@ class IpDFTEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "window_size": 1024}
 
     @classmethod
@@ -89,8 +90,8 @@ class IpDFTEstimator(BaseEstimator):
         )
 
     def reset(self) -> None:
-        self._window_size: int   = int(self._config.get("window_size", 1024))
-        self._f_est:       float = self.NOMINAL_FREQ_HZ
+        self._window_size: int = int(self._config.get("window_size", 1024))
+        self._f_est: float = self.NOMINAL_FREQ_HZ
 
     def structural_latency_samples(self) -> int:
         return int(self._config.get("window_size", 1024)) // 2
@@ -102,8 +103,8 @@ class IpDFTEstimator(BaseEstimator):
     def run(self, v_array: np.ndarray) -> np.ndarray:
         """Process full waveform via sliding Hann-windowed IpDFT."""
         self.reset()
-        v  = np.asarray(v_array, dtype=float)
-        n  = len(v)
+        v = np.asarray(v_array, dtype=float)
+        n = len(v)
         ws = self._window_size
         fs = float(self._config.get("fs", 10_000.0))
 
@@ -112,14 +113,14 @@ class IpDFTEstimator(BaseEstimator):
             out[:] = self._ipdft_frame(v, fs)
             return out
 
-        hop  = max(1, ws // 2)
+        hop = max(1, ws // 2)
         hann = np.hanning(ws)
 
-        centres: List[int]   = []
-        freqs:   List[float] = []
+        centres: list[int] = []
+        freqs: list[float] = []
 
         for start in range(0, n - ws + 1, hop):
-            frame = v[start: start + ws] * hann
+            frame = v[start : start + ws] * hann
             freqs.append(self._ipdft_frame(frame, fs))
             centres.append(start + ws // 2)
 
@@ -127,9 +128,9 @@ class IpDFTEstimator(BaseEstimator):
             return out
 
         centres_arr = np.array(centres, dtype=int)
-        freqs_arr   = np.array(freqs,   dtype=float)
+        freqs_arr = np.array(freqs, dtype=float)
         for i in range(n):
-            idx    = int(np.argmin(np.abs(centres_arr - i)))
+            idx = int(np.argmin(np.abs(centres_arr - i)))
             out[i] = freqs_arr[idx]
         return out
 
@@ -137,8 +138,8 @@ class IpDFTEstimator(BaseEstimator):
 
     def _ipdft_frame(self, frame: np.ndarray, fs: float) -> float:
         """Two-point IpDFT on one (already Hann-windowed) frame."""
-        spectrum  = np.abs(np.fft.rfft(frame))
-        n         = len(frame)
+        spectrum = np.abs(np.fft.rfft(frame))
+        n = len(frame)
         freq_bins = np.fft.rfftfreq(n, d=1.0 / fs)
 
         lo = int(np.searchsorted(freq_bins, self.MIN_VALID_FREQ_HZ))
@@ -146,17 +147,17 @@ class IpDFTEstimator(BaseEstimator):
         if hi <= lo or lo >= len(spectrum):
             return self.NOMINAL_FREQ_HZ
 
-        sub   = spectrum[lo:hi]
+        sub = spectrum[lo:hi]
         k_max = lo + int(np.argmax(sub))
 
-        left_mag  = spectrum[k_max - 1] if k_max > 0                else 0.0
+        left_mag = spectrum[k_max - 1] if k_max > 0 else 0.0
         right_mag = spectrum[k_max + 1] if k_max < len(spectrum) - 1 else 0.0
 
         if right_mag >= left_mag:
-            sign    = 1.0
+            sign = 1.0
             adj_mag = right_mag
         else:
-            sign    = -1.0
+            sign = -1.0
             adj_mag = left_mag
 
         denom = float(spectrum[k_max]) + float(adj_mag)

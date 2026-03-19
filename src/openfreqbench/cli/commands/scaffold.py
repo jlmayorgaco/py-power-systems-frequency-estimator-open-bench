@@ -1,10 +1,12 @@
 """ofb scaffold — generate estimator/scenario/config stubs from Jinja templates."""
+
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
-import typer
 from rich.console import Console
+import typer
 
 console = Console()
 
@@ -17,10 +19,16 @@ _TEMPLATES = {
 
 
 def scaffold_cmd(
-    kind: str = typer.Argument(..., help="What to scaffold: 'estimator', 'scenario', or 'config'"),
-    name: str = typer.Argument(..., help="CamelCase name, e.g. MyNewEstimator"),
-    output_dir: Path = typer.Option(None, "--output", "-o", help="Override output directory."),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Print output path without writing."),
+    kind: Annotated[
+        str, typer.Argument(help="What to scaffold: 'estimator', 'scenario', or 'config'"),
+    ],
+    name: Annotated[str, typer.Argument(help="CamelCase name, e.g. MyNewEstimator")],
+    output_dir: Annotated[
+        Path | None, typer.Option("--output", "-o", help="Override output directory."),
+    ] = None,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Print output path without writing."),
+    ] = False,
 ) -> None:
     """Generate a stub file from a Jinja2 template."""
     kind = kind.lower()
@@ -40,9 +48,9 @@ def scaffold_cmd(
 
     try:
         from jinja2 import Template
-    except ImportError:
+    except ImportError as exc:
         console.print("[red]jinja2 not installed.[/red] Run: pip install jinja2")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from exc
 
     out_dir = output_dir or Path(default_out)
     snake_name = _to_snake(name)
@@ -56,18 +64,21 @@ def scaffold_cmd(
     )
 
     if dry_run:
-        console.print(f"[yellow]Dry-run:[/yellow] would write → {out_path.resolve()}")
+        console.print(f"[yellow]Dry-run:[/yellow] would write -> {out_path.resolve()}")
         console.print(rendered)
         return
 
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path.write_text(rendered, encoding="utf-8")
     console.print(f"[green]Created:[/green] {out_path.resolve()}")
-    console.print(f"Next: implement [bold]{name}[/bold] and register it in [bold]core/registry.py[/bold]")
+    console.print(
+        f"Next: implement [bold]{name}[/bold] and register it in [bold]core/registry.py[/bold]",
+    )
 
 
 def _to_snake(name: str) -> str:
     import re
+
     s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", name)
     s = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", s)
     return s.lower()

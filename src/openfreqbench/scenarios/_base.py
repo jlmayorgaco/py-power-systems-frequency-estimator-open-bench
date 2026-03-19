@@ -4,9 +4,12 @@ openfreqbench/scenarios/_base.py
 ScenarioBase, ScenarioState, ScenarioOutput, and ScenarioModifiersMixin.
 Ported from pfebench/scenarios/base.py.
 """
+
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, ClassVar
+
 import numpy as np
 
 Array = np.ndarray
@@ -34,7 +37,7 @@ class ScenarioState:
     phi: Array
     A: Array
     v: Array
-    schema: Dict[str, Any]
+    schema: dict[str, Any]
 
 
 @dataclass
@@ -48,13 +51,19 @@ class ScenarioOutput:
         raise AttributeError(f"{type(self).__name__!r} has no attribute {name!r}")
 
     @property
-    def t(self) -> Array: return self.state.t
+    def t(self) -> Array:
+        return self.state.t
+
     @property
-    def v(self) -> Array: return self.state.v
+    def v(self) -> Array:
+        return self.state.v
+
     @property
-    def f_true(self) -> Array: return self.state.f_true
+    def f_true(self) -> Array:
+        return self.state.f_true
+
     @property
-    def meta(self) -> Dict[str, Any]:
+    def meta(self) -> dict[str, Any]:
         return {"scenario_id": self.scenario_id, "schema": self.state.schema}
 
 
@@ -69,7 +78,9 @@ class ScenarioModifiersMixin:
         self.state.phi = float(phi0_rad) + 2.0 * np.pi * _cumtrapz(self.state.f_true, self.state.t)
 
     def recompute_v_from_A_phi(self) -> None:
-        self.state.v = np.asarray(self.state.A, dtype=float) * np.sin(np.asarray(self.state.phi, dtype=float))
+        self.state.v = np.asarray(self.state.A, dtype=float) * np.sin(
+            np.asarray(self.state.phi, dtype=float),
+        )
 
     def add_noise_gaussian(self, shape: tuple, sigma: float, rng: np.random.Generator) -> Array:
         return rng.normal(0.0, sigma, size=shape)
@@ -81,7 +92,13 @@ class ScenarioModifiersMixin:
         rms = float(np.sqrt(np.mean(b**2)))
         return ((b / rms) * sigma).reshape(shape) if rms > 0 else b.reshape(shape)
 
-    def add_noise_impulsive(self, shape: tuple, sigma: float, rng: np.random.Generator, prob: float = 0.001) -> Array:
+    def add_noise_impulsive(
+        self,
+        shape: tuple,
+        sigma: float,
+        rng: np.random.Generator,
+        prob: float = 0.001,
+    ) -> Array:
         n = np.zeros(shape, dtype=float).reshape(-1)
         mask = rng.random(n.size) < prob
         n[mask] = sigma * rng.choice([-1.0, 1.0], size=n.size)[mask]
@@ -89,12 +106,12 @@ class ScenarioModifiersMixin:
 
     def add_noise_uniform(self, shape: tuple, sigma: float, rng: np.random.Generator) -> Array:
         w = sigma * np.sqrt(12.0)
-        return rng.uniform(-w/2, w/2, size=shape)
+        return rng.uniform(-w / 2, w / 2, size=shape)
 
 
 class ScenarioBase(ScenarioModifiersMixin):
     scenario_id: str = "UNKNOWN"
-    tuning_map: Dict[str, str] = {}
+    tuning_map: ClassVar[dict[str, str]] = {}
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("Scenario must implement build()")
@@ -102,7 +119,7 @@ class ScenarioBase(ScenarioModifiersMixin):
     def run(self) -> ScenarioOutput:
         return self.build()
 
-    def configure(self, **kwargs: Any) -> "ScenarioBase":
+    def configure(self, **kwargs: Any) -> ScenarioBase:
         for k, v in kwargs.items():
             if hasattr(self, k):
                 setattr(self, k, v)
@@ -110,10 +127,12 @@ class ScenarioBase(ScenarioModifiersMixin):
                 raise AttributeError(f"Parameter {k!r} not found in {self.scenario_id}")
         return self
 
-    def set_montecarlo_tuning(self, params: Dict[str, Any]) -> "ScenarioBase":
+    def set_montecarlo_tuning(self, params: dict[str, Any]) -> ScenarioBase:
         for alias, value in params.items():
             if alias not in self.tuning_map:
-                raise ValueError(f"Alias {alias!r} not in tuning_map for {self.scenario_id}. Allowed: {list(self.tuning_map)}")
+                raise ValueError(
+                    f"Alias {alias!r} not in tuning_map for {self.scenario_id}. Allowed: {list(self.tuning_map)}",
+                )
             attr = self.tuning_map[alias]
             if not hasattr(self, attr):
                 raise AttributeError(f"tuning_map points to missing attr {attr!r}")

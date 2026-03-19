@@ -14,11 +14,12 @@ Algorithm sketch
 References
 ──────────
   Boashash, B. (1992). "Estimating and interpreting the instantaneous
-  frequency of a signal." Proc. IEEE, 80(4), 520–568.
+  frequency of a signal." Proc. IEEE, 80(4), 520-568.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from openfreqbench.estimators.common.base import BaseEstimator
 from openfreqbench.estimators.common.types import (
@@ -44,19 +45,27 @@ class HilbertFrequencyEstimator(BaseEstimator):
     )
 
     @classmethod
-    def default_config(cls) -> Dict[str, Any]:
+    def default_config(cls) -> dict[str, Any]:
         return {"fs": 10_000.0, "fir_order": 63, "smoothing_win": 10}
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="fir_order", default=63, type="int",
-                            values=[31, 63, 127, 255],
-                            description="FIR Hilbert filter order (causal delay = order/2)."),
-                TuningParam(name="smoothing_win", default=10, type="int",
-                            values=[1, 5, 10, 20, 50],
-                            description="Output moving-average window length."),
+                TuningParam(
+                    name="fir_order",
+                    default=63,
+                    type="int",
+                    values=[31, 63, 127, 255],
+                    description="FIR Hilbert filter order (causal delay = order/2).",
+                ),
+                TuningParam(
+                    name="smoothing_win",
+                    default=10,
+                    type="int",
+                    values=[1, 5, 10, 20, 50],
+                    description="Output moving-average window length.",
+                ),
             ],
             objective="RMSE_HZ",
         )
