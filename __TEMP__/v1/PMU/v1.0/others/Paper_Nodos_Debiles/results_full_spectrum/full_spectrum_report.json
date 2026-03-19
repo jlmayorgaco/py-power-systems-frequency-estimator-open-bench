@@ -1,0 +1,27 @@
+{
+    "experiment": "Full Spectrum Analysis",
+    "metrics_definition": {
+        "lambda_2": "Algebraic Connectivity (Global Sync Stability)",
+        "total_volatility": "Trace(H+) - Total System Variance under White Noise",
+        "condition_number": "Stiffness Disparity (Lambda_Max / Lambda_2)",
+        "spectral_entropy": "Distribution of modal fragility"
+    },
+    "critical_phase_metrics": {
+        "lambda_2": 0.030897838857867815,
+        "total_volatility": 48.11025111011946,
+        "condition_number": 733.6719232545721,
+        "spectral_entropy": 1.1432333650268027
+    },
+    "repaired_phase_metrics": {
+        "lambda_2": 0.01162841744171021,
+        "total_volatility": 101.74734393285861,
+        "condition_number": 1949.4377525596792,
+        "spectral_entropy": 0.6727168403714321
+    },
+    "improvement_analysis": {
+        "global_stability_gain_pct": -62.364948904026164,
+        "noise_rejection_gain_pct": -111.48786710750962,
+        "stiffness_balance_gain_pct": -165.70973902230907,
+        "interpretation": "High lambda_2 gain prevents pole slip. Volatility reduction confirms lower overall noise sensitivity."
+    }
+}

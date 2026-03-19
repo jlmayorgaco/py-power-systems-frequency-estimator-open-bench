@@ -1,0 +1,59 @@
+{
+  "experiment": {
+    "fs_physics_hz": 100000,
+    "fs_dsp_hz": 10000,
+    "seed": 42,
+    "methods": ["RA-EKF2", "MAF-SRF-PLL", "RLS", "DDSRF-PLL"],
+    "enable_landscapes": false,
+    "enable_global_summaries": true,
+    "mc": {
+      "snr_db": 40.0,
+      "n_train_seeds": 1,
+      "n_test_seeds": 1,
+      "enable_oracle_mode": true,
+      "enable_deployable_mode": true,
+      "base_seed": 777,
+      "tune_frac": 0.2,
+      "tune_frac_global": 0.1,
+      "tune_frac_oracle": 1.0,
+      "enable_sensitivity": false,
+      "sensitivity_deltas": [0.05],
+      "sensitivity_k": 2,
+      "report_percentiles": [50, 99],
+      "perturb": {
+        "amp_pct_jitter": 0.05,
+        "snr_db_jitter": 2.0,
+        "impulsive_prob": 0.005,
+        "impulsive_scale": 10.0,
+        "rocof_pct_jitter": 0.2,
+        "harmonics_pct_jitter": 0.1,
+        "timing_samples_jitter": 3
+      },
+      "force_serial_eval": true,
+      "n_workers": 1,
+      "split_test_frac": 0.5,
+      "export_waveforms_modes": ["deployable", "oracle"],
+      "train_scenarios": [],
+      "test_scenarios": []
+    }
+  },
+  "registry": {},
+  "tuners": {
+    "ra-ekf2": {
+      "kf_q": [1e-10, 3e-10, 1e-9, 3e-9, 1e-8, 3e-8, 1e-7, 3e-7, 1e-6, 3e-6, 1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2],
+      "kf_r": [1e-6, 3e-6, 1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1, 1.0]
+    },
+    "maf-srf-pll": {
+      "pll_kp": [0.25, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 40.0],
+      "pll_ki": [0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0]
+    },
+    "ddsrf-pll": {
+      "pll_kp": [0.25, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 40.0],
+      "pll_ki": [0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0, 500.0]
+    },
+    "rls": {
+      "rls_lam": [0.90, 0.94, 0.96, 0.98, 0.985, 0.99, 0.992, 0.995, 0.997, 0.998, 0.999, 0.9995, 0.9998],
+      "rls_win": [10, 20, 30, 50, 75, 100, 150, 200, 300, 500]
+    }
+  }
+}

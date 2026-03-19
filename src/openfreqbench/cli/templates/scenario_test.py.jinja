@@ -1,0 +1,9 @@
+"""Unit tests for {{ class_name }}."""
+import pytest
+from openfreqbench.scenarios.{{ group }}.{{ module_name }} import {{ class_name }}
+
+
+def test_builds():
+    sc = {{ class_name }}()
+    out = sc.build()
+    assert out.scenario_id == "{{ scenario_id }}"

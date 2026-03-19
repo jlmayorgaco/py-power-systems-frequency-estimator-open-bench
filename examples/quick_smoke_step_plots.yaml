@@ -1,0 +1,31 @@
+benchmark:
+  name: quick_smoke_step_plots
+  output_dir: artifacts
+  n_runs: 30
+  seed_start: 0
+  plots: true
+
+scenarios:
+  # Baseline: pure steady-state 60 Hz
+  - id: G1_E1_Pure_60Hz
+    params:
+      fs_hz: 1000000
+      T_s: 1.0
+
+  # Step: 60 Hz → 61 Hz at t = 0.5 s
+  - id: G2_E1_FreqStep
+    params:
+      fs_hz: 1000000
+      T_s: 2.0
+      f1_hz: 60.0
+      f2_hz: 65.0
+      step_frac: 1.0
+
+estimators:
+  - id: ZeroCrossing
+    params:
+      filter_win: 5
+
+metrics:
+  fs_hz: 1000000
+  f_nom: 60

@@ -1,0 +1,11 @@
+# .ruffignore
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.venv/
+venv/
+build/
+dist/
+docs/_build/
+site/
+node_modules/

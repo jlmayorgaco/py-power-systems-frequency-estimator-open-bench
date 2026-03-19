@@ -1,0 +1,33 @@
+{
+    "meta": {
+        "title": "IEEE 14 Nonlinear Spectral Validation",
+        "engine": "ANDES V7"
+    },
+    "parameters": {
+        "stress_factor": 0.5,
+        "load_step_pu": 4.0,
+        "base_inertia_M": 6.0,
+        "repair_M": 40.0
+    },
+    "diagnosis": {
+        "detected_weak_bus": 8,
+        "pi_score_at_weak": 0.805276647521489
+    },
+    "results": {
+        "C": {
+            "lambda_2": 0.030897838857867815,
+            "max_angle_deg": 219367.63358481668,
+            "outcome": "Pole Slip (Unstable)"
+        },
+        "D": {
+            "lambda_2": 0.01162841744171021,
+            "max_angle_deg": 51.94834469033071,
+            "outcome": "Stable"
+        },
+        "D_Bad": {
+            "lambda_2": 0.02793260024134,
+            "max_angle_deg": 126528.56575589631,
+            "outcome": "Pole Slip (Unstable)"
+        }
+    }
+}

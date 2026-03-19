@@ -1,0 +1,140 @@
+{
+    "summary": "IEEE 14-Bus Spectral Fragility Analysis",
+    "parameters": {
+        "stress": 0.5,
+        "load_step": 4.0
+    },
+    "diagnosis": {
+        "weakest_node": 8,
+        "pi_max": 0.805276647521489,
+        "full_spectrum_metrics": {
+            "lambda_2": 0.030897838857867815,
+            "total_volatility": 48.11025111011946,
+            "condition_number": 733.6719232545721,
+            "entropy": 1.1432333650268027
+        }
+    },
+    "node_analysis": [
+        {
+            "id": 8,
+            "pi_score": 0.805276647521489,
+            "inertia_M": 12.0,
+            "predicted_capacity_pu": 0.1918458742333544,
+            "is_critical": true
+        },
+        {
+            "id": 6,
+            "pi_score": 0.05319000323896499,
+            "inertia_M": 12.0,
+            "predicted_capacity_pu": 2.9044233964770987,
+            "is_critical": false
+        },
+        {
+            "id": 1,
+            "pi_score": 0.0458102144136769,
+            "inertia_M": 12.0,
+            "predicted_capacity_pu": 3.3723007841332504,
+            "is_critical": false
+        },
+        {
+            "id": 3,
+            "pi_score": 0.042467893396828264,
+            "inertia_M": 12.0,
+            "predicted_capacity_pu": 3.6377023730238496,
+            "is_critical": false
+        },
+        {
+            "id": 2,
+            "pi_score": 0.042376264692045626,
+            "inertia_M": 12.0,
+            "predicted_capacity_pu": 3.6455678631456667,
+            "is_critical": false
+        },
+        {
+            "id": 7,
+            "pi_score": 0.0022412650158223765,
+            "inertia_M": 0.5,
+            "predicted_capacity_pu": 68.89872213997789,
+            "is_critical": false
+        },
+        {
+            "id": 12,
+            "pi_score": 0.0018881005885352205,
+            "inertia_M": 0.5,
+            "predicted_capacity_pu": 81.779231464391,
+            "is_critical": false
+        },
+        {
+            "id": 5,
+            "pi_score": 0.0017410882104611626,
+            "inertia_M": 0.5,
+            "predicted_capacity_pu": 88.68046598423564,
+            "is_critical": false
+        },
+        {
+            "id": 13,
+            "pi_score": 0.0014810884084788193,
+            "inertia_M": 0.5,
+            "predicted_capacity_pu": 104.2375025710532,
+            "is_critical": false
+        },
+        {
+            "id": 11,
+            "pi_score": 0.001230994425169564,
+            "inertia_M": 0.5,
+            "predicted_capacity_pu": 125.39764071422333,
+            "is_critical": false
+        },
+        {
+            "id": 4,
+            "pi_score": 0.0011804589071249154,
+            "inertia_M": 0.5,
+            "predicted_capacity_pu": 130.76137761345342,
+            "is_critical": false
+        },
+        {
+            "id": 14,
+            "pi_score": 0.0005634113857026149,
+            "inertia_M": 0.5,
+            "predicted_capacity_pu": 273.7173597180737,
+            "is_critical": false
+        },
+        {
+            "id": 10,
+            "pi_score": 0.00048443690017894927,
+            "inertia_M": 0.5,
+            "predicted_capacity_pu": 318.2477356632528,
+            "is_critical": false
+        },
+        {
+            "id": 9,
+            "pi_score": 6.813289552134845e-05,
+            "inertia_M": 0.5,
+            "predicted_capacity_pu": 2234.6698069608897,
+            "is_critical": false
+        }
+    ],
+    "results_comparison": {
+        "critical_phase": {
+            "rmse_freq": 42.31516809977504,
+            "max_angle": 219367.63358481668,
+            "stable": false
+        },
+        "repaired_phase": {
+            "rmse_freq": 2.7311076044533236,
+            "max_angle": 51.94834469033071,
+            "stable": true
+        },
+        "bad_repair": {
+            "rmse_freq": 21.15800596431101,
+            "max_angle": 126528.56575589631,
+            "stable": false
+        }
+    },
+    "impact_analysis": {
+        "stability_gain_pct": -62.364948904026164,
+        "noise_rejection_gain_pct": -111.48786710750962,
+        "roi_per_MW": -1.559123722600654,
+        "conclusion": "Spectral repair prevented pole slip and reduced volatility."
+    }
+}

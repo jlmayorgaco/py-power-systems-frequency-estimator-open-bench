@@ -1,0 +1,19 @@
+{
+  "Q1_Story_Validation": {
+    "1_Hidden_Degradation": {
+      "lambda2_baseline": 0.10503754279160438,
+      "lambda2_stressed": 0.10505510999276055,
+      "drop_percent": -0.016724687849014788,
+      "early_warning_valid": false
+    },
+    "2_Localization": {
+      "most_critical_node_index": 3,
+      "ricci_curvature_at_critical": 0.020192679567104688
+    },
+    "3_Actionable_Design": {
+      "did_no_fix_collapse": false,
+      "did_fix_survive": true,
+      "conclusion": "Inconclusive"
+    }
+  }
+}

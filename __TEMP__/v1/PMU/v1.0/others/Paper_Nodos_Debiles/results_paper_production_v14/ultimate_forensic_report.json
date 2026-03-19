@@ -1,0 +1,105 @@
+{
+    "identification": {
+        "voltage_weakest": 671,
+        "spectral_weakest": 675,
+        "africano_match": true
+    },
+    "dynamics": {
+        "max_angle_critical": 2.63146636677454,
+        "max_angle_fix_spectral": 2.6985729456376704,
+        "improvement_pct": -2.5501581250990215
+    },
+    "nodal_data": [
+        {
+            "node_id": 1,
+            "name": "650",
+            "pvr_score": 999.0,
+            "pi_score": -1.0,
+            "is_africano": false
+        },
+        {
+            "node_id": 2,
+            "name": "632",
+            "pvr_score": 0.9714285714285724,
+            "pi_score": 0.005954630673407369,
+            "is_africano": false
+        },
+        {
+            "node_id": 3,
+            "name": "633",
+            "pvr_score": 0.9714285714285716,
+            "pi_score": 0.010986579793880394,
+            "is_africano": false
+        },
+        {
+            "node_id": 4,
+            "name": "634",
+            "pvr_score": 0.9714285714285714,
+            "pi_score": 0.021005217926352807,
+            "is_africano": true
+        },
+        {
+            "node_id": 5,
+            "name": "645",
+            "pvr_score": 0.9714285714285716,
+            "pi_score": 0.010034318329368597,
+            "is_africano": false
+        },
+        {
+            "node_id": 6,
+            "name": "646",
+            "pvr_score": 0.9714285714285714,
+            "pi_score": 0.011581679276859864,
+            "is_africano": false
+        },
+        {
+            "node_id": 7,
+            "name": "671",
+            "pvr_score": 0.9714285714285708,
+            "pi_score": 0.04975314865957903,
+            "is_africano": false
+        },
+        {
+            "node_id": 8,
+            "name": "680",
+            "pvr_score": 0.9714285714285719,
+            "pi_score": 0.05742542660846919,
+            "is_africano": false
+        },
+        {
+            "node_id": 9,
+            "name": "684",
+            "pvr_score": 0.9714285714285716,
+            "pi_score": 0.08387507134463466,
+            "is_africano": true
+        },
+        {
+            "node_id": 10,
+            "name": "611",
+            "pvr_score": 0.9714285714285714,
+            "pi_score": 0.11298317189256947,
+            "is_africano": true
+        },
+        {
+            "node_id": 11,
+            "name": "652",
+            "pvr_score": 0.9714285714285714,
+            "pi_score": 0.11298317189256947,
+            "is_africano": false
+        },
+        {
+            "node_id": 12,
+            "name": "692",
+            "pvr_score": 0.9714285714285719,
+            "pi_score": 0.07309877452690756,
+            "is_africano": false
+        },
+        {
+            "node_id": 13,
+            "name": "675",
+            "pvr_score": 0.9714285714285714,
+            "pi_score": 0.17089487738420905,
+            "is_africano": true
+        }
+    ]
+}

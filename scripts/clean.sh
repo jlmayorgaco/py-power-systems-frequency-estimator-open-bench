@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-rm -rf .ofb \
-       __pycache__ */__pycache__ \
-       .pytest_cache .ruff_cache .mypy_cache \
-       *.egg-info build dist
-echo "🧹 Cleaned caches and build artifacts."
+echo "==> Cleaning build artifacts and caches"
+rm -rf .venv-ofb *.egg-info build dist .pytest_cache .mypy_cache .ruff_cache
+find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+echo "==> Clean complete"

@@ -1,0 +1,20 @@
+"""{{ name }} scenario."""
+from __future__ import annotations
+from dataclasses import dataclass, field
+from typing import Dict
+import numpy as np
+from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput, ScenarioState
+
+
+@dataclass
+class {{ class_name }}(ScenarioBase):
+    """{{ description }}"""
+    fs_hz: float = 10_000.0
+    T_s: float = 5.0
+    f_nom_hz: float = 60.0
+    seed: int = 0
+    scenario_id: str = "{{ scenario_id }}"
+    tuning_map: Dict[str, str] = field(default_factory=lambda: {"seed": "seed", "f": "f_nom_hz"})
+
+    def build(self) -> ScenarioOutput:
+        raise NotImplementedError

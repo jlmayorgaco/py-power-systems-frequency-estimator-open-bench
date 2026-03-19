@@ -1,0 +1,146 @@
+{
+  "experiment": {
+    "fs_physics_hz": 100000,
+    "fs_dsp_hz": 10000,
+    "seed": 42,
+    "methods": [
+      "RA-EKF2","RA-EKF","CKF","UKF","IEKF","EnKF","EKF","LKF",
+      "IpDFT","TFT","MSOGI-FLL","SOGI-Industrial","SOGI-Classic",
+      "SRF-PLL","MAF-SRF-PLL","DDSRF-PLL","RLS","RLS-VFF","Teager"
+    ],
+    "enable_landscapes": true,
+    "enable_global_summaries": true,
+    "mc": {
+      "snr_db": 40.0,
+      "n_train_seeds": 10,
+      "n_test_seeds": 10,
+
+      "enable_oracle_mode": true,
+      "enable_deployable_mode": true,
+
+      "base_seed": 777,
+
+      "tune_frac": 0.2,
+      "tune_frac_global": 0.10,
+      "tune_frac_oracle": 1.0,
+
+      "enable_sensitivity": true,
+      "sensitivity_deltas": [0.05],
+      "sensitivity_k": 10,
+
+      "report_percentiles": [1, 5, 50, 95, 99],
+      "perturb": {
+        "amp_pct_jitter": 0.05,
+        "snr_db_jitter": 2.0,
+        "impulsive_prob": 0.005,
+        "impulsive_scale": 10.0,
+        "rocof_pct_jitter": 0.2,
+        "harmonics_pct_jitter": 0.1,
+        "timing_samples_jitter": 3
+      },
+
+      "force_serial_eval": false,
+      "n_workers": -1,
+      "split_test_frac": 0.3,
+      "train_scenarios": [],
+      "test_scenarios": []
+    }
+  },
+
+  "registry": {},
+
+  "tuners": {
+    "ra-ekf2": {
+      "q_param": [1e-10, 1e-8, 1e-6, 1e-4, 1e-3],
+      "r_param": [1e-3, 0.01, 0.1, 1.0, 5.0],
+      "event_thresh": [1.5, 2.5, 4.0]
+    },
+    "ra-ekf": {
+      "q_param": [1e-10, 1e-8, 1e-6, 1e-4, 1e-3],
+      "r_param": [1e-3, 0.01, 0.1, 1.0, 5.0]
+    },
+    "ckf": {
+      "q_param": [1e-9, 1e-7, 1e-5, 1e-3, 1e-2],
+      "r_param": [1e-3, 0.01, 0.1, 0.5, 2.0]
+    },
+    "ukf": {
+      "q_param": [1e-9, 1e-7, 1e-5, 1e-3, 1e-2],
+      "r_param": [1e-3, 0.01, 0.1, 0.5, 2.0],
+      "alpha": [1e-3, 0.1],
+      "kappa": [0, 3]
+    },
+    "iekf": {
+      "q_param": [1e-9, 1e-7, 1e-5, 1e-3, 1e-2],
+      "r_param": [1e-3, 0.01, 0.1, 0.5, 2.0],
+      "max_iters": [2, 5]
+    },
+    "enkf": {
+      "q_param": [1e-9, 1e-7, 1e-5, 1e-3, 1e-2],
+      "r_param": [1e-3, 0.01, 0.1, 0.5, 2.0],
+      "n_ensembles": [10, 20]
+    },
+    "ekf": {
+      "q_param": [1e-9, 1e-7, 1e-5, 1e-3, 1e-2],
+      "r_param": [1e-3, 0.01, 0.1, 0.5, 2.0]
+    },
+    "lkf": {
+      "q_param": [1e-9, 1e-7, 1e-5, 1e-3, 1e-2],
+      "r_param": [1e-3, 0.01, 0.1, 0.5, 2.0]
+    },
+
+    "ipdft": {
+      "window_cycles": [2, 4, 8, 16, 32],
+      "decim": [1, 5, 10]
+    },
+
+    "tft": {
+      "variant": ["classic", "sdft"],
+      "win_sec": [0.04, 0.08, 0.12],
+      "smooth_win": [1, 10, 50]
+    },
+
+    "msogi-fll": {
+      "k": [1.0, 1.414, 2.0],
+      "g": [50, 200, 1000],
+      "harmonics": [[3, 5, 7]],
+      "smooth_win": [1, 25, 100]
+    },
+    "sogi-industrial": {
+      "k": [1.414],
+      "g": [50, 250, 1000],
+      "smooth_win": [1, 25, 100]
+    },
+    "sogi-classic": {
+      "k": [1.0, 1.414, 2.0],
+      "g": [50, 500, 2000],
+      "smooth_win": [1, 20, 100]
+    },
+
+    "srf-pll": {
+      "kp": [0.5, 1.0, 5.0, 10.0, 20.0],
+      "ki": [50, 500, 2000, 10000]
+    },
+    "maf-srf-pll": {
+      "kp": [0.1, 1.0, 10.0],
+      "ki": [10, 100, 1000],
+      "win_maf": [83, 166, 332]
+    },
+    "ddsrf-pll": {
+      "kp": [0.1, 1.0, 10.0],
+      "ki": [10, 100, 1000]
+    },
+
+    "rls": {
+      "lambda": [0.98, 0.99, 0.995, 0.999, 0.9995],
+      "win_smooth": [1, 10, 50, 200]
+    },
+    "rls-vff": {
+      "lam_min": [0.9, 0.95, 0.98, 0.99],
+      "lam_max": [0.999, 0.9999],
+      "win_smooth": [25, 100]
+    },
+    "teager": {
+      "win_smooth": [10, 50, 200, 500]
+    }
+  }
+}

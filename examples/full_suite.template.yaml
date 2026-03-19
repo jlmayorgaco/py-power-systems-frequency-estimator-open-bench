@@ -1,0 +1,20 @@
+# Full suite template — fill in estimators and scenarios as they are ported
+benchmark:
+  name: full_suite
+  output_dir: artifacts
+  n_runs: 200
+  seed_start: 0
+
+scenarios:
+  - id: G1_E1_Pure_60Hz
+    params: {fs_hz: 10000, T_s: 5}
+  # - id: G2_...   (add as ported)
+
+estimators:
+  - id: ZeroCrossing
+    params: {}
+  # - id: ...      (add as ported)
+
+metrics:
+  fs_hz: 10000
+  f_nom: 60

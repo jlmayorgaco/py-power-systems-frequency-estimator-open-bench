@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=77.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pfebench"
+version = "0.1.0"
+description = "Power-systems frequency estimator open benchmark"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Jorge Luis Mayorga Taborda" }]
+dependencies = [
+  "numpy>=1.26",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pfebench*"]
+
+[tool.pytest.ini_options]
+testpaths = ["pfebench/tests"]
+python_files = ["test_*.py"]
+addopts = "-q"
+pythonpath = ["."]

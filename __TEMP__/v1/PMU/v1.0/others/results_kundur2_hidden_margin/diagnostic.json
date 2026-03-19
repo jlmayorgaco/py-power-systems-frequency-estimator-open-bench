@@ -1,0 +1,287 @@
+{
+  "meta": {
+    "experiment": "kundur_hidden_margin",
+    "notes": [
+      "Compact diagnostic JSON: no time series stored.",
+      "Swing + OU noise surrogate on weighted graph Laplacian.",
+      "Demonstrates: demand step 'looks fine' under SOTA indicators, but structural fragility predicts low margin; then small noise push triggers crisis."
+    ],
+    "paths": {
+      "results_dir": "/Users/jorge.mayorga/Documents/GitHub/py-power-systems-frequency-estimator-open-bench/v1/PMU/results_kundur2_hidden_margin"
+    }
+  },
+  "graph": {
+    "nodes": [
+      "G1",
+      "G2",
+      "G3",
+      "G4"
+    ],
+    "edges": [
+      {
+        "u": "G1",
+        "v": "G2",
+        "w": 8.0
+      },
+      {
+        "u": "G1",
+        "v": "G4",
+        "w": 2.0
+      },
+      {
+        "u": "G2",
+        "v": "G3",
+        "w": 2.0
+      },
+      {
+        "u": "G3",
+        "v": "G4",
+        "w": 8.0
+      }
+    ]
+  },
+  "system": {
+    "M": [
+      6.0,
+      5.0,
+      6.0,
+      5.0
+    ],
+    "D": [
+      1.2,
+      1.0,
+      1.2,
+      1.0
+    ],
+    "laplacian_L": [
+      [
+        10.0,
+        -8.0,
+        0.0,
+        -2.0
+      ],
+      [
+        -8.0,
+        10.0,
+        -2.0,
+        0.0
+      ],
+      [
+        0.0,
+        -2.0,
+        10.0,
+        -8.0
+      ],
+      [
+        -2.0,
+        0.0,
+        -8.0,
+        10.0
+      ]
+    ]
+  },
+  "events": {
+    "t_step": 60.0,
+    "t_precrisis": 95.0,
+    "t_push": 110.0,
+    "step_node": 1,
+    "step_node_label": "G2",
+    "step_amp": 0.7,
+    "sigma_schedule": {
+      "sigma_base": 0.08,
+      "sigma_after_step": 0.08,
+      "sigma_pre_crisis": 0.1,
+      "sigma_crisis": 0.16
+    }
+  },
+  "windows": {
+    "pre": [
+      30.0,
+      55.0
+    ],
+    "post": [
+      75.0,
+      92.0
+    ],
+    "precrisis": [
+      98.0,
+      108.0
+    ],
+    "crisis": [
+      112.0,
+      135.0
+    ]
+  },
+  "diagnostics": {
+    "sota_indicators_by_window": {
+      "pre": {
+        "window": [
+          30.0,
+          55.0
+        ],
+        "omega": {
+          "mean_over_time_mean": 0.014443092503426425,
+          "mean_over_time_std": 0.02635293042803818,
+          "std_over_time_mean": 0.016587159333983973,
+          "nadir": -0.07140606174894668,
+          "peak": 0.10035399530239848,
+          "var_nodes": [
+            0.00108975987227346,
+            0.0010646616806483254,
+            0.000916041038476941,
+            0.0009582011097892235
+          ]
+        },
+        "rocof": {
+          "abs_p95": 0.06475785436912089,
+          "abs_max": 0.09094427077513817
+        },
+        "imbalance_proxy": {
+          "net_mean": 0.10471052848937647,
+          "net_std": 0.2033268254541801
+        }
+      },
+      "post": {
+        "window": [
+          75.0,
+          92.0
+        ],
+        "omega": {
+          "mean_over_time_mean": 0.16046045601646217,
+          "mean_over_time_std": 0.005584796086906846,
+          "std_over_time_mean": 0.020214766984216856,
+          "nadir": 0.10599357516407236,
+          "peak": 0.2073828359330873,
+          "var_nodes": [
+            0.0004978463251265288,
+            0.00048622685061328947,
+            0.00035261299015701853,
+            0.0005868002548422109
+          ]
+        },
+        "rocof": {
+          "abs_p95": 0.05804558481102782,
+          "abs_max": 0.0864091224991953
+        },
+        "imbalance_proxy": {
+          "net_mean": 0.731448531387084,
+          "net_std": 0.13594965924367386
+        }
+      },
+      "precrisis": {
+        "window": [
+          98.0,
+          108.0
+        ],
+        "omega": {
+          "mean_over_time_mean": 0.12685040419739987,
+          "mean_over_time_std": 0.009324228422735475,
+          "std_over_time_mean": 0.01691618644015824,
+          "nadir": 0.08690365601133175,
+          "peak": 0.16700942024762,
+          "var_nodes": [
+            0.0006246751191603578,
+            0.0004898959330760559,
+            0.00017265151412071517,
+            0.00023273216975835506
+          ]
+        },
+        "rocof": {
+          "abs_p95": 0.05232393451318255,
+          "abs_max": 0.08190985555704966
+        },
+        "imbalance_proxy": {
+          "net_mean": 0.5052788752917866,
+          "net_std": 0.19892856402218087
+        }
+      },
+      "crisis": {
+        "window": [
+          112.0,
+          135.0
+        ],
+        "omega": {
+          "mean_over_time_mean": 0.13320243793844572,
+          "mean_over_time_std": 0.028681289051798065,
+          "std_over_time_mean": 0.03001552503664025,
+          "nadir": 0.0013500148313908863,
+          "peak": 0.24372455611201185,
+          "var_nodes": [
+            0.001404204395088986,
+            0.001656763272495535,
+            0.0022638644626454944,
+            0.0019724750280225092
+          ]
+        },
+        "rocof": {
+          "abs_p95": 0.09246667301733442,
+          "abs_max": 0.15945325862316145
+        },
+        "imbalance_proxy": {
+          "net_mean": 0.5868536572379743,
+          "net_std": 0.31428495780739185
+        }
+      }
+    },
+    "geometric_indicators": {
+      "lambda2_H": 0.725281990760356,
+      "critical_mode": {
+        "eigval": 0.7252819907603562,
+        "node_energy": [
+          0.2876035523497613,
+          0.2123964476502382,
+          0.28760355234976187,
+          0.21239644765023863
+        ]
+      },
+      "forman_ricci": {
+        "edge_curvature_min": -2.0,
+        "edge_curvature_mean": -0.5,
+        "bottleneck_edges": [
+          {
+            "edge": [
+              "G1",
+              "G2"
+            ],
+            "curv": -2.0
+          },
+          {
+            "edge": [
+              "G3",
+              "G4"
+            ],
+            "curv": -2.0
+          }
+        ],
+        "node_fragility_min_incident_curv": {
+          "G1": -2.0,
+          "G2": -2.0,
+          "G3": -2.0,
+          "G4": -2.0
+        }
+      },
+      "tie_sensitivity_lambda2": {
+        "G2-G3": 0.36591565049220787,
+        "G1-G4": 0.36591565049220454
+      }
+    },
+    "hidden_margin_index": {
+      "definition": "HMI = step_amp / lambda2(H)",
+      "value": 0.965141846781758,
+      "lambda2_H": 0.725281990760356,
+      "interpretation": "Higher means the step is large relative to structural coupling/inertia, hence lower stochastic stability margin."
+    },
+    "crisis_detection": {
+      "crisis_detected": false,
+      "first_time_omega_trip": null,
+      "first_time_rocof_trip": null,
+      "thresholds": {
+        "omega_abs_trip": 0.65,
+        "rocof_trip": 6.5,
+        "sustain_sec": 2.0
+      }
+    },
+    "did_sota_warn_precrisis": false,
+    "did_geometry_warn_precrisis": true
+  }
+}

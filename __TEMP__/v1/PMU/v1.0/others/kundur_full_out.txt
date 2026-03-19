@@ -1,0 +1,67 @@
+ANDES 1.9.3
+Copyright (C) 2015-2022 Hantao Cui
+
+ANDES comes with ABSOLUTELY NO WARRANTY
+Case file: /opt/anaconda3/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx
+Report time: 12/28/2025 11:29:14 AM
+
+Power flow converged in 5 iterations.
+Flat-start: No
+
+Statistics:
+Buses                             10
+Generators                         4
+Committed Gens                     4
+Loads                              2
+Shunts                             0
+Lines                             15
+Transformers                       0
+Areas                              2
+
+EXTENDED SUMMARY:
+                              P (pu)            Q (pu)
+
+Generation                    28.731            7.2888
+Load                           27.75           -1.6585
+
+BUS DATA:
+                            Bus Name            Vm(pu)          Va(rad.)
+
+1                                  1                 1           0.57025
+2                                  2                 1           0.35925
+3                                 12                 1           0.15002
+4                                 11                 1           0.33213
+5                                101           0.98133           0.47687
+6                                102           0.96605           0.27482
+7                                  3           0.95203           0.11804
+8                                 13           0.95206         -0.083218
+9                                112           0.96763          0.065589
+10                               111           0.98346           0.24773
+
+LINE DATA:
+                           Line Name     Fr. Bus (idx)      To Bus (idx)       P From (pu)       Q From (pu)         P To (pu)         Q To (pu)
+
+Line_0                        Line_0                 5                 6            3.8352           0.26602           -3.7584            0.4313
+Line_1                        Line_1                 5                 6            3.8344           0.26527           -3.7575           0.43187
+Line_2                        Line_2                 6                 7            7.2321           0.50402           -7.1194           0.59501
+Line_3                        Line_3                 6                 7            7.2283           0.50052           -7.1152           0.59785
+Line_4                        Line_4                 7                 8            0.8236          -0.14894          -0.80712          0.014487
+Line_5                        Line_5                 7                 8           0.82355          -0.14898          -0.80708          0.014512
+Line_6                        Line_6                 7                 8           0.82364          -0.14891          -0.80717          0.014463
+Line_7                        Line_7                 8                 9           -6.7844           0.43312            6.8864           0.55923
+Line_8                        Line_8                 8                 9           -6.7805            0.4359            6.8829           0.55585
+Line_9                        Line_9                 9                10           -3.4124           0.31446            3.4753           0.24253
+Line_10                      Line_10                 9                10           -3.4116           0.31499            3.4746           0.24185
+Line_11                      Line_11                 1                 5             7.731            1.2678           -7.6696          -0.53129
+Line_12                      Line_12                 2                 6                 7            2.5327           -6.9446           -1.8677
+Line_13                      Line_13                 3                 9                 7            2.4018           -6.9452           -1.7445
+Line_14                      Line_14                 4                10                 7            1.0865           -6.9498          -0.48438
+
+OTHER ALGEBRAIC VARIABLES:
+
+
+q PV 2                        2.5327
+q PV 3                        2.4018
+q PV 4                        1.0865
+q Slack 1                     1.2678
+p Slack 1                      7.731

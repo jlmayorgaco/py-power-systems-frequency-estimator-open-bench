@@ -1,0 +1,28 @@
+"""
+{{ name }} — {{ family }} frequency estimator.
+
+Ported from: {{ source }}
+"""
+from __future__ import annotations
+from typing import List
+import numpy as np
+from openfreqbench.estimators._base import BaseEstimator, TuningParam
+
+
+class {{ class_name }}(BaseEstimator):
+    NAME = "{{ name }}"
+    FAMILY = "{{ family }}"
+
+    @classmethod
+    def tuning_ranges(cls) -> List[TuningParam]:
+        return []
+
+    def reset(self) -> None:
+        pass  # TODO: initialise internal state
+
+    @property
+    def latency_samples(self) -> int:
+        return 0
+
+    def _step(self, v_sample: float) -> float:
+        raise NotImplementedError
