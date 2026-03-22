@@ -87,8 +87,8 @@ class TestScaffoldScenarioContract:
         """set_montecarlo_tuning must accept a seed dict without crashing."""
         s = cls()
         result = s.set_montecarlo_tuning({"seed": 42})
-        # returns self for chaining
-        assert result is s
+        # returns new instance for chaining
+        assert result is not s
 
     def test_in_registry(self, cls):
         """Every scaffold scenario must be findable by scenario_id in ScenarioRegistry."""

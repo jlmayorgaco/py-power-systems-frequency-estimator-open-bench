@@ -108,18 +108,35 @@ def _moving_average(x: Any, w: int) -> np.ndarray:
     return x if (x.size == 0 or w == 1) else np.convolve(x, np.ones(w) / w, mode="same")
 
 
-def _robust_event_index(f_true: Any, fs: float, persist_s: float, k: float) -> int | None:
+def _robust_event_index(
+    f_true: Any,
+    fs: float,
+    persist_s: float,
+    r_true: Any | None = None,
+    freq_threshold_hz: float = 0.005,
+    rocof_threshold_hzs: float = 0.05,
+) -> int | None:
+    """
+    Identifies the start of a structural parameter event (steps, ramps, modulations)
+    by evaluating threshold crossover against a robust pre-fault steady-state.
+    Methodologically valid for IEEE C37.118 and IEC 60255 benchmarking.
+    """
     f = _to_1d(f_true)
     if f.size < int(0.5 * fs):
         return None
-    df = np.diff(f)
-    if df.size == 0:
-        return None
-    med = float(np.median(df))
-    mad = float(np.median(np.abs(df - med))) + 1e-12
-    thr = med + float(k) * 1.4826 * mad
-    persist = max(3, int(max(0.0, persist_s) * fs))
-    is_ev = np.abs(df) > abs(thr)
+    
+    # Baseline via median over first ~2 cycles to reject initialization discontinuities
+    f_base = float(np.median(f[:max(1, int(0.05 * fs))]))
+    
+    if r_true is not None:
+        dr = _to_1d(r_true)[:f.size]
+    else:
+        # Central difference mitigates phase-shifts from standard first-order numerical differentiation
+        dr = np.gradient(f) * fs
+        
+    is_ev = (np.abs(f - f_base) > freq_threshold_hz) | (np.abs(dr) > rocof_threshold_hzs)
+    persist = max(1, int(max(0.0, persist_s) * fs))
+    
     for i in range(max(0, len(is_ev) - persist)):
         if np.all(is_ev[i : i + persist]):
             return i
@@ -235,7 +252,9 @@ def nadir_stats(f_est: Any, f_ref: Any, fs: float) -> tuple[float, float]:
     if n <= 0:
         return float("nan"), float("nan")
     fe, fr = fe[:n], fr[:n]
-    if np.min(fr) < fr[0] - 0.05:
+    min_fr = float(np.min(fr))
+    if min_fr < min(fr[0], fr[-1]) - 0.05:
+        # True U-shape frequency dip event verified
         return float(fe[int(np.argmin(fe))] - fr[int(np.argmin(fr))]), float(
             (int(np.argmin(fe)) - int(np.argmin(fr))) / float(fs) * 1000.0,
         )
@@ -247,9 +266,8 @@ def overshoot_undershoot(f_est: Any, f_ref: Any) -> tuple[float, float]:
     n = min(fe.size, fr.size)
     if n <= 0:
         return float("nan"), float("nan")
-    d = fe[:n] - fr[-1]
+    d = fe[:n] - fr[:n]
     return float(np.max(d)), float(np.min(d))
-
 
 def compute_metrics(
     f_hat: Any,
@@ -274,7 +292,8 @@ def compute_metrics(
     else:
         r_t_c = None
     wu = int(max(0.0, cfg.warm_up_s) * fs)
-    ev_idx = _robust_event_index(f_t_raw, fs, cfg.event_persist_s, cfg.event_robust_k)
+    r_t_eval = r_t_raw if roco_f_true is not None else None
+    ev_idx = _robust_event_index(f_t_raw, fs, cfg.event_persist_s, r_true=r_t_eval)
 
     if f_h_c.size > wu + 2:
         # Compute full error arrays to avoid edge effects from masking
@@ -298,21 +317,38 @@ def compute_metrics(
                 mask[w0_c:w1_c] = False
                 
         err_ss = err_full[mask]
+        err_dyn = err_full[~mask] if np.any(~mask) else np.array([])
         
         # Apply matched mask to ROCOF (length is N-1 if available)
         rmask = mask[:rn] if rn > 0 else np.array([], dtype=bool)
         rerr_ss = rerr_full[rmask] if rmask.size > 0 else np.array([])
+        rerr_dyn = rerr_full[~rmask] if (rmask.size > 0 and np.any(~rmask)) else np.array([])
 
         out["RMSE_HZ"] = _mk_metric("RMSE_HZ", rmse(err_ss), scenario_id, "Hz")
         out["MAE_HZ"] = _mk_metric("MAE_HZ", mae(err_ss), scenario_id, "Hz")
         out["BIAS_HZ"] = _mk_metric("BIAS_HZ", bias(err_ss), scenario_id, "Hz")
         out["MED_ABS_ERR_HZ"] = _mk_metric("MED_ABS_ERR_HZ", median_abs(err_ss), scenario_id, "Hz")
         out["MAD_ABS_ERR_HZ"] = _mk_metric("MAD_ABS_ERR_HZ", mad_abs(err_ss), scenario_id, "Hz")
+
+        out["DYN_RMSE_HZ"] = _mk_metric("DYN_RMSE_HZ", rmse(err_dyn), scenario_id, "Hz")
+        out["DYN_MAE_HZ"] = _mk_metric("DYN_MAE_HZ", mae(err_dyn), scenario_id, "Hz")
+        out["DYN_BIAS_HZ"] = _mk_metric("DYN_BIAS_HZ", bias(err_dyn), scenario_id, "Hz")
+        out["DYN_MED_ABS_ERR_HZ"] = _mk_metric("DYN_MED_ABS_ERR_HZ", median_abs(err_dyn), scenario_id, "Hz")
+        out["DYN_MAD_ABS_ERR_HZ"] = _mk_metric("DYN_MAD_ABS_ERR_HZ", mad_abs(err_dyn), scenario_id, "Hz")
         
         fe_v = fe_max_mhz(err_ss)
         out["FE_MAX_MHZ"] = _mk_metric(
             "FE_MAX_MHZ",
             fe_v,
+            scenario_id,
+            "mHz",
+            threshold=cfg.ieee_fe_limit_mhz,
+            compliance_mode="leq",
+        )
+        fe_dyn_v = fe_max_mhz(err_dyn)
+        out["DYN_FE_MAX_MHZ"] = _mk_metric(
+            "DYN_FE_MAX_MHZ",
+            fe_dyn_v,
             scenario_id,
             "mHz",
             threshold=cfg.ieee_fe_limit_mhz,
@@ -325,9 +361,24 @@ def compute_metrics(
             "1",
             meta={"thr_mhz": float(cfg.ieee_fe_limit_mhz)},
         )
+        out["DYN_FE_OUTLIER_RATE"] = _mk_metric(
+            "DYN_FE_OUTLIER_RATE",
+            outlier_rate_abs(err_dyn * 1000, cfg.ieee_fe_limit_mhz),
+            scenario_id,
+            "1",
+            meta={"thr_mhz": float(cfg.ieee_fe_limit_mhz)},
+        )
         out["RFE_RMSE_HZS"] = _mk_metric(
             "RFE_RMSE_HZS",
             rmse(rerr_ss) if rerr_ss.size > 0 else float("nan"),
+            scenario_id,
+            "Hz/s",
+            threshold=cfg.ieee_rfe_limit_hzs,
+            compliance_mode="leq",
+        )
+        out["DYN_RFE_RMSE_HZS"] = _mk_metric(
+            "DYN_RFE_RMSE_HZS",
+            rmse(rerr_dyn) if rerr_dyn.size > 0 else float("nan"),
             scenario_id,
             "Hz/s",
             threshold=cfg.ieee_rfe_limit_hzs,
@@ -342,9 +393,25 @@ def compute_metrics(
             threshold=cfg.ieee_rfe_limit_hzs,
             compliance_mode="leq",
         )
+        rfe_dyn_max = float(np.max(np.abs(rerr_dyn))) if rerr_dyn.size > 0 else float("nan")
+        out["DYN_RFE_MAX_ABS_HZS"] = _mk_metric(
+            "DYN_RFE_MAX_ABS_HZS",
+            rfe_dyn_max,
+            scenario_id,
+            "Hz/s",
+            threshold=cfg.ieee_rfe_limit_hzs,
+            compliance_mode="leq",
+        )
         out["RFE_OUTLIER_RATE"] = _mk_metric(
             "RFE_OUTLIER_RATE",
             outlier_rate_abs(rerr_ss, cfg.ieee_rfe_limit_hzs) if rerr_ss.size > 0 else float("nan"),
+            scenario_id,
+            "1",
+            meta={"thr_hzs": float(cfg.ieee_rfe_limit_hzs)},
+        )
+        out["DYN_RFE_OUTLIER_RATE"] = _mk_metric(
+            "DYN_RFE_OUTLIER_RATE",
+            outlier_rate_abs(rerr_dyn, cfg.ieee_rfe_limit_hzs) if rerr_dyn.size > 0 else float("nan"),
             scenario_id,
             "1",
             meta={"thr_hzs": float(cfg.ieee_rfe_limit_hzs)},
@@ -356,10 +423,22 @@ def compute_metrics(
                 scenario_id,
                 "Hz",
             )
+            out[f"DYN_P{int(p)}_ABS_ERR_HZ"] = _mk_metric(
+                f"DYN_P{int(p)}_ABS_ERR_HZ",
+                percentile_abs(err_dyn, p),
+                scenario_id,
+                "Hz",
+            )
         for c in cfg.cvar_levels:
             out[f"CVAR{int(c)}_ABS_ERR_HZ"] = _mk_metric(
                 f"CVAR{int(c)}_ABS_ERR_HZ",
                 cvar_abs(err_ss, c),
+                scenario_id,
+                "Hz",
+            )
+            out[f"DYN_CVAR{int(c)}_ABS_ERR_HZ"] = _mk_metric(
+                f"DYN_CVAR{int(c)}_ABS_ERR_HZ",
+                cvar_abs(err_dyn, c),
                 scenario_id,
                 "Hz",
             )
@@ -377,6 +456,7 @@ def compute_metrics(
             "RFE_OUTLIER_RATE",
         ]:
             out[k] = _mk_metric(k, float("nan"), scenario_id)
+            out[f"DYN_{k}"] = _mk_metric(f"DYN_{k}", float("nan"), scenario_id)
 
     if ev_idx is not None and n_total > 0:
         w0 = max(0, int(ev_idx - cfg.event_pre_s * fs))
@@ -424,7 +504,7 @@ def compute_metrics(
                 scenario_id,
                 "Hz/s",
             )
-            eei = _robust_event_index(f_h_raw, fs, cfg.event_persist_s, cfg.event_robust_k)
+            eei = _robust_event_index(f_h_raw, fs, cfg.event_persist_s)
             out["EVENT_DETECTION_DELAY_S"] = _mk_metric(
                 "EVENT_DETECTION_DELAY_S",
                 float((eei - ev_idx) / fs) if eei is not None else float("nan"),
@@ -439,7 +519,7 @@ def compute_metrics(
 
     for thr in cfg.trip_thresholds_hz:
         tag = str(thr).replace(".", "p")
-        tripped, tt = trip_time_and_flag(f_h_c, cfg.f_nom, fs, thr)
+        tripped, tt = trip_time_and_flag(f_h_raw, cfg.f_nom, fs, thr)
         out[f"TRIPPED_{tag}"] = _mk_metric(
             f"TRIPPED_{tag}",
             1.0 if tripped else 0.0,

@@ -336,7 +336,7 @@ def _generate_smoke_plots(
         try:
             scen = ScenarioRegistry.build(scen_cfg.id, scen_cfg.params or None)
             if "seed" in scen.tuning_map:
-                scen.set_montecarlo_tuning({"seed": 0})
+                scen = scen.set_montecarlo_tuning({"seed": 0})
             wf = scen.build()
             scenario_waveforms[scen_cfg.id] = wf
             scenario_data.append(

@@ -14,7 +14,7 @@ KNOWN_RMSE_BOUND = 0.5  # Hz — conservative upper bound from legacy runs
 
 def test_zero_crossing_parity():
     sc = G1_E1_Pure_60Hz(fs_hz=10_000.0, T_s=2.0)
-    sc.set_montecarlo_tuning({"seed": 42})
+    sc = sc.set_montecarlo_tuning({"seed": 42})
     out = sc.build()
     est = ZeroCrossingEstimator()
     f_hat = est.run(out.v)

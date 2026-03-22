@@ -36,7 +36,7 @@ class TraceRunner:
         self._harness = TimingHarness()
 
     def run(self, scenario: ScenarioBase, estimator: BaseEstimator, seed: int = 0) -> TraceResult:
-        scenario.set_montecarlo_tuning({"seed": seed})
+        scenario = scenario.set_montecarlo_tuning({"seed": seed})
         waveform: ScenarioOutput = scenario.build()
         cfg = self.cfg or MetricConfig(
             fs_hz=float(waveform.state.fs_hz),

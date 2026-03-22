@@ -217,7 +217,7 @@ def test_tuning_map_has_seed():
 
 def test_set_montecarlo_tuning_seed():
     scen = G2_E2_FreqRamp()
-    scen.set_montecarlo_tuning({"seed": 42})
+    scen = scen.set_montecarlo_tuning({"seed": 42})
     assert scen.seed == 42
 
 

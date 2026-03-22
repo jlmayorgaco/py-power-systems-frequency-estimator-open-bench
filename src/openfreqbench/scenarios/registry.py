@@ -51,6 +51,20 @@ from openfreqbench.scenarios.g5.e20_snr_sweep import G5_E20_SNR_Sweep
 
 class ScenarioRegistry:
     _registry: ClassVar[dict[str, type[ScenarioBase]]] = {}
+    
+    # ── Methodological Isolation: Tuning vs. Testing ─────────────────────────────
+    # TUNING_SCENARIOS are visible to hyperparameter optimization sweeps (GridSearch,
+    # calibration) to fit standard PMU compliance characteristics (e.g., IEEE).
+    # TESTING_SCENARIOS must be strictly reserved for zero-shot performance 
+    # generalization assessment to prevent algorithmic data leakage.
+    TUNING_SCENARIOS: ClassVar[tuple[str, ...]] = (
+        "G1_E1_Pure_60Hz",
+        "G1_E2_Gaussian_Noise_1pct",
+        "G1_E3_Gaussian_Noise_5pct",
+        "G2_E1_FreqStep",
+        "G2_E2_FreqRamp",
+        "G3_E10_AM_Modulation",
+    )
 
     @classmethod
     def register(cls, scenario_cls: type[ScenarioBase]) -> type[ScenarioBase]:
@@ -71,6 +85,14 @@ class ScenarioRegistry:
     @classmethod
     def list_names(cls) -> list[str]:
         return sorted(cls._registry)
+
+    @classmethod
+    def list_tuning_names(cls) -> list[str]:
+        return [s for s in cls.TUNING_SCENARIOS if s in cls._registry]
+
+    @classmethod
+    def list_testing_names(cls) -> list[str]:
+        return [s for s in cls._registry if s not in cls.TUNING_SCENARIOS]
 
 
 ScenarioRegistry.register(G1_E1_Pure_60Hz)

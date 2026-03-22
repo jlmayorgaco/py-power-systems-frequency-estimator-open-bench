@@ -277,7 +277,7 @@ def _generate_plots(
 
     # Reference waveform: re-build scenario at seed=0
     with contextlib.suppress(Exception):
-        scenario.set_montecarlo_tuning({"seed": 0})
+        scenario = scenario.set_montecarlo_tuning({"seed": 0})
     waveform = scenario.build()
 
     # Reference f_hat

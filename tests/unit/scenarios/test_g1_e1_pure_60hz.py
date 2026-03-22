@@ -22,8 +22,8 @@ def test_f_true_is_60hz():
 
 def test_set_montecarlo_seed():
     sc = G1_E1_Pure_60Hz(fs_hz=10_000.0, T_s=0.5)
-    sc.set_montecarlo_tuning({"seed": 42})
+    sc = sc.set_montecarlo_tuning({"seed": 42})
     out1 = sc.build()
-    sc.set_montecarlo_tuning({"seed": 42})
+    sc = sc.set_montecarlo_tuning({"seed": 42})
     out2 = sc.build()
     assert np.allclose(out1.v, out2.v)
