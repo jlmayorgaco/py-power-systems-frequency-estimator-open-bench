@@ -243,13 +243,13 @@ class CheckpointManager:
     def session_id(self) -> str:
         if self._state is None:
             return "none"
-        return self._state.get("session_id", "none")
+        return str(self._state.get("session_id", "none"))
 
     @property
     def started_at(self) -> str:
         if self._state is None:
             return ""
-        return self._state.get("started_at", "")
+        return str(self._state.get("started_at", ""))
 
     @property
     def elapsed(self) -> str:

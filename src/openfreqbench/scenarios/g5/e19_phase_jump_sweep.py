@@ -21,6 +21,8 @@ function of jump magnitude by running this scenario across a parameter grid
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -44,14 +46,12 @@ class G5_E19_Phase_Jump_Sweep(ScenarioBase):
     t_jump: float = 0.5
     jump_rad: float = 0.5236  # pi/6 ≈ 30 degrees
     sweep_value: float = 0.5236  # set by MC tuning via tuning_map
-    scenario_id: str = "G5_E19_Phase_Jump_Sweep"
+    scenario_id: ClassVar[str] = "G5_E19_Phase_Jump_Sweep"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
             "jump_rad": "sweep_value",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

@@ -20,6 +20,8 @@ least-squares methods.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -42,15 +44,13 @@ class G3_E13_Impulsive_Outliers(ScenarioBase):
     seed: int = 42
     impulse_prob: float = 0.05
     impulse_sigma: float = 5.0
-    scenario_id: str = "G3_E13_Impulsive_Outliers"
+    scenario_id: ClassVar[str] = "G3_E13_Impulsive_Outliers"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
             "impulse_prob": "impulse_prob",
             "impulse_sigma": "impulse_sigma",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

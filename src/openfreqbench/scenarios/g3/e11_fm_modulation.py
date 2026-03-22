@@ -17,6 +17,8 @@ frequency swings.  This is the canonical dynamic frequency tracking test.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -39,15 +41,13 @@ class G3_E11_FM_Modulation(ScenarioBase):
     f_carrier: float = 60.0
     delta_f_hz: float = 0.5
     f_mod_hz: float = 2.0
-    scenario_id: str = "G3_E11_FM_Modulation"
+    scenario_id: ClassVar[str] = "G3_E11_FM_Modulation"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
             "delta_f_hz": "delta_f_hz",
             "f_mod_hz": "f_mod_hz",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

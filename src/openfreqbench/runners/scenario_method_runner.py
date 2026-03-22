@@ -34,10 +34,12 @@ class ScenarioMethodRunner:
         self._trace_runner = TraceRunner(cfg=cfg)
 
     def run(self, scenario: ScenarioBase, estimator: BaseEstimator) -> ScenarioMethodResult:
-        traces = [
-            self._trace_runner.run(scenario, estimator, seed=self.seed_start + i)
-            for i in range(self.n_runs)
-        ]
+        from openfreqbench.core.registry import EstimatorRegistry
+        
+        traces = []
+        for i in range(self.n_runs):
+            est_clone = EstimatorRegistry.build(estimator.NAME, config=estimator._params)
+            traces.append(self._trace_runner.run(scenario, est_clone, seed=self.seed_start + i))
         agg = aggregate_monte_carlo([t.metrics for t in traces], cfg=self._trace_runner.cfg)
         return ScenarioMethodResult(
             scenario_id=traces[0].scenario_id,

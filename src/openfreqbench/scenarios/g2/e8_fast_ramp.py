@@ -18,6 +18,8 @@ thresholds (2 Hz/s in many jurisdictions).
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -42,13 +44,11 @@ class G2_E8_Fast_Ramp_plus5Hzs(ScenarioBase):
     rocof_hz_s: float = 5.0
     t_ramp_start: float = 0.5
     t_ramp_end: float = 1.5
-    scenario_id: str = "G2_E8_Fast_Ramp_plus5Hzs"
+    scenario_id: ClassVar[str] = "G2_E8_Fast_Ramp_plus5Hzs"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

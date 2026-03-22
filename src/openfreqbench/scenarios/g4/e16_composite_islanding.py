@@ -24,6 +24,8 @@ islanding detection algorithms.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -47,14 +49,12 @@ class G4_E16_Composite_Islanding(ScenarioBase):
     t_event: float = 0.5
     v_sag_pu: float = 0.10
     rocof_hz_s: float = 2.0
-    scenario_id: str = "G4_E16_Composite_Islanding"
+    scenario_id: ClassVar[str] = "G4_E16_Composite_Islanding"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
             "t_event": "t_event",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

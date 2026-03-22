@@ -19,6 +19,8 @@ True frequency is constant at 60 Hz throughout.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -41,14 +43,12 @@ class G5_E20_SNR_Sweep(ScenarioBase):
     seed: int = 42
     noise_sigma: float = 0.01
     sweep_value: float = 0.01  # set by MC tuning via tuning_map
-    scenario_id: str = "G5_E20_SNR_Sweep"
+    scenario_id: ClassVar[str] = "G5_E20_SNR_Sweep"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
             "noise_sigma": "sweep_value",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

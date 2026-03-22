@@ -122,7 +122,7 @@ class BaseEstimator(ABC):
         """Re-initialise all internal state to construction-time defaults."""
 
     @abstractmethod
-    def update(self, voltage: float, timestamp: float = 0.0) -> EstimatorOutput:
+    def update(self, voltage: float | np.ndarray, timestamp: float = 0.0) -> EstimatorOutput:
         """
         Process one voltage sample and return a typed EstimatorOutput.
 
@@ -130,7 +130,7 @@ class BaseEstimator(ABC):
         Implement all estimator logic here; the framework calls this per sample.
 
         Args:
-            voltage:   Raw voltage sample (V or per-unit).
+            voltage:   Raw voltage sample (V or per-unit). Usually float, but can be np.ndarray for 3-phase.
             timestamp: Wall-clock time of this sample (seconds).  Monotonically
                        increasing.  Use to derive ``fs`` if not in config.
 
@@ -191,15 +191,19 @@ class BaseEstimator(ABC):
             1-D float array of frequency estimates, same length as ``v_array``.
         """
         v = np.asarray(v_array, dtype=float)
+        if v.ndim == 1:
+            v = v.reshape(-1, 1)
         n = len(v)
         fs = float(self._config.get("fs", 10_000.0))
         Ts = 1.0 / fs
         out = np.empty(n, dtype=float)
         self._n_samples = 0
         self.reset()
+        is_multi = v.shape[1] > 1
         for i, x in enumerate(v):
             self._n_samples += 1
-            result = self.update(float(x), timestamp=i * Ts)
+            sample = x if is_multi else float(x[0])
+            result = self.update(sample, timestamp=i * Ts)
             out[i] = result.frequency_hz
         return out
 

@@ -19,6 +19,8 @@ This guarantees phase continuity across the step — no artificial phase jump.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -42,18 +44,16 @@ class G2_E1_FreqStep(ScenarioBase):
     A0: float = 1.0
     phi0_rad: float = 0.0
     seed: int = 0
-    scenario_id: str = "G2_E1_FreqStep"
+    scenario_id: ClassVar[str] = "G2_E1_FreqStep"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "f1": "f1_hz",
             "f2": "f2_hz",
             "step_frac": "step_frac",
             "Vmax": "A0",
             "phi": "phi0_rad",
             "seed": "seed",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         fs = float(self.fs_hz)
@@ -74,7 +74,7 @@ class G2_E1_FreqStep(ScenarioBase):
         phi = float(self.phi0_rad) + np.concatenate([[0.0], np.cumsum(dphi[:-1])])
 
         A = np.full(n, float(self.A0))
-        v = A * np.sin(phi)
+        v = (A * np.sin(phi)).reshape(-1, 1)
 
         state = ScenarioState(
             t=t,
@@ -85,6 +85,7 @@ class G2_E1_FreqStep(ScenarioBase):
             phi=phi,
             A=A,
             v=v,
+            roco_f_true=np.zeros(n, dtype=float),
             schema={
                 "scenario_id": self.scenario_id,
                 "seed": int(self.seed),

@@ -18,6 +18,8 @@ single-event scenarios.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -40,13 +42,11 @@ class G4_E17_Multi_Event_Profile(ScenarioBase):
     T_s: float = 4.0
     seed: int = 42
     t_events: list[float] = field(default_factory=lambda: [0.5, 1.5, 2.5])
-    scenario_id: str = "G4_E17_Multi_Event_Profile"
+    scenario_id: ClassVar[str] = "G4_E17_Multi_Event_Profile"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

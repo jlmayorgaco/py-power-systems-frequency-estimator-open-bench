@@ -16,6 +16,8 @@ via analytic signal, zero-crossing methods with amplitude weighting).
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -38,15 +40,13 @@ class G3_E10_AM_Modulation(ScenarioBase):
     f_carrier: float = 60.0
     mod_freq_hz: float = 5.0
     mod_depth: float = 0.10
-    scenario_id: str = "G3_E10_AM_Modulation"
+    scenario_id: ClassVar[str] = "G3_E10_AM_Modulation"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
             "mod_freq_hz": "mod_freq_hz",
             "mod_depth": "mod_depth",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

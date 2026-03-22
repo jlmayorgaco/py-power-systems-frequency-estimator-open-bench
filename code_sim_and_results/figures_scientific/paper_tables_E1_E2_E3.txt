@@ -1,0 +1,39 @@
+# TABLE VI: Relay Coordination Safety Matrix
+
+Method              safe@12ms  safe@50ms safe@100ms safe@150ms safe@200ms safe@500ms
+--------------------------------------------------------------------------------
+IpDFT                      NO         NO         NO         NO         NO         NO
+PLL                        NO         NO         NO        YES        YES        YES
+EKF                        NO         NO         NO        YES        YES        YES
+EKF2                       NO        YES        YES        YES        YES        YES
+SOGI                       NO         NO         NO         NO         NO         NO
+TFT                        NO         NO         NO         NO         NO         NO
+UKF                        NO         NO         NO        YES        YES        YES
+Koopman-RKDPmu             NO         NO         NO        YES        YES        YES
+RLS                        NO         NO         NO        YES        YES        YES
+RLS-VFF                    NO         NO         NO         NO         NO         NO
+
+# TABLE VII: Stochastic Reproducibility
+
+Method      Scenario               RMSE_mean±std   CV_RMSE  CV_Ttrip  Repro_RMSE Repro_Ttrip
+----------------------------------------------------------------------------------------------------
+IpDFT       IBR_Nightmare       0.2469±0.0001     0.000     0.001        True        True
+IpDFT       IBR_MultiEvent      1.8562±0.0003     0.000     0.000        True        True
+PLL         IBR_Nightmare       0.0450±0.0000     0.000     0.000        True        True
+PLL         IBR_MultiEvent      0.3812±0.0001     0.000     0.001        True        True
+EKF         IBR_Nightmare       0.1355±0.0000     0.000     0.000        True        True
+EKF         IBR_MultiEvent      0.4696±0.0005     0.001     0.007        True        True
+EKF2        IBR_Nightmare       0.0038±0.0011     0.298     0.000       False        True
+EKF2        IBR_MultiEvent      0.4104±0.0175     0.043     0.123        True       False
+SOGI        IBR_Nightmare       0.0084±0.0000     0.000     0.000        True        True
+SOGI        IBR_MultiEvent      1.9848±0.0000     0.000     0.000        True        True
+TFT         IBR_Nightmare       0.4802±0.0002     0.000     0.001        True        True
+TFT         IBR_MultiEvent      0.8391±0.0003     0.000     0.002        True        True
+UKF         IBR_Nightmare       0.1229±0.0005     0.004     0.000        True        True
+UKF         IBR_MultiEvent      0.4758±0.0006     0.001     0.006        True        True
+Koopman-RKDPmuIBR_Nightmare       0.4123±0.0002     0.001     0.000        True        True
+Koopman-RKDPmuIBR_MultiEvent      0.4744±0.0020     0.004     0.005        True        True
+RLS         IBR_Nightmare       0.0123±0.0002     0.018     0.000        True        True
+RLS         IBR_MultiEvent      0.6630±0.0003     0.001     0.002        True        True
+RLS-VFF     IBR_Nightmare       0.1563±0.0002     0.002     0.000        True        True
+RLS-VFF     IBR_MultiEvent      2.1213±0.0000     0.000     0.000        True        True

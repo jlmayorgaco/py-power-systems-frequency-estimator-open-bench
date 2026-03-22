@@ -16,6 +16,8 @@ This scenario tests estimator immunity to abrupt amplitude disturbances.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -36,14 +38,12 @@ class G2_E4_Voltage_Mag_Step_1pct(ScenarioBase):
     seed: int = 42
     t_step: float = 0.5
     delta_pu: float = 0.01
-    scenario_id: str = "G2_E4_Voltage_Mag_Step_1pct"
+    scenario_id: ClassVar[str] = "G2_E4_Voltage_Mag_Step_1pct"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
             "t_step": "t_step",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

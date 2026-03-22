@@ -17,6 +17,8 @@ in zero-crossing methods.  True frequency is constant at f_fund = 60 Hz.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -40,14 +42,12 @@ class G3_E15_Noise_Interharmonics(ScenarioBase):
     f_fund: float = 60.0
     interharmonics: list[float] = field(default_factory=lambda: [135.0, 210.0])
     inter_amp: float = 0.05
-    scenario_id: str = "G3_E15_Noise_Interharmonics"
+    scenario_id: ClassVar[str] = "G3_E15_Noise_Interharmonics"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
             "inter_amp": "inter_amp",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

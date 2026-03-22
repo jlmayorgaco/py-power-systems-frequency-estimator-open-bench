@@ -38,6 +38,7 @@ class ScenarioState:
     A: Array
     v: Array
     schema: dict[str, Any]
+    roco_f_true: Array | None = None
 
 
 @dataclass
@@ -45,7 +46,7 @@ class ScenarioOutput:
     scenario_id: str
     state: ScenarioState
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> Any:
         if "state" in self.__dict__ and hasattr(self.state, name):
             return getattr(self.state, name)
         raise AttributeError(f"{type(self).__name__!r} has no attribute {name!r}")
@@ -78,14 +79,15 @@ class ScenarioModifiersMixin:
         self.state.phi = float(phi0_rad) + 2.0 * np.pi * _cumtrapz(self.state.f_true, self.state.t)
 
     def recompute_v_from_A_phi(self) -> None:
-        self.state.v = np.asarray(self.state.A, dtype=float) * np.sin(
+        v_1d = np.asarray(self.state.A, dtype=float) * np.sin(
             np.asarray(self.state.phi, dtype=float),
         )
+        self.state.v = v_1d.reshape(-1, 1)
 
-    def add_noise_gaussian(self, shape: tuple, sigma: float, rng: np.random.Generator) -> Array:
+    def add_noise_gaussian(self, shape: tuple[int, ...], sigma: float, rng: np.random.Generator) -> Array:
         return rng.normal(0.0, sigma, size=shape)
 
-    def add_noise_brown(self, shape: tuple, sigma: float, rng: np.random.Generator) -> Array:
+    def add_noise_brown(self, shape: tuple[int, ...], sigma: float, rng: np.random.Generator) -> Array:
         w = rng.normal(0.0, 1.0, size=shape)
         b = np.cumsum(w.reshape(-1))
         b -= np.mean(b)
@@ -94,7 +96,7 @@ class ScenarioModifiersMixin:
 
     def add_noise_impulsive(
         self,
-        shape: tuple,
+        shape: tuple[int, ...],
         sigma: float,
         rng: np.random.Generator,
         prob: float = 0.001,
@@ -104,13 +106,13 @@ class ScenarioModifiersMixin:
         n[mask] = sigma * rng.choice([-1.0, 1.0], size=n.size)[mask]
         return n.reshape(shape)
 
-    def add_noise_uniform(self, shape: tuple, sigma: float, rng: np.random.Generator) -> Array:
+    def add_noise_uniform(self, shape: tuple[int, ...], sigma: float, rng: np.random.Generator) -> Array:
         w = sigma * np.sqrt(12.0)
         return rng.uniform(-w / 2, w / 2, size=shape)
 
 
 class ScenarioBase(ScenarioModifiersMixin):
-    scenario_id: str = "UNKNOWN"
+    scenario_id: ClassVar[str] = "UNKNOWN"
     tuning_map: ClassVar[dict[str, str]] = {}
 
     def build(self) -> ScenarioOutput:

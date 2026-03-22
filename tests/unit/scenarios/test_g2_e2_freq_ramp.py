@@ -158,7 +158,7 @@ def test_phase_continuous_at_onset():
 def test_v_equals_A_sin_phi():
     out = _build(A0=0.8)
     expected = 0.8 * np.sin(out.state.phi)
-    assert np.allclose(out.v, expected, atol=1e-12)
+    assert np.allclose(out.v.ravel(), expected, atol=1e-12)
 
 
 def test_v_amplitude_bounded():

@@ -21,6 +21,8 @@ waveform distortion.  THD = 5% is the IEC 61000-2-2 planning level.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -43,14 +45,12 @@ class G3_E14_Noise_Harmonics(ScenarioBase):
     f_fund: float = 60.0
     thd: float = 0.05
     harmonics: list[int] = field(default_factory=lambda: [3, 5, 7])
-    scenario_id: str = "G3_E14_Noise_Harmonics"
+    scenario_id: ClassVar[str] = "G3_E14_Noise_Harmonics"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
             "thd": "thd",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

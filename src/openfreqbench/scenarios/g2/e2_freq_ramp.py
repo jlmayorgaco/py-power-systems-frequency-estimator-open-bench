@@ -16,6 +16,8 @@ Phase is integrated sample-by-sample (Euler forward), matching G2_E1_FreqStep.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -40,18 +42,16 @@ class G2_E2_FreqRamp(ScenarioBase):
     A0: float = 1.0
     phi0_rad: float = 0.0
     seed: int = 0
-    scenario_id: str = "G2_E2_FreqRamp"
+    scenario_id: ClassVar[str] = "G2_E2_FreqRamp"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "f0": "f0_hz",
             "ramp_rate": "ramp_rate_hzs",
             "onset_frac": "onset_frac",
             "Vmax": "A0",
             "phi": "phi0_rad",
             "seed": "seed",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         fs = float(self.fs_hz)
@@ -78,8 +78,14 @@ class G2_E2_FreqRamp(ScenarioBase):
         phi = float(self.phi0_rad) + np.concatenate([[0.0], np.cumsum(dphi[:-1])])
 
         A = np.full(n, float(self.A0))
-        v = A * np.sin(phi)
+        v = (A * np.sin(phi)).reshape(-1, 1)
 
+        r_true = np.zeros(n, dtype=float)
+        r_true[onset_sample:] = float(self.ramp_rate_hzs)
+        # Handle clamp bounds (if ramp goes beyond df_max_hz, ROCOF effectively drops back to zero)
+        df_mask = (f_ramp == f_lo) | (f_ramp == f_hi)
+        r_true[df_mask] = 0.0
+        
         state = ScenarioState(
             t=t,
             fs_hz=fs,
@@ -89,6 +95,7 @@ class G2_E2_FreqRamp(ScenarioBase):
             phi=phi,
             A=A,
             v=v,
+            roco_f_true=r_true,
             schema={
                 "scenario_id": self.scenario_id,
                 "seed": int(self.seed),

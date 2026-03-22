@@ -7,6 +7,8 @@ Ported from pfebench/scenarios/G1_E1_Pure_60Hz.py.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -22,16 +24,14 @@ class G1_E1_Pure_60Hz(ScenarioBase):
     A0: float = 1.0
     phi0_rad: float = 0.0
     seed: int = 0
-    scenario_id: str = "G1_E1_Pure_60Hz"
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    scenario_id: ClassVar[str] = "G1_E1_Pure_60Hz"
+    tuning_map: ClassVar[dict[str, str]] = {
             "f": "f_nom_hz",
             "freq": "f_nom_hz",
             "Vmax": "A0",
             "phi": "phi0_rad",
             "seed": "seed",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         fs = float(self.fs_hz)
@@ -40,7 +40,7 @@ class G1_E1_Pure_60Hz(ScenarioBase):
         f_true = np.full(n, float(self.f_nom_hz))
         phi = float(self.phi0_rad) + 2.0 * np.pi * float(self.f_nom_hz) * t
         A = np.full(n, float(self.A0))
-        v = A * np.sin(phi)
+        v = (A * np.sin(phi)).reshape(-1, 1)
         state = ScenarioState(
             t=t,
             fs_hz=fs,
@@ -50,6 +50,7 @@ class G1_E1_Pure_60Hz(ScenarioBase):
             phi=phi,
             A=A,
             v=v,
+            roco_f_true=np.zeros(n, dtype=float),
             schema={
                 "scenario_id": self.scenario_id,
                 "seed": int(self.seed),

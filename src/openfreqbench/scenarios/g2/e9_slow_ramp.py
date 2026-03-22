@@ -19,6 +19,8 @@ varying frequency over an extended interval.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -43,13 +45,11 @@ class G2_E9_Slow_Ramp_minus0p5Hzs(ScenarioBase):
     rocof_hz_s: float = -0.5
     t_ramp_start: float = 0.5
     t_ramp_end: float = 3.5
-    scenario_id: str = "G2_E9_Slow_Ramp_minus0p5Hzs"
+    scenario_id: ClassVar[str] = "G2_E9_Slow_Ramp_minus0p5Hzs"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

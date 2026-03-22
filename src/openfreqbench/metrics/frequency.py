@@ -41,7 +41,7 @@ def _to_1d(x: Any) -> np.ndarray:
 
 def _finite_1d(x: Any) -> np.ndarray:
     a = _to_1d(x)
-    return a[np.isfinite(a)]
+    return a[np.isfinite(a)]  # type: ignore[return-value]
 
 
 def _safe_float(x: Any) -> float | None:
@@ -53,14 +53,14 @@ def _safe_float(x: Any) -> float | None:
 
 
 def _mk_metric(
-    name,
-    value,
-    scenario_id,
-    units="",
-    threshold=None,
-    compliance_mode="none",
-    meta=None,
-):
+    name: str,
+    value: Any,
+    scenario_id: str,
+    units: str = "",
+    threshold: float | None = None,
+    compliance_mode: str = "none",
+    meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     val = _safe_float(value)
     passed = None
     if threshold is not None and compliance_mode != "none":
@@ -89,7 +89,7 @@ def _mk_metric(
     return out
 
 
-def _align_causal(est, ref, latency_samples=0):
+def _align_causal(est: Any, ref: Any, latency_samples: int = 0) -> tuple[np.ndarray, np.ndarray]:
     e, r = _to_1d(est), _to_1d(ref)
     n = min(e.size, r.size)
     if n <= 0:
@@ -102,13 +102,13 @@ def _align_causal(est, ref, latency_samples=0):
     return ea[:m], ra[:m]
 
 
-def _moving_average(x, w):
+def _moving_average(x: Any, w: int) -> np.ndarray:
     x = _to_1d(x)
     w = max(1, int(w))
     return x if (x.size == 0 or w == 1) else np.convolve(x, np.ones(w) / w, mode="same")
 
 
-def _robust_event_index(f_true, fs, persist_s, k):
+def _robust_event_index(f_true: Any, fs: float, persist_s: float, k: float) -> int | None:
     f = _to_1d(f_true)
     if f.size < int(0.5 * fs):
         return None
@@ -126,27 +126,27 @@ def _robust_event_index(f_true, fs, persist_s, k):
     return None
 
 
-def rmse(err):
+def rmse(err: Any) -> float:
     e = _finite_1d(err)
     return float(np.sqrt(np.mean(e**2))) if e.size else float("nan")
 
 
-def mae(err):
+def mae(err: Any) -> float:
     e = _finite_1d(err)
     return float(np.mean(np.abs(e))) if e.size else float("nan")
 
 
-def bias(err):
+def bias(err: Any) -> float:
     e = _finite_1d(err)
     return float(np.mean(e)) if e.size else float("nan")
 
 
-def median_abs(err):
+def median_abs(err: Any) -> float:
     e = _finite_1d(err)
     return float(np.median(np.abs(e))) if e.size else float("nan")
 
 
-def mad_abs(err):
+def mad_abs(err: Any) -> float:
     e = _finite_1d(err)
     if not e.size:
         return float("nan")
@@ -154,17 +154,17 @@ def mad_abs(err):
     return float(np.median(np.abs(ae - np.median(ae))))
 
 
-def fe_max_mhz(err):
+def fe_max_mhz(err: Any) -> float:
     e = _finite_1d(err)
     return float(np.max(np.abs(e)) * 1000.0) if e.size else float("nan")
 
 
-def percentile_abs(err, p):
+def percentile_abs(err: Any, p: float) -> float:
     e = _finite_1d(err)
     return float(np.percentile(np.abs(e), p)) if e.size else float("nan")
 
 
-def cvar_abs(err, level):
+def cvar_abs(err: Any, level: float) -> float:
     e = _finite_1d(err)
     if not e.size:
         return float("nan")
@@ -174,34 +174,34 @@ def cvar_abs(err, level):
     return float(np.mean(tail)) if tail.size else q
 
 
-def outlier_rate_abs(err, thr):
+def outlier_rate_abs(err: Any, thr: float) -> float:
     e = _finite_1d(err)
     return float(np.mean(np.abs(e) > float(thr))) if e.size else float("nan")
 
 
-def rocof_series(f, fs, smooth_w=5):
+def rocof_series(f: Any, fs: float, smooth_w: int = 5) -> np.ndarray:
     f = _to_1d(f)
     return np.diff(_moving_average(f, smooth_w)) * float(fs) if f.size >= 2 else np.array([])
 
 
-def rocof_error_rmse(f_est, f_ref, fs, smooth_w=5):
+def rocof_error_rmse(f_est: Any, f_ref: Any, fs: float, smooth_w: int = 5) -> float:
     r1, r2 = rocof_series(f_est, fs, smooth_w), rocof_series(f_ref, fs, smooth_w)
     n = min(r1.size, r2.size)
     return rmse(r1[:n] - r2[:n]) if n > 0 else float("nan")
 
 
-def rocof_error_max_abs(f_est, f_ref, fs, smooth_w=5):
+def rocof_error_max_abs(f_est: Any, f_ref: Any, fs: float, smooth_w: int = 5) -> float:
     r1, r2 = rocof_series(f_est, fs, smooth_w), rocof_series(f_ref, fs, smooth_w)
     n = min(r1.size, r2.size)
     return float(np.max(np.abs(r1[:n] - r2[:n]))) if n > 0 else float("nan")
 
 
-def rocof_peak_abs(f, fs, smooth_w=5):
+def rocof_peak_abs(f: Any, fs: float, smooth_w: int = 5) -> float:
     r = rocof_series(f, fs, smooth_w)
     return float(np.max(np.abs(r))) if r.size else float("nan")
 
 
-def settling_time(err, fs, tol):
+def settling_time(err: Any, fs: float, tol: float) -> float:
     e = np.abs(_to_1d(err))
     if not e.size:
         return float("nan")
@@ -209,7 +209,7 @@ def settling_time(err, fs, tol):
     return float(vio[-1] / float(fs)) if vio.size else 0.0
 
 
-def response_time(err, fs, tol, hold_s):
+def response_time(err: Any, fs: float, tol: float, hold_s: float) -> float:
     e = np.abs(_to_1d(err))
     if not e.size:
         return float("nan")
@@ -221,7 +221,7 @@ def response_time(err, fs, tol, hold_s):
     return float("nan")
 
 
-def trip_time_and_flag(f_est, f_nom, fs, thr):
+def trip_time_and_flag(f_est: Any, f_nom: float, fs: float, thr: float) -> tuple[bool, float]:
     f = _to_1d(f_est)
     if not f.size:
         return False, float("nan")
@@ -229,34 +229,37 @@ def trip_time_and_flag(f_est, f_nom, fs, thr):
     return (True, float(idx[0] / float(fs))) if idx.size else (False, float("nan"))
 
 
-def nadir_stats(f_est, f_ref, fs):
+def nadir_stats(f_est: Any, f_ref: Any, fs: float) -> tuple[float, float]:
     fe, fr = _to_1d(f_est), _to_1d(f_ref)
     n = min(fe.size, fr.size)
     if n <= 0:
         return float("nan"), float("nan")
     fe, fr = fe[:n], fr[:n]
-    return float(fe[int(np.argmin(fe))] - fr[int(np.argmin(fr))]), float(
-        (int(np.argmin(fe)) - int(np.argmin(fr))) / float(fs) * 1000.0,
-    )
+    if np.min(fr) < fr[0] - 0.05:
+        return float(fe[int(np.argmin(fe))] - fr[int(np.argmin(fr))]), float(
+            (int(np.argmin(fe)) - int(np.argmin(fr))) / float(fs) * 1000.0,
+        )
+    return float("nan"), float("nan")
 
 
-def overshoot_undershoot(f_est, f_ref):
+def overshoot_undershoot(f_est: Any, f_ref: Any) -> tuple[float, float]:
     fe, fr = _to_1d(f_est), _to_1d(f_ref)
     n = min(fe.size, fr.size)
     if n <= 0:
         return float("nan"), float("nan")
-    d = fe[:n] - fr[:n]
+    d = fe[:n] - fr[-1]
     return float(np.max(d)), float(np.min(d))
 
 
 def compute_metrics(
-    f_hat,
-    f_true,
-    exec_time_s,
-    latency_samples,
+    f_hat: Any,
+    f_true: Any,
+    exec_time_s: float,
+    latency_samples: int,
     cfg: MetricConfig,
-    scenario_id="unknown",
-):
+    scenario_id: str = "unknown",
+    roco_f_true: Any | None = None,
+) -> dict[str, Any]:
     out = {}
     fs = float(cfg.fs_hz)
     f_hat = _to_1d(f_hat)
@@ -265,18 +268,48 @@ def compute_metrics(
     f_h_raw = f_hat[:n_total]
     f_t_raw = f_true[:n_total]
     f_h_c, f_t_c = _align_causal(f_h_raw, f_t_raw, latency_samples)
+    if roco_f_true is not None:
+        r_t_raw = _to_1d(roco_f_true)[:n_total]
+        _, r_t_c = _align_causal(f_h_raw, r_t_raw, latency_samples)
+    else:
+        r_t_c = None
     wu = int(max(0.0, cfg.warm_up_s) * fs)
     ev_idx = _robust_event_index(f_t_raw, fs, cfg.event_persist_s, cfg.event_robust_k)
 
     if f_h_c.size > wu + 2:
-        fh, ft = f_h_c[wu:], f_t_c[wu:]
-        err = fh - ft
-        out["RMSE_HZ"] = _mk_metric("RMSE_HZ", rmse(err), scenario_id, "Hz")
-        out["MAE_HZ"] = _mk_metric("MAE_HZ", mae(err), scenario_id, "Hz")
-        out["BIAS_HZ"] = _mk_metric("BIAS_HZ", bias(err), scenario_id, "Hz")
-        out["MED_ABS_ERR_HZ"] = _mk_metric("MED_ABS_ERR_HZ", median_abs(err), scenario_id, "Hz")
-        out["MAD_ABS_ERR_HZ"] = _mk_metric("MAD_ABS_ERR_HZ", mad_abs(err), scenario_id, "Hz")
-        fe_v = fe_max_mhz(err)
+        # Compute full error arrays to avoid edge effects from masking
+        err_full = f_h_c - f_t_c
+        r1_full = rocof_series(f_h_c, fs, cfg.rocof_smooth_w)
+        r2_full = rocof_series(f_t_c, fs, cfg.rocof_smooth_w) if r_t_c is None else r_t_c[:r1_full.size]
+        rn = min(r1_full.size, r2_full.size)
+        rerr_full = r1_full[:rn] - r2_full[:rn]
+
+        # Construct steady-state mask
+        mask = np.ones(f_h_c.size, dtype=bool)
+        mask[:wu] = False  # Exclude warmup
+        
+        if ev_idx is not None:
+            # Segregate dynamic transient window from steady-state evaluation
+            w0 = max(0, int(ev_idx - cfg.event_pre_s * fs))
+            w1 = min(n_total, int(ev_idx + cfg.event_post_s * fs))
+            w0_c = max(0, min(w0, f_h_c.size))
+            w1_c = max(0, min(w1, f_h_c.size))
+            if w1_c > w0_c:
+                mask[w0_c:w1_c] = False
+                
+        err_ss = err_full[mask]
+        
+        # Apply matched mask to ROCOF (length is N-1 if available)
+        rmask = mask[:rn] if rn > 0 else np.array([], dtype=bool)
+        rerr_ss = rerr_full[rmask] if rmask.size > 0 else np.array([])
+
+        out["RMSE_HZ"] = _mk_metric("RMSE_HZ", rmse(err_ss), scenario_id, "Hz")
+        out["MAE_HZ"] = _mk_metric("MAE_HZ", mae(err_ss), scenario_id, "Hz")
+        out["BIAS_HZ"] = _mk_metric("BIAS_HZ", bias(err_ss), scenario_id, "Hz")
+        out["MED_ABS_ERR_HZ"] = _mk_metric("MED_ABS_ERR_HZ", median_abs(err_ss), scenario_id, "Hz")
+        out["MAD_ABS_ERR_HZ"] = _mk_metric("MAD_ABS_ERR_HZ", mad_abs(err_ss), scenario_id, "Hz")
+        
+        fe_v = fe_max_mhz(err_ss)
         out["FE_MAX_MHZ"] = _mk_metric(
             "FE_MAX_MHZ",
             fe_v,
@@ -287,33 +320,31 @@ def compute_metrics(
         )
         out["FE_OUTLIER_RATE"] = _mk_metric(
             "FE_OUTLIER_RATE",
-            outlier_rate_abs(err * 1000, cfg.ieee_fe_limit_mhz),
+            outlier_rate_abs(err_ss * 1000, cfg.ieee_fe_limit_mhz),
             scenario_id,
             "1",
             meta={"thr_mhz": float(cfg.ieee_fe_limit_mhz)},
         )
         out["RFE_RMSE_HZS"] = _mk_metric(
             "RFE_RMSE_HZS",
-            rocof_error_rmse(fh, ft, fs, cfg.rocof_smooth_w),
+            rmse(rerr_ss) if rerr_ss.size > 0 else float("nan"),
             scenario_id,
             "Hz/s",
             threshold=cfg.ieee_rfe_limit_hzs,
             compliance_mode="leq",
         )
+        rfe_max = float(np.max(np.abs(rerr_ss))) if rerr_ss.size > 0 else float("nan")
         out["RFE_MAX_ABS_HZS"] = _mk_metric(
             "RFE_MAX_ABS_HZS",
-            rocof_error_max_abs(fh, ft, fs, cfg.rocof_smooth_w),
+            rfe_max,
             scenario_id,
             "Hz/s",
             threshold=cfg.ieee_rfe_limit_hzs,
             compliance_mode="leq",
         )
-        r1 = rocof_series(fh, fs, cfg.rocof_smooth_w)
-        r2 = rocof_series(ft, fs, cfg.rocof_smooth_w)
-        m = min(r1.size, r2.size)
         out["RFE_OUTLIER_RATE"] = _mk_metric(
             "RFE_OUTLIER_RATE",
-            outlier_rate_abs(r1[:m] - r2[:m], cfg.ieee_rfe_limit_hzs) if m > 0 else float("nan"),
+            outlier_rate_abs(rerr_ss, cfg.ieee_rfe_limit_hzs) if rerr_ss.size > 0 else float("nan"),
             scenario_id,
             "1",
             meta={"thr_hzs": float(cfg.ieee_rfe_limit_hzs)},
@@ -321,14 +352,14 @@ def compute_metrics(
         for p in cfg.percentiles:
             out[f"P{int(p)}_ABS_ERR_HZ"] = _mk_metric(
                 f"P{int(p)}_ABS_ERR_HZ",
-                percentile_abs(err, p),
+                percentile_abs(err_ss, p),
                 scenario_id,
                 "Hz",
             )
         for c in cfg.cvar_levels:
             out[f"CVAR{int(c)}_ABS_ERR_HZ"] = _mk_metric(
                 f"CVAR{int(c)}_ABS_ERR_HZ",
-                cvar_abs(err, c),
+                cvar_abs(err_ss, c),
                 scenario_id,
                 "Hz",
             )
@@ -350,7 +381,7 @@ def compute_metrics(
     if ev_idx is not None and n_total > 0:
         w0 = max(0, int(ev_idx - cfg.event_pre_s * fs))
         w1 = min(n_total, int(ev_idx + cfg.event_post_s * fs))
-        fhw, ftw = _align_causal(f_h_raw[w0:w1], f_t_raw[w0:w1], latency_samples)
+        fhw, ftw = _align_causal(f_h_raw[w0:w1], f_t_raw[w0:w1], 0)
         if fhw.size > 10 and ftw.size > 10:
             n = min(fhw.size, ftw.size)
             fhw, ftw = fhw[:n], ftw[:n]

@@ -20,6 +20,8 @@ and exercises estimator pull-in range and large-signal tracking.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -42,14 +44,12 @@ class G2_E7_Freq_Step_60_to_55(ScenarioBase):
     t_step: float = 0.5
     f_before: float = 60.0
     f_after: float = 55.0
-    scenario_id: str = "G2_E7_Freq_Step_60_to_55"
+    scenario_id: ClassVar[str] = "G2_E7_Freq_Step_60_to_55"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
             "t_step": "t_step",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

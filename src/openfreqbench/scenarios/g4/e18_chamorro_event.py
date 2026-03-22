@@ -27,6 +27,8 @@ Reference:
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from dataclasses import dataclass, field
 
 from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
@@ -50,14 +52,12 @@ class G4_E18_Chamorro_Event(ScenarioBase):
     rocof_hz_s: float = 1.0
     osc_freq_hz: float = 5.0
     osc_depth: float = 0.05
-    scenario_id: str = "G4_E18_Chamorro_Event"
+    scenario_id: ClassVar[str] = "G4_E18_Chamorro_Event"
 
-    tuning_map: dict[str, str] = field(
-        default_factory=lambda: {
+    tuning_map: ClassVar[dict[str, str]] = {
             "seed": "seed",
             "rocof_hz_s": "rocof_hz_s",
-        },
-    )
+        }
 
     def build(self) -> ScenarioOutput:
         raise NotImplementedError("To be implemented in next phase")

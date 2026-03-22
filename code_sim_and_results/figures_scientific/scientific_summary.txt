@@ -1,0 +1,57 @@
+# SCIENTIFIC ANALYSES SUMMARY — auto-generated
+# Generated: 2026-03-21T00:45:35.369813
+# 36/36 analyses completed, 0 errors/skipped
+
+## Q1-Q12: Original Open Questions
+  Q1: CI=0.15 (0=no conflict, 2=max conflict). rho=0.855 p=0.000. Strong P/M tradeoff.
+  Q2: Mean pairwise Spearman rho=0.53 across 5 topology pairs. Ranking varies across topologies (rho<=0.8).
+  Q3: Kaplan-Meier survival curves estimate the probability of not triggering a false or missed protection event over time. Methods with S(t)→1 are robustly non-tripping; S(t)→0 rapidly indicates high false
+  Q4: RF classifier (5-fold CV): accuracy=0.95±0.02, F1=0.94. High accuracy: frequency error traces are scenario-discriminative.
+  Q5: IpDFT: THD50=0.0%; PLL: THD50=0.0%; EKF: THD50=0.0%; EKF2: THD50=0.0%; SOGI: THD50=0.0%; UKF: THD50=0.0%
+  Q6: Minimal non-redundant scenario set: ['IEEE_Mag_Step', 'IBR_Nightmare', 'IEEE_Freq_Ramp']. Greedy selection order: ['IEEE_Mag_Step', 'IBR_Nightmare', 'IEEE_Freq_Ramp', 'IBR_MultiEvent', 'IEEE_Modulatio
+  Q7: Best universal EKF2 hyperparameters: q=0.010, r=0.8111. Max transfer ratio across all scenarios: 13.59× (1.0=optimal, >1=degraded).
+  Q8: IpDFT: alpha=-0.00 (sub-optimal); PLL: alpha=-0.00 (sub-optimal); EKF: alpha=-0.00 (sub-optimal); EKF2: alpha=1.56 (sub-optimal); SOGI: alpha=-0.00 (sub-optimal); UKF: alpha=0.00 (sub-optimal)
+  Q9: Behavioral taxonomy groups methods by performance profile rather than architectural family. Mismatches indicate methods with unexpected performance characteristics relative to their design paradigm.
+  Q10: CRLB = 0.0001 Hz. Most efficient: EKF2 (efficiency=0.046). Pareto slope b=-0.27 
+  Q11: Method with lowest expected cost: PLL. Fisher's test checks if trip probability is significantly higher in IBR scenarios than IEEE scenarios.
+  Q12: Fisher's test (global): odds=9.33, p=0.0012. Compliance is scenario-class-dependent (p<0.05). Fully compliant across all scenarios: []. Methods with adequate sensitivity+specificity: ['EKF', 'EKF2', '
+
+## Block A: IEC/Metric/RoCoF/Relay
+  A1: ok — Permutation test confirms IEC compliance scenarios have near-zero Spearman correlation with Islanding RMSE. Standard com
+  A2: ok — 3 PCs explain 90% of metric variance. Redundant with RMSE (|rho|>0.9): ['MAX_PEAK', 'ENERGY']. Independent: ['TIME_PER_S
+  A3: ok — Explicit RoCoF state methods (EKF2, UKF) vs others — Mann-Whitney p=0.336. Explicit RoCoF state does NOT significantly i
+  A4: ok — Table VI for paper: relay-safe estimators by delay setting. EKF2 is safe at any delay > 12ms (worst-case max_contiguous=
+
+## Block B: Statistical Strengthening
+  B2: ok — DETERMINISTIC=167, MODERATE=33, STOCHASTIC=0. EKF2 IBR_Nightmare Ttrip CV=0% — single-run Ttrip is DETERMINISTIC. Stocha
+  B3: ok — Bootstrap 95% CI includes 0 → pair is statistically independent. Independent scenario pairs: []
+  B4: ok — 223/225 pairwise comparisons significant after BH-FDR correction at alpha=0.05. Per scenario: {'IEEE_Mag_Step': 45, 'IEE
+
+## Block C: New Scenarios
+  C: ok — scenarios=[]
+
+## Block D: ML Analyses
+  D1: ok — RF method selector CV accuracy=1.00. Most informative feature: CPU_us.
+  D2: ok — 5 cells have ≥1 anomalous MC run (|z|>3). Use z-score as field health monitoring metric.
+  D3: ok — Islanding RMSE is UNPREDICTABLE from standard metrics (R²<0.2). Direct IBR stress testing is mandatory.
+
+## Block E: Paper Tables
+  E: ok — tables_file=
+
+## Block G: Tuning Robustness
+  G1: ok — EKF2: robustness=0.83, worst_param=event_thresh; EKF: robustness=1.00, worst_param=Q; PLL: robustness=1.00, worst_param=
+  G2: ok — 
+  G3: ok — EKF2 wins in 99% of detuned trials in IBR_Nightmare. Winner is robust to detuning.
+
+## Block H: Chamorro Real-Data Validation
+  H1: ok
+  H4: ok
+
+## Block EXT: Advanced Journal Hypotheses
+  EXT_H1: ok — Si rho es cercano a 0 o p>0.05, mayor CPU no garantiza mejor supervivencia.
+  EXT_H2: ok — Comportamiento similar o insuficiente data.
+  EXT_H3: ok — La inclusión del estado dinámico de RoCoF (RA-EKF) reduce significativamente el error de seguimiento cinemático frente a
+  EXT_H4: ok — La adaptabilidad extrema del EKF2 tiene un costo: su comportamiento es significativamente más sensible (estocástico) al 
+  EXT_A1: ok — Desempeño agregado (Mean RMSE) agrupado por arquitectura matemática.
+  EXT_A2: ok — Sensibilidad al ruido estocástico del sensor (Clasificación por Coef. de Variación).
+  EXT_A3: ok — Puntaje global (+3/2/1 por precisión RMSE, -2 por riesgo de disparo > 0.1s).
