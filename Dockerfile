@@ -1,49 +1,99 @@
-# syntax=docker/dockerfile:1.7
-FROM python:3.12-slim AS base
+# ----------------------------
+# Base: Python + OS packages
+# ----------------------------
+FROM python:3.11-slim AS base
 
-# ---- Reproducibility + deterministic BLAS threading ----
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    # Thread caps to avoid run-to-run variability
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    # keep numerical libs predictable across CPUs
     OPENBLAS_NUM_THREADS=1 \
     MKL_NUM_THREADS=1 \
-    OMP_NUM_THREADS=1 \
-    NUMEXPR_NUM_THREADS=1
+    OMP_NUM_THREADS=1
 
-# Minimal OS deps (tini = proper PID 1)
-RUN apt-get update -y \
- && apt-get install -y --no-install-recommends tini ca-certificates \
- && rm -rf /var/lib/apt/lists/*
-
-# ---- Non-root user ----
-ARG UID=10001
-ARG GID=10001
-RUN groupadd -g "${GID}" app \
- && useradd -m -u "${UID}" -g app appuser
+# system deps (build tools, git, and basics for manylinux wheels)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy only metadata first for better build cache on code changes
-COPY pyproject.toml README.md LICENSE ./
-# If you have requirements*.txt, uncomment and copy them too for better caching
-# COPY requirements*.txt ./
+# ----------------------------
+# Builder: install deps
+# ----------------------------
+FROM base AS builder
 
-# Install project; prefer full extras if available, fallback to base
-RUN python -m pip install --upgrade pip \
- && (python -m pip install -e ".[full]" || python -m pip install -e .)
+# Copy only the dependency manifests first to leverage Docker layer caching
+COPY pyproject.toml README.md ./
+# If you keep benchmark YAMLs inside package data, copy those too:
+COPY ofb/ofb/__init__.py ofb/__init__.py 2>/dev/null || true
 
-# Now copy the rest of the source (keeps cache when deps unchanged)
+# Create a virtualenv to hold all deps (and project) for easy copying
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# ARG to include optional extras (e.g., ".[opendss]" or ".[dev,opendss]")
+# Tip: Use as `--build-arg EXTRAS=[opendss]`
+ARG EXTRAS=
+# Install project in editable mode later; first install bare deps so cache hits
+RUN pip install --upgrade pip wheel setuptools
+
+# Preinstall project dependencies without sources to maximize cache
+# If you pin dependencies, consider using uv/poetry export; here we rely on PEP 621
+# We'll install the actual package after copying the source in the next stage.
+
+# ----------------------------
+# Dev image (editable install)
+# ----------------------------
+FROM builder AS dev
+
+# Bring in the rest of the repo
 COPY . /app
 
-# Entrypoint + default command
-COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+# Install with extras if provided (e.g., EXTRAS=[dev,opendss])
+ARG EXTRAS
+RUN pip install -e .${EXTRAS:+$EXTRAS}
 
-USER appuser
+# Nice default: show CLI help if someone runs the container without args
+ENTRYPOINT ["ofb"]
+CMD ["--help"]
 
-# tini as PID 1, then your entrypoint
-ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]
+# Usage:
+# docker build -t ofb-dev --target dev --build-arg EXTRAS=[dev,opendss] .
+# docker run --rm -it -v "$PWD:/app" ofb-dev run-benchmark benchmarks/configs/baseline_freq.yaml
 
-# Default: show CLI help (adjust module name if needed, see note below)
-CMD ["python", "-m", "pyopenfreqbench", "--help"]
+# ----------------------------
+# Runtime image (slim, non-root)
+# ----------------------------
+FROM base AS runtime
+
+# Copy the virtualenv from builder (if you preinstalled anything there)
+# But we'll install directly here for clarity
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy minimal project files needed to install (source + metadata)
+COPY pyproject.toml README.md /app/
+COPY ofb /app/ofb
+
+# Build arg to include optional runtime extras (e.g., [opendss])
+ARG EXTRAS
+RUN pip install --upgrade pip wheel setuptools \
+ && pip install "/app"${EXTRAS:+$EXTRAS}
+
+# Create a non-root user
+RUN useradd -ms /bin/bash runner
+USER runner
+
+WORKDIR /work
+
+# Default entrypoint: CLI available as `ofb`
+ENTRYPOINT ["ofb"]
+CMD ["--help"]
+
+# Usage:
+# docker build -t ofb:latest --target runtime --build-arg EXTRAS=[opendss] .
+# docker run --rm -it -v "$PWD:/work" ofb:latest run-benchmark benchmarks/configs/baseline_freq.yaml

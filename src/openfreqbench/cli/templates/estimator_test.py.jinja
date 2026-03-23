@@ -1,0 +1,17 @@
+"""Unit tests for {{ class_name }}."""
+import numpy as np
+import pytest
+from openfreqbench.estimators.{{ module_name }} import {{ class_name }}
+
+FS = 10_000.0
+V = np.sin(2 * np.pi * 60.0 * np.arange(int(FS)) / FS)
+
+
+def test_instantiates():
+    est = {{ class_name }}()
+    assert est.NAME == "{{ name }}"
+
+
+def test_run_shape():
+    est = {{ class_name }}(params={"fs": FS})
+    assert est.run(V).shape == V.shape

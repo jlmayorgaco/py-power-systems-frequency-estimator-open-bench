@@ -1,0 +1,46 @@
+"""ofb list — show registered estimators and scenarios."""
+
+from __future__ import annotations
+
+from rich.console import Console
+from rich.table import Table
+import typer
+
+console = Console()
+
+
+def list_cmd(
+    kind: str = typer.Argument("all", help="'estimators', 'scenarios', or 'all'"),
+) -> None:
+    """List registered estimators and/or scenarios."""
+    from openfreqbench.core.registry import EstimatorRegistry, ScenarioRegistry
+
+    show_est = kind in ("all", "estimators")
+    show_scen = kind in ("all", "scenarios")
+    if show_est:
+        t = Table("Name", "Family", title="Registered Estimators")
+        for name in EstimatorRegistry.list_names():
+            cls = EstimatorRegistry.get(name)
+            is_stub = False
+            try:
+                # Dynamic stub probing
+                inst = cls()
+                inst._step(0.0)
+            except NotImplementedError:
+                is_stub = True
+            except Exception:
+                pass
+                
+            if is_stub:
+                t.add_row(f"[dim yellow]{name} (Not Implemented)[/dim yellow]", cls.FAMILY)
+            else:
+                t.add_row(f"[green]{name}[/green]", cls.FAMILY)
+        console.print(t)
+    if show_scen:
+        t = Table("ID", title="Registered Scenarios")
+        for name in ScenarioRegistry.list_names():
+            t.add_row(name)
+        console.print(t)
+    if not show_est and not show_scen:
+        console.print(f"[red]Unknown kind {kind!r}. Use 'estimators', 'scenarios', or 'all'.[/red]")
+        raise typer.Exit(code=1)

@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  ofb:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ../artifacts:/app/artifacts
+    environment:
+      - OFB_LOG_LEVEL=INFO
+    command: ["run", "examples/quick_smoke.yaml"]

@@ -1,0 +1,78 @@
+# JOURNAL PAPER CONTRIBUTIONS — auto-generated
+# Generated: 2026-03-21T00:45:35.369813
+# 36/36 analyses completed, 0 errors/skipped
+
+=== ORIGINAL CONTRIBUTIONS (Q1-Q12) ===
+
+Contribution 1: P/M class conflict quantification
+  Conflict index CI=0.15; Spearman rho=0.854690534650086
+
+Contribution 2: Topology invariance (5 synthetic nodes)
+  Mean pairwise rho=0.53
+
+Contribution 3: Kaplan-Meier hazard curves (N_MC=30 per method)
+
+Contribution 4: Scenario frequency-error classifier (RF, 5-fold CV)
+  CV accuracy=0.95±0.02
+
+Contribution 5: THD sigmoid transition model
+
+Contribution 6: Minimum non-redundant scenario set
+  Minimal set: ['IEEE_Mag_Step', 'IBR_Nightmare', 'IEEE_Freq_Ramp']
+
+Contribution 7: EKF2 tuning transferability landscape
+  Best universal q=0.010, r=0.8111, max_ratio=13.59x
+
+Contribution 8: Noise variance scaling law (power law fit)
+  Methods near CRLB scaling (alpha~0.5): []
+
+Contribution 9: Behavioral taxonomy (hierarchical + K-means clustering)
+
+Contribution 10: CRLB efficiency and complexity-RMSE Pareto slope
+  Most efficient: EKF2 (eta=0.046)
+
+Contribution 11: Protection margin distribution and cost model
+  Lowest-cost method: PLL
+
+Contribution 12: IEC 60255-118-1 sufficiency formal test (Fisher)
+  Fully IEC-compliant (all scenarios): []
+
+=== EXTENDED CONTRIBUTIONS (Blocks A-H) ===
+
+Block A1: IEC blindness formal permutation test
+
+Block A2: Metric redundancy — Spearman heatmap + PCA
+
+Block A3: RoCoF tracking analysis — RFE_rms ranking
+
+Block A4: Relay coordination — safe/unsafe operating map
+
+Block B2: Stochastic/deterministic classifier (CV threshold)
+
+Block B3: Bootstrap rank correlation CIs (n_boot=2000)
+
+Block B4: Full 140-pair BH-FDR corrected significance analysis
+
+Block C:  New stress scenarios (voltage sag, subsync, double-jump)
+
+Block D1: Method selection random-forest classifier
+
+Block D2: LOF anomaly detection on MC runs
+
+Block D3: Principal-component regression for islanding detection
+
+Block E:  Paper Tables VI (relay), VII (stochastic), VIII (scenarios)
+
+Block G1: Tuning sensitivity surface (200-perturbation LHS)
+
+Block G2: Universal minimax parameter search
+
+Block G3: Rank stability under parameter detuning
+
+Block H:  Real-data validation on Chamorro dataset
+
+=== ADVANCED JOURNAL METRICS (Block EXT) ===
+  H1 (Pareto CPU): rho=0.0934, p=0.7615 (H0 Rejected: False)
+  H3 (RoCoF Kinematics): p=0.0 (H0 Rejected: True)
+  H4 (Stochastic Variance): p=0.00432 (H0 Rejected: True)
+  Global Ranking Winners: [('EKF', 7.0), ('EKF2', 6.0), ('PLL', 5.0)]

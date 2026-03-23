@@ -1,171 +1,88 @@
-# pyproject.toml
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "openfreqbench"
-version = "0.0.1"
-description = "Open Benchmark of Power-System Frequency Estimators"
+version = "0.1.0"
+description = "Computationally-aware benchmarking for grid frequency estimators"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { file = "LICENSE" }
+license = { text = "MIT" }
+
 authors = [{ name = "Jorge Luis Mayorga Taborda" }]
 
-# Keep runtime core minimal (everything else goes in extras)
+keywords = ["power systems", "frequency estimation", "benchmark", "PMU", "OpenDSS"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering",
+]
+
 dependencies = [
-  "numpy>=1.26",
-  "scipy>=1.11",
-  "pandas>=2.2",
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "pydantic>=2.4",
+  "typer>=0.12",
+  "simpy>=4.0",
+  "matplotlib>=3.8",
+  "psutil>=5.9",
+  "pyyaml>=6.0",
+  "rich>=13",
 ]
 
 [project.optional-dependencies]
-# --- Developer toolchain (linting, typing, tests, docs authoring) ---
+opendss = ["dss-python>=0.14.0"]
 dev = [
+  "pytest>=8",
+  "pytest-cov>=5",
   "ruff>=0.6",
-  "mypy>=1.10",
-  "pytest>=8.3",
-  "pytest-cov>=5.0",
-  # docs stacks (choose either or both; both are fine in dev)
-  "mkdocs>=1.5",
-  "mkdocs-material>=9.5",
-  "sphinx>=7.0",
-  "furo>=2024.1",
-  "sphinx-autodoc-typehints",
-  # typing backfill for py<3.12
-  "typing-extensions; python_version<'3.12'",
+  "mypy>=1.8",
+  "pip-tools>=7.0",
+  "types-PyYAML",
+  "types-psutil",
 ]
 
-# --- Notebooks & interactive work ---
-notebooks = [
-  "jupyterlab>=4.2",
-  "ipykernel>=6.29",
-  "nbformat>=5.10",
-  "nbclient>=0.10",
-  "jupytext>=1.16",
-]
-
-# --- Visualization (static + interactive) ---
-viz = [
-  "matplotlib>=3.8",
-  "plotnine>=0.13",
-  "seaborn>=0.13",
-  "plotly>=5.24",
-]
-
-# --- Machine learning & statistical modeling ---
-ml = [
-  "scikit-learn>=1.5",
-  "statsmodels>=0.14",
-  "xgboost>=2.0",
-  # optional: fast tabular DF ops; nice for heavy pipelines
-  "polars>=1.7",
-]
-
-# --- Signal processing / performance helpers ---
-signal = [
-  "numba>=0.59",
-  "numexpr>=2.10",
-  # FFT acceleration; wheel availability varies by platform, keep optional
-  "pyfftw>=0.13",
-]
-
-# --- Power-systems tooling (sim, network models, RL envs) ---
-power = [
-  "opendssdirect.py>=0.8",  # OpenDSS interface
-  "pandapower>=2.14",       # network modeling / load flow
-  "grid2op>=1.10",          # grid operations env (optional)
-  "networkx>=3.2",
-]
-
-# --- Data I/O & large-array analytics (for long runs / big outputs) ---
-io = [
-  "xarray>=2024.5",
-  "netCDF4>=1.6",
-  "zarr>=2.18",
-  "h5py>=3.11",
-  "pyyaml>=6.0.2",
-  "orjson>=3.10",
-]
-
-# --- CLI ergonomics & config ---
-cli = [
-  "typer>=0.12",
-  "rich>=13.8",
-  "pydantic>=2.7",
-]
-
-# --- Everything you might want for a full-featured bench install ---
-full = [
-  "openfreqbench[dev,viz,ml,signal,power,io,notebooks,cli]"
-]
-
-# Project links
-[project.urls]
-Homepage = "https://github.com/jlmayorgaco/py-power-systems-frequency-estimator-open-bench"
-Issues   = "https://github.com/jlmayorgaco/py-power-systems-frequency-estimator-open-bench/issues"
-Docs     = "https://jlmayorgaco.github.io/py-power-systems-frequency-estimator-open-bench/"
-
-# CLI entry points (adjust modules if needed)
+# ---- Console scripts ----
 [project.scripts]
-ofb-run   = "pipelines.run_benchmark:main"
-ofb-eval  = "evaluation.cli:main"
-ofb-demos = "pipelines.demos:main"
+ofb = "openfreqbench.cli.app:main"
 
-[build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
-
-# --- setuptools discovery ---
+# -------------------------
+# setuptools packaging
+# -------------------------
 [tool.setuptools]
-packages = { find = { include = [
-  "openfreqbench*", "estimators*", "scenarios*", "evaluation*", "pipelines*", "tests*"
-]}}
+include-package-data = true
 
-[tool.setuptools.package-data]
-# Example future resources
-# "scenarios" = ["**/*.yml", "**/*.yaml"]
-# Produce PEP 561 marker if you add typing stubs later:
-# "openfreqbench" = ["py.typed"]
+[tool.setuptools.package-dir]
+"" = "src"
 
-# --- Testing ---
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["openfreqbench*"]
+
+# -------------------------
+# Tooling
+# -------------------------
 [tool.pytest.ini_options]
-pythonpath = ["."]
+addopts = "-q"
 testpaths = ["tests"]
-addopts = "-q --maxfail=1"
-cache_dir = ".ofb/.pytest_cache"
+pythonpath = ["src"]
+filterwarnings = ["ignore::DeprecationWarning"]
 
-# --- Ruff (lint + format) ---
+[tool.mypy]
+python_version = "3.10"
+strict = false
+ignore_missing_imports = true
+
 [tool.ruff]
-line-length = 100
 target-version = "py310"
-# Uses .ruffignore for path excludes
+line-length = 100
 
 [tool.ruff.lint]
-# Enable requested rule families: E,F,I,B,UP,SIM,PL,W
-select = ["E", "F", "I", "B", "UP", "SIM", "PL", "W"]
+select = ["E", "F", "I", "UP", "B", "SIM"]
 
-# Keep noise manageable initially
-ignore = [
-  "E203",     # slice spacing (Black-compatible)
-  "PLR2004",  # magic value used in comparison (often noisy in tests)
-  "I001",     # disable import sorting/formatting complaints
-]
-
-# Proper TOML table for per-file ignores (fixes your parse error)
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]     # allow re-exports
-"tests/**" = ["PLR2004"]     # allow magic numbers in tests
-
-[tool.ruff.lint.isort]
-known-first-party = ["evaluation", "estimators", "scenarios", "utils", "openfreqbench"]
-combine-as-imports = true
-force-sort-within-sections = true
-
-[tool.ruff.lint.pylint]
-max-args = 7
-
-# --- Coverage ---
-[tool.coverage.run]
-branch = true
-source = ["estimators", "scenarios", "evaluation", "pipelines", "openfreqbench"]
-
-[tool.coverage.report]
-show_missing = true
-skip_covered = true
+[tool.pyright]
+include = ["src", "tests"]
+extraPaths = ["src"]

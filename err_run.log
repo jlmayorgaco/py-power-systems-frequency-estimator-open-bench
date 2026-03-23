@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\walla\Documents\Github\open-freq-bench\src\openfreqbench\cli\main.py", line 7, in <module>
+    from openfreqbench.cli.app import main
+  File "C:\Users\walla\Documents\Github\open-freq-bench\src\openfreqbench\cli\app.py", line 16, in <module>
+    from openfreqbench.cli.commands.run import run_cmd
+  File "C:\Users\walla\Documents\Github\open-freq-bench\src\openfreqbench\cli\commands\run.py", line 17, in <module>
+    from openfreqbench.core.registry import EstimatorRegistry, ScenarioRegistry
+  File "C:\Users\walla\Documents\Github\open-freq-bench\src\openfreqbench\core\registry.py", line 9, in <module>
+    from openfreqbench.scenarios.registry import ScenarioRegistry
+  File "C:\Users\walla\Documents\Github\open-freq-bench\src\openfreqbench\scenarios\registry.py", line 47, in <module>
+    from openfreqbench.scenarios.g4.e18_chamorro_event import G4_E18_Chamorro_Event
+ImportError: cannot import name 'G4_E18_Chamorro_Event' from 'openfreqbench.scenarios.g4.e18_chamorro_event' (C:\Users\walla\Documents\Github\open-freq-bench\src\openfreqbench\scenarios\g4\e18_chamorro_event.py)

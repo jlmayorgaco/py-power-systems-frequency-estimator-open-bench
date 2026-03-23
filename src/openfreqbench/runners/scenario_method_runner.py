@@ -1,0 +1,51 @@
+"""ScenarioMethodRunner: Monte Carlo loop for one scenario x estimator pair."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any
+
+from openfreqbench.estimators._base import BaseEstimator
+from openfreqbench.metrics.frequency import MetricConfig
+from openfreqbench.runners.trace_runner import TraceResult, TraceRunner
+from openfreqbench.scenarios._base import ScenarioBase
+from openfreqbench.stats.aggregate import aggregate_monte_carlo
+
+
+@dataclass
+class ScenarioMethodResult:
+    scenario_id: str
+    method_id: str
+    n_runs: int
+    traces: list[TraceResult]
+    aggregated: dict[str, dict[str, float]]
+    method_params: dict[str, Any] = field(default_factory=dict)
+
+
+class ScenarioMethodRunner:
+    def __init__(
+        self,
+        n_runs: int = 100,
+        seed_start: int = 0,
+        cfg: MetricConfig | None = None,
+    ) -> None:
+        self.n_runs = n_runs
+        self.seed_start = seed_start
+        self._trace_runner = TraceRunner(cfg=cfg)
+
+    def run(self, scenario: ScenarioBase, estimator: BaseEstimator) -> ScenarioMethodResult:
+        from openfreqbench.core.registry import EstimatorRegistry
+        
+        traces = []
+        for i in range(self.n_runs):
+            est_clone = EstimatorRegistry.build(estimator.NAME, config=estimator._params)
+            traces.append(self._trace_runner.run(scenario, est_clone, seed=self.seed_start + i))
+        agg = aggregate_monte_carlo([t.metrics for t in traces], cfg=self._trace_runner.cfg)
+        return ScenarioMethodResult(
+            scenario_id=traces[0].scenario_id,
+            method_id=traces[0].method_id,
+            n_runs=len(traces),
+            traces=traces,
+            aggregated=agg,
+            method_params=estimator._params.copy(),
+        )

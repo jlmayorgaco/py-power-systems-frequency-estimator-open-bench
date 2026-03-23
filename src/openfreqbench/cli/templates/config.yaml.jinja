@@ -1,0 +1,17 @@
+benchmark:
+  name: {{ name }}
+  output_dir: artifacts/{{ name }}
+  n_runs: {{ n_runs | default(100) }}
+  seed_start: 0
+
+scenarios:
+  - id: {{ scenario_id | default("G1_E1_Pure_60Hz") }}
+    params: {}
+
+estimators:
+  - id: {{ estimator_id | default("ZeroCrossing") }}
+    params: {}
+
+metrics:
+  fs_hz: 10000.0
+  f_nom: 60.0

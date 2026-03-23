@@ -1,0 +1,21 @@
+benchmark:
+  name: quick_smoke_plots
+  output_dir: artifacts
+  n_runs: 30
+  seed_start: 0
+  plots: true
+
+scenarios:
+  - id: G1_E1_Pure_60Hz
+    params:
+      fs_hz: 10000
+      T_s: 0.5
+
+estimators:
+  - id: ZeroCrossing
+    params:
+      filter_win: 5
+
+metrics:
+  fs_hz: 10000
+  f_nom: 60

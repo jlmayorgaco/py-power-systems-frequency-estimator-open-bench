@@ -1,0 +1,35 @@
+benchmark:
+  name: "IEEE Q1 Journal Methodological Suite"
+  n_runs: 3
+  seed_start: 42
+  output_dir: "results/q1_suite"
+  plots: true
+
+metrics:
+  fs_hz: 10000.0
+  f_nom: 60.0
+  warm_up_s: 0.1
+  event_pre_s: 0.25
+  event_post_s: 2.50
+  ieee_fe_limit_mhz: 5.0
+  ieee_rfe_limit_hzs: 0.1
+
+scenarios:
+  - id: "G1_E1_Pure_60Hz"
+  - id: "G1_E2_Gaussian_Noise"
+    params:
+      snr_db: 40
+  - id: "IBR_Nightmare"
+  - id: "IBR_MultiEvent"
+  - id: "UnbalancedSag"
+  - id: "OOBIInterference"
+
+estimators:
+  - id: "SRF_PLL"
+  - id: "SOGI_FLL"
+  - id: "RA_EKF"
+  - id: "IpDFT"
+  - id: "TKEO_DESA2"
+  - id: "TFT"
+  - id: "RLS"
+  - id: "VFF_RLS"

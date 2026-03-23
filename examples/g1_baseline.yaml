@@ -1,0 +1,22 @@
+benchmark:
+  name: g1_baseline
+  output_dir: artifacts
+  n_runs: 100
+  seed_start: 0
+
+scenarios:
+  - id: G1_E1_Pure_60Hz
+    params:
+      fs_hz: 10000
+      T_s: 5.0
+
+estimators:
+  - id: ZeroCrossing
+    params:
+      filter_win: 5
+  - id: BaselinePassthrough
+    params: {}
+
+metrics:
+  fs_hz: 10000
+  f_nom: 60

@@ -100,15 +100,124 @@ All code, scenarios, and results are open and reproducible.
 ## Repository Structure  
 
 ```
-py-openfreqbench/
-├─ estimators/        # Implemented estimators (ZC, IpDFT, KF, PLL, ...)
-├─ scenarios/         # Synthetic + IEEE feeder definitions
-├─ pipelines/         # Data generation, benchmarking, summaries
-├─ evaluation/        # Metrics, compliance, plotting utilities
-├─ notebooks/         # Tutorials and reproducible examples
-├─ data/              # Generated results (ignored by Git)
-├─ docs/              # Documentation and figures
-└─ scripts/           # Install / run / clean utilities
+openfreqbench/                     # repo root (name whatever you like)
+├─ pyproject.toml
+├─ .ruff.toml
+├─ Dockerfile
+├─ Makefile
+├─ README.md
+├─ LICENSE
+├─ reproduce.md
+├─ .gitignore
+├─ .dockerignore
+│
+├─ benchmarks/
+│  └─ configs/
+│     └─ baseline_freq.yaml
+│
+├─ results/                        # (gitignored artifacts)
+│  └─ .keep
+│
+├─ tests/
+│  ├─ conftest.py
+│  ├─ test_runtime_smoke.py
+│  └─ estimators/
+│     └─ state_space/
+│        └─ test_ekf_single_single.py
+│
+├─ docs/
+│  ├─ SUITE.md
+│  └─ artifacts/
+│     ├─ estimators/
+│     ├─ metrics/
+│     ├─ reports/
+│     ├─ scenarios/
+│     └─ sources/
+│
+└─ ofb/                            # installable package (import as `ofb`)
+   ├─ __init__.py
+   ├─ version.py
+   │
+   ├─ cli/
+   │  ├─ __init__.py
+   │  ├─ ofb.py                   # Typer CLI (list, dry-run, plan, run-benchmark, calibrate, reports)
+   │  ├─ scaffold.py              # `ofb new ...` / `ofb generate ...` (Angular-style)
+   │  └─ docs.py                  # `ofb docs build|suite`
+   │
+   ├─ core/
+   │  ├─ __init__.py
+   │  ├─ registry.py              # register(), list_(), meta() with category support
+   │  ├─ io.py                    # SingleIn, MultiIn, Distributed*In DTOs
+   │  ├─ estimators_api.py        # Base classes + decorators (single/multi/distributed)
+   │  ├─ dto.py                   # Frame, EstimatorResult, etc.
+   │  ├─ policies.py              # EveryN, Cooldown (stubs ok)
+   │  ├─ mapper.py                # quantile mapper (profile → N/B)
+   │  ├─ memory_schema.py         # (optional) self.memory size estimator
+   │  └─ errors.py
+   │
+   ├─ runtime/
+   │  ├─ __init__.py
+   │  ├─ realtime.py              # worker loop (stub ok)
+   │  ├─ deterministic.py         # SimPy runner (stub ok)
+   │  ├─ adapter.py               # payload → SingleIn/MultiIn/DistributedIn
+   │  ├─ profiling.py             # MemoryMeter (RSS/pss/tracemalloc/torch cuda)
+   │  ├─ timing.py                # monotonic, thread pinning helpers
+   │  └─ logging_utils.py         # simple CSV logger wrapper
+   │
+   ├─ sources/
+   │  ├─ __init__.py
+   │  ├─ synthetic.py             # sine, step, ramp, harmonic generators
+   │  ├─ opendss.py               # dss-python adapter (optional)
+   │  └─ recorded.py              # CSV playback (optional)
+   │
+   ├─ sinks/
+   │  ├─ __init__.py
+   │  ├─ logger_csv.py            # per-run CSV writer
+   │  └─ logger_parquet.py        # optional
+   │
+   ├─ scenarios/
+   │  ├─ __init__.py
+   │  ├─ base.py                  # Scenario protocol: build_source(), truth_f()
+   │  ├─ catalog.yaml             # scenario metadata (tags, refs)
+   │  ├─ ieee_60255/
+   │  │  ├─ __init__.py
+   │  │  ├─ freq_step_2s.py
+   │  │  └─ freq_ramp_1hz_s.py
+   │  ├─ pq_61000/
+   │  │  ├─ __init__.py
+   │  │  └─ harmonic_10pct_3rd.py
+   │  └─ opendss_ieee13_fault.py  # quasi-static fault example
+   │
+   ├─ estimators/
+   │  ├─ __init__.py
+   │  └─ state_space/
+   │     └─ ekf_single/
+   │        ├─ __init__.py
+   │        └─ single.py          # EKF example (researcher-facing)
+   │
+   ├─ metrics/
+   │  ├─ __init__.py
+   │  ├─ ieee_60255.py            # FE/RFE (and TVE if you add phasors)
+   │  └─ stats.py                 # latency p50/p95, RMSE, etc.
+   │
+   ├─ reports/
+   │  ├─ __init__.py
+   │  ├─ standard.py              # tables + plots (boxplot, pareto)
+   │  └─ creg_report.py           # example custom regulator report
+   │
+   ├─ benchmarks/
+   │  ├─ __init__.py
+   │  ├─ runner.py                # expands matrix, runs trials, saves tables
+   │  ├─ tables.py                # merge metrics → summary_wide.csv
+   │  └─ plots.py                 # helper plotting used by reports
+   │
+   ├─ config/
+   │  ├─ __init__.py
+   │  ├─ models.py                # Pydantic v2: BenchmarkCfg, RuntimeCfg, etc.
+   │  └─ load.py                  # YAML loader/validator
+   │
+   └─ api.py                      # Python builder helpers (scenario/estimator/metric/report)
+
 ```
 
 ---

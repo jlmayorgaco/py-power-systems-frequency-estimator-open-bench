@@ -1,0 +1,64 @@
+benchmark:
+  name: quick_smoke_3x3
+  output_dir: artifacts
+  n_runs: 30
+  seed_start: 0
+  n_tune_eval: 5        # seeds used during grid-search per combo
+  plots: true
+
+# ── 3 Scenarios ───────────────────────────────────────────────────────────────
+scenarios:
+  # Baseline: pure steady-state 60 Hz
+  - id: G1_E1_Pure_60Hz
+    params:
+      fs_hz: 10000
+      T_s: 1.0
+    mc_perturbations:
+      Vmax: {mode: rel, scale: 0.02}   # +/-2% amplitude
+      phi:  {mode: abs, scale: 0.39}   # +/-0.39 rad phase offset
+
+  # Step: 60 Hz -> 65 Hz at t = 0.5 s
+  - id: G2_E1_FreqStep
+    params:
+      fs_hz: 10000
+      T_s: 2.0
+      f1_hz: 60.0
+      f2_hz: 65.0
+      step_frac: 0.5
+    mc_perturbations:
+      Vmax:      {mode: rel, scale: 0.02}
+      step_frac: {mode: rel, scale: 0.05}   # +/-5% step timing
+      phi:       {mode: abs, scale: 0.39}
+
+  # Ramp: 60 Hz -> 62 Hz over 1 s starting at t = 0.5 s
+  - id: G2_E2_FreqRamp
+    params:
+      fs_hz: 10000
+      T_s: 2.0
+      f0_hz: 60.0
+      ramp_rate_hzs: 2.0
+      onset_frac: 0.25
+      df_max_hz: 5.0
+    mc_perturbations:
+      Vmax:        {mode: rel, scale: 0.02}
+      ramp_rate:   {mode: rel, scale: 0.15}  # +/-15% ramp rate
+      onset_frac:  {mode: rel, scale: 0.05}
+      phi:         {mode: abs, scale: 0.39}
+
+# ── 3 Estimators ─────────────────────────────────────────────────────────────
+estimators:
+  - id: ZeroCrossing
+    params:
+      filter_win: 5     # starting guess; grid search will tune this
+
+  - id: FFTPeak
+    params:
+      window_size: 512  # starting guess; grid search tunes this
+
+  - id: Baseline_Passthrough
+    params: {}          # no tunable params; always returns f_nom
+
+# ── Metrics ──────────────────────────────────────────────────────────────────
+metrics:
+  fs_hz: 10000
+  f_nom: 60
