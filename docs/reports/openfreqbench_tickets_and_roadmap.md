@@ -52,7 +52,7 @@ discredit the project.
 
 **Root cause**
 The real Monte Carlo pipeline (`run_mini_mc`, `run_statistical_analysis`, `save_artifacts`,
-`compare_methods`) lives in `v1/PMU/pfebench/runners/validate_estimator.py` and has never
+`compare_methods`) lives in `src/openfreqbench and has never
 been wired to the CLI or the modern `ofb/` package.
 
 **Affected modules**
@@ -71,7 +71,7 @@ been wired to the CLI or the modern `ofb/` package.
 
 **Acceptance criteria**
 - `ofb run --config examples/quick_smoke.yaml` produces non-zero RMSE values
-- RMSE for G1×ZC matches pfebench output within 1%
+- RMSE for G1×ZC matches openfreqbench output within 1%
 - `tests/integration/test_cli_run.py` passes
 
 **Migration risk:** Low — purely additive
@@ -79,7 +79,7 @@ been wired to the CLI or the modern `ofb/` package.
 
 ---
 
-### P0-02 — Port all pfebench estimators to `src/openfreqbench/estimators/`
+### P0-02 — Port all openfreqbench estimators to `src/openfreqbench/estimators/`
 
 ```
 Status:   OPEN
@@ -88,12 +88,12 @@ Depends on: P0-05 (package rename)
 ```
 
 **Why it matters**
-Ten working estimator implementations exist in `v1/PMU/pfebench/estimators/` but are not
+Ten working estimator implementations exist in `src/openfreqbench but are not
 accessible from the CLI or the public package.
 
 **Estimators to port**
 
-| pfebench file | Target file | Class name |
+| openfreqbench file | Target file | Class name |
 |---|---|---|
 | `e1_zc.py` | `estimators/zc.py` | `ZeroCrossing` |
 | `e2_izc.py` | `estimators/izc.py` | `InterpolatedZeroCrossing` |
@@ -109,7 +109,7 @@ accessible from the CLI or the public package.
 
 **Actions per estimator**
 - [ ] Copy file, rename class, fix imports
-- [ ] Add numerical parity test in `tests/regression/test_pfebench_parity.py`
+- [ ] Add numerical parity test in `tests/regression/test_openfreqbench_parity.py`
 - [ ] Verify `ofb list estimators` shows new entry
 
 **Acceptance criteria**
@@ -122,7 +122,7 @@ accessible from the CLI or the public package.
 
 ---
 
-### P0-03 — Port all 18 pfebench scenarios to `src/openfreqbench/scenarios/`
+### P0-03 — Port all 18 openfreqbench scenarios to `src/openfreqbench/scenarios/`
 
 ```
 Status:   OPEN
@@ -131,12 +131,12 @@ Depends on: P0-05
 ```
 
 **Why it matters**
-18 working scenario implementations exist in `v1/PMU/pfebench/scenarios/` but are not
+18 working scenario implementations exist in `src/openfreqbench but are not
 accessible from the CLI.
 
 **Scenarios to port**
 
-| Group | pfebench file | Target path |
+| Group | openfreqbench file | Target path |
 |---|---|---|
 | G1 | `G1_E1_Pure_60Hz.py` | `scenarios/g1/e1_pure_60hz.py` |
 | G1 | `G1_E2_Gaussian_Noise_1pct.py` | `scenarios/g1/e2_gaussian_noise_1pct.py` |
@@ -167,7 +167,7 @@ accessible from the CLI.
 
 ---
 
-### P0-04 — Port all pfebench tests to root-level `tests/`
+### P0-04 — Port all openfreqbench tests to root-level `tests/`
 
 ```
 Status:   OPEN
@@ -175,12 +175,12 @@ Priority: P0
 ```
 
 **Why it matters**
-13 estimator tests and 18 scenario tests and metrics tests in `v1/PMU/pfebench/tests/` are
+13 estimator tests and 18 scenario tests and metrics tests in `src/openfreqbench are
 invisible to `pytest` at the repo root. The project appears untested to any contributor or CI.
 
 **Tests to port**
 
-| pfebench test | Target |
+| openfreqbench test | Target |
 |---|---|
 | `test_e1_zc.py` through `test_e10_nr.py` | `tests/unit/estimators/` |
 | `test_Scenario_G1_E1_*.py` through `test_Scenario_G4_E18_*.py` | `tests/unit/scenarios/` |
@@ -215,7 +215,7 @@ contributors immediately.
 - [ ] Move all files from `ofb/` to `src/openfreqbench/`
 - [ ] Update `pyproject.toml`: `package-dir = {"" = "src"}`, `find.include = ["openfreqbench*"]`
 - [ ] Replace all `from ofb.` imports with `from openfreqbench.`
-- [ ] Add `compat/pfebench.py` shim with `DeprecationWarning`
+- [ ] Add `compat/openfreqbench.py` shim with `DeprecationWarning`
 - [ ] Update `README.md`, `CONTRIBUTING.md` to use new import path
 - [ ] Verify: `python -c "from openfreqbench import __version__; print(__version__)"`
 
@@ -486,7 +486,7 @@ class TuningRunner:
 - [ ] Port GSO logic from `BaseEstimator.optimize()` into `TuningRunner.run()`
 - [ ] Remove `optimize()` from `BaseEstimator` in `estimators/_base.py`
 - [ ] Wire `TuningRunner` into `ScenarioRunner` (step 1 of each method loop)
-- [ ] Add pfebench parity test: GSO produces same best params on same input
+- [ ] Add openfreqbench parity test: GSO produces same best params on same input
 
 **Acceptance criteria**
 - `BaseEstimator` has no `optimize()` method
@@ -1105,7 +1105,7 @@ Full suite results (G1–G4)
 |---|---|---|---|
 | `estimators/_base.py` | Remove self-timing (P0-02) | Remove `optimize()` (P1-02); remove `step()` timing (P1-03) | — |
 | `estimators/*.py` | Port 10+ estimators (P0-02) | — | — |
-| `scenarios/_base.py` | Port from pfebench (P0-03) | — | — |
+| `scenarios/_base.py` | Port from openfreqbench (P0-03) | — | — |
 | `scenarios/g1/`–`g4/` | Port 18 scenarios (P0-03) | — | — |
 | `scenarios/g5/` | — | — | OpenDSS (P2-09) |
 | `runners/trace_runner.py` | New — wire real logic (P0-01) | Wire TimingHarness (P1-03) | — |
@@ -1131,7 +1131,7 @@ Full suite results (G1–G4)
 | `cli/commands/status.py` | — | `ofb status` (P1-08) | — |
 | `cli/commands/run.py` | Wire to SuiteRunner (P0-01, P0-09) | `ofb resume` (P1-08) | — |
 | `tests/smoke/` | Add smoke suite (P0-10) | — | — |
-| `tests/unit/` | Port pfebench tests (P0-04) | — | — |
+| `tests/unit/` | Port openfreqbench tests (P0-04) | — | — |
 | `tests/integration/` | Add CLI run test (P0-01) | Resume test (P1-08) | — |
 | `tests/regression/` | Add parity tests (P0-02, P0-03) | — | — |
 | `CONTRIBUTING.md` | Write minimal version (P0-08) | Full version (P1-09) | — |

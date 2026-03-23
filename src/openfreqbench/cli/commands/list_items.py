@@ -21,7 +21,20 @@ def list_cmd(
         t = Table("Name", "Family", title="Registered Estimators")
         for name in EstimatorRegistry.list_names():
             cls = EstimatorRegistry.get(name)
-            t.add_row(name, cls.FAMILY)
+            is_stub = False
+            try:
+                # Dynamic stub probing
+                inst = cls()
+                inst._step(0.0)
+            except NotImplementedError:
+                is_stub = True
+            except Exception:
+                pass
+                
+            if is_stub:
+                t.add_row(f"[dim yellow]{name} (Not Implemented)[/dim yellow]", cls.FAMILY)
+            else:
+                t.add_row(f"[green]{name}[/green]", cls.FAMILY)
         console.print(t)
     if show_scen:
         t = Table("ID", title="Registered Scenarios")

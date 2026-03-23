@@ -33,24 +33,24 @@ Tickets are ordered by dependency. Each phase has a P-number for triage.
 ### P0-01 · Port SRF-PLL (real implementation) `P0`
 - File: `estimators/monophasic/f0_pll/srf_pll.py`
 - Replace stub with full SOGI + dq transform + PI controller
-- Parity test vs. `v1/PMU/pfebench/estimators/control/pll_srf.py`
+- Parity test vs. `src/openfreqbench
 - Required: `update()` returns valid `EstimatorOutput` on 60 Hz sine
 
 ### P0-02 · Port RA-EKF (real implementation) `P0`
 - File: `estimators/monophasic/f1_kalman/raekf.py`
 - Huber M-estimator innovation + Sage-Husa adaptive Q/R
-- Parity test vs. `v1/PMU/pfebench/` EKF2 reference
+- Parity test vs. `src/openfreqbench EKF2 reference
 - This is the proposed method for the paper — highest priority
 
 ### P0-03 · Port UKF (real implementation) `P0`
 - File: `estimators/monophasic/f1_kalman/ukf.py`
 - Symmetric unscented transform (α, β, κ parameters)
-- Parity test vs. `v1/PMU/pfebench/estimators/states/ukf_freq.py`
+- Parity test vs. `src/openfreqbench
 
 ### P1-01 · Port RLS (real implementation) `P1`
 - File: `estimators/monophasic/f3_recursive/rls.py`
 - Phase-unwrap regression window, `delta` regularisation
-- Parity test vs. `v1/PMU/pfebench/estimators/regress/rls_phase_unwrap.py`
+- Parity test vs. `src/openfreqbench
 
 ### P1-02 · Port RLS-VFF (real implementation) `P1`
 - File: `estimators/monophasic/f3_recursive/rls_vff.py`
@@ -60,7 +60,7 @@ Tickets are ordered by dependency. Each phase has a P-number for triage.
 ### P1-03 · Port TFT (real implementation) `P1`
 - File: `estimators/monophasic/f2_window/tft.py`
 - Taylor-Fourier WLS with polynomial order 1, 2, 3
-- Parity test vs. `v1/PMU/pfebench/estimators/poly/taylor_fourier.py`
+- Parity test vs. `src/openfreqbench
 
 ### P1-04 · Implement `ofb scaffold estimator` CLI command `P1`
 - File: `cli/commands/scaffold.py`
@@ -254,7 +254,7 @@ Tickets are ordered by dependency. Each phase has a P-number for triage.
 
 ### P2-10 · PLL/Control family (4 estimators) `P2`
 - `pll_ddsrf.py`, `epll.py`, `anf.py`, `pr_pll.py`
-- Source: `v1/PMU/pfebench/estimators/control/`
+- Source: `src/openfreqbench
 
 ### P2-11 · Polynomial family (3 estimators) `P2`
 - `taylor_fourier.py` (already in TFT stub), `dynamic_phasor.py`, `ppie.py`

@@ -58,7 +58,7 @@ pytest tests/ --cov=openfreqbench --cov-report=term-missing
    Every test that uses a random signal passes `seed=42` explicitly.
    `np.random.default_rng(42)` — never `np.random.seed()`.
 
-4. **Regression tests compare against `v1/PMU/pfebench/` reference values.**
+4. **Regression tests compare against `src/openfreqbench reference values.**
    Reference JSON files are stored in `tests/fixtures/reference/`.
    Tolerance: RMSE difference < 0.1 Hz (1% of nominal 60 Hz).
 
@@ -94,7 +94,7 @@ tests/
 │   ├── waveforms.py               # Pure 60 Hz, step, ramp, noisy sine generators
 │   ├── configs.py                 # Minimal BenchmarkConfig for tests
 │   ├── tempdirs.py                # Temporary artifact directories
-│   └── reference/                 # Reference JSON from v1/PMU/pfebench/ runs
+│   └── reference/                 # Reference JSON from src/openfreqbench runs
 │
 ├── smoke/                         # < 30s, run on every commit
 │   ├── test_imports.py            # All public modules import without error
@@ -137,7 +137,7 @@ tests/
 │   └── test_artifact_store.py            # JSON save/load, cache key collision test
 │
 └── regression/
-    ├── test_legacy_parity_zero_crossing.py  # ZC RMSE matches pfebench reference ±0.1 Hz
+    ├── test_legacy_parity_zero_crossing.py  # ZC RMSE matches openfreqbench reference ±0.1 Hz
     └── test_reference_metrics.py            # compute_metrics output matches reference JSON
 ```
 
@@ -359,18 +359,18 @@ open htmlcov/index.html
 
 ## Regression Test Protocol
 
-When porting an estimator from `v1/PMU/pfebench/`:
+When porting an estimator from `src/openfreqbench
 
-1. Run the estimator in `v1/PMU/pfebench/` and save its output:
+1. Run the estimator in `src/openfreqbench and save its output:
    ```python
-   # In v1/PMU/pfebench/
+   # In src/openfreqbench
    result = estimator.run_mc(scenario, n_seeds=30)
    json.dump(result, open("tests/fixtures/reference/ZeroCrossing_G1_E1.json", "w"))
    ```
 
 2. Write the regression test:
    ```python
-   def test_parity_with_pfebench_reference():
+   def test_parity_with_openfreqbench_reference():
        ref = json.load(open("tests/fixtures/reference/ZeroCrossing_G1_E1.json"))
        est = ZeroCrossingEstimator(config={"fs": 10000.0})
        ...

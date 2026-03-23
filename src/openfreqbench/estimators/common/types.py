@@ -83,6 +83,7 @@ class EstimatorSpec:
     nominal_freq_hz: float = 60.0
     min_valid_freq_hz: float = 40.0
     max_valid_freq_hz: float = 80.0
+    is_three_phase: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -94,6 +95,7 @@ class EstimatorSpec:
             "nominal_freq_hz": self.nominal_freq_hz,
             "min_valid_freq_hz": self.min_valid_freq_hz,
             "max_valid_freq_hz": self.max_valid_freq_hz,
+            "is_three_phase": self.is_three_phase,
         }
 
 

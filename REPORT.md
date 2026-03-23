@@ -170,9 +170,9 @@ open-freq-bench/                          ← repo root
 │   │
 │   └── compat/
 │       ├── adapters.py                   # ⏳ Legacy import adapters
-│       ├── pfebench_ids.py               # ID mapping (old → new)
-│       ├── pfebench_metrics.py           # Metric format mapping
-│       └── pfebench_scenarios.py         # Scenario runner adapter
+│       ├── openfreqbench_ids.py               # ID mapping (old → new)
+│       ├── openfreqbench_metrics.py           # Metric format mapping
+│       └── openfreqbench_scenarios.py         # Scenario runner adapter
 │
 ├── tests/                                # 232 tests, 0 failures
 │   ├── conftest.py
@@ -228,7 +228,7 @@ open-freq-bench/                          ← repo root
 │
 ├── legacy/                               # Read-only archive
 │   ├── README.md
-│   ├── pfebench/
+│   ├── openfreqbench/
 │   ├── estimators_old/
 │   ├── scenarios_old/
 │   └── scripts_old/
@@ -312,7 +312,7 @@ open-freq-bench/                          ← repo root
 | `ofb analyze` | `cli/commands/analyze.py` | Command body |
 | `ofb scaffold` | `cli/commands/scaffold.py` | Jinja2 template generation |
 | `ofb status` | `cli/commands/status.py` | Artifact scan |
-| Compat layer | `compat/` | pfebench adapter integration |
+| Compat layer | `compat/` | openfreqbench adapter integration |
 
 ### ❌ Not Started
 
@@ -345,7 +345,7 @@ open-freq-bench/                          ← repo root
 | EKF is numerically stable | Joseph-form P update; P clamp ±1e8; ω clamped to [40,80] Hz range; 26 tests pass including zero-signal and high-noise inputs |
 | IpDFT is accurate within ±3 Hz on Hann-windowed frames | Test tolerance explicitly documented as systematic — formula derived for rectangular window but applied under Hann |
 | SOGI-FLL converges within ~100 ms at 10 kHz | Unit test `test_pure_60hz_converges` passes with ±0.5 Hz tolerance |
-| ZeroCrossing parity with pfebench | Regression test passes; reference values from `v1/PMU/artifacts/` |
+| ZeroCrossing parity with openfreqbench | Regression test passes; reference values from `v1/PMU/artifacts/` |
 | Metrics are IEEE-aligned | `FE_MAX_MHZ` threshold uses IEEE C37.118.1-2011 Table 3 values; compliance flag uses correct units |
 | MC seeds are reproducible | `np.random.default_rng(seed)` — no global state; same seed → same output proven by test |
 | Artifact keys are deterministic | SHA-256 of param dicts; collision probability negligible; tested |
@@ -390,7 +390,7 @@ To reach "PhD-level benchmarking" and be publishable in IEEE Transactions on Pow
 - [ ] **No hardcoded Windows paths**, no `import *`, no global mutable state
 - [ ] **`mypy --strict` clean** on all public modules
 - [ ] **Coverage ≥ 80%** on `estimators/`, `scenarios/`, `metrics/`, `runners/`
-- [ ] **Regression tests** for all ported estimators (parity vs. `v1/PMU/pfebench/`)
+- [ ] **Regression tests** for all ported estimators (parity vs. `src/openfreqbench
 
 ### Open-Source Release Requirements
 

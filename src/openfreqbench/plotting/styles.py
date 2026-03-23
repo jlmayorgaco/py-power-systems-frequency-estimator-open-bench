@@ -117,6 +117,7 @@ def apply_ieee_style(font_size: float = 8.0) -> None:
             "figure.dpi": 150,
             "savefig.dpi": 300,
             "savefig.bbox": "tight",
+            "savefig.format": "eps",
             "figure.autolayout": False,
             # Rendering
             "path.simplify": True,

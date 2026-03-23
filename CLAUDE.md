@@ -23,11 +23,11 @@ The repo has three coexisting code bases:
 | Path | Status | Role |
 |------|--------|------|
 | `src/openfreqbench/` | ✅ **Canonical — write here** | New package, real implementations |
-| `v1/PMU/pfebench/` | 🔬 **Scientific reference** | Real science, do NOT delete |
+| `src/openfreqbench | 🔬 **Scientific reference** | Real science, do NOT delete |
 | `ofb/` | ⚠️ Legacy skeleton | Stub runner (`TVE_mean: 0.0`), keep for now |
 
 ### Never touch these without explicit instruction
-- `v1/PMU/pfebench/` — scientific source of truth; treat as read-only reference
+- `src/openfreqbench — scientific source of truth; treat as read-only reference
 - `v1/PMU/artifacts/` — real Q1 benchmark results; do not regenerate or delete
 
 ### The critical bug (P0-01)
@@ -141,7 +141,7 @@ Test philosophy:
 2. Subclass `BaseEstimator`, implement `_step`, `reset`, `latency_samples`
 3. Register: `EstimatorRegistry.register(MyEstimator)` in `core/registry.py`
 4. Add unit tests in `tests/unit/estimators/test_<name>.py`
-5. Verify numerical parity against `v1/PMU/pfebench/` equivalent
+5. Verify numerical parity against `src/openfreqbench equivalent
 
 ---
 
@@ -180,5 +180,5 @@ artifacts/
 - Return fake/hardcoded metric values from any runner
 - Add timing inside `BaseEstimator._step()` or `step()`
 - Import framework code (pydantic, typer, rich) inside `estimators/`, `scenarios/`, `metrics/`
-- Delete or modify `v1/PMU/pfebench/` files without explicit instruction
+- Delete or modify `src/openfreqbench files without explicit instruction
 - Commit binary artifacts (`.pdf`, `.png`, large `.csv`) unless `.gitignore` excludes them

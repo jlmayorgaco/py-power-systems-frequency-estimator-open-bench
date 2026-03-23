@@ -21,7 +21,7 @@ These invariants allow any estimator to be benchmarked, profiled, tuned, and com
 ```
 open-freq-bench/
 ├── src/openfreqbench/      ← CANONICAL PACKAGE — all work goes here
-├── v1/PMU/pfebench/        ← SCIENTIFIC REFERENCE — read-only
+├── src/openfreqbench        ← SCIENTIFIC REFERENCE — read-only
 ├── v1/PMU/artifacts/       ← REAL Q1 BENCHMARK RESULTS — never delete
 ├── legacy/                 ← Archived skeletons — .gitkeep only
 ├── tests/                  ← Test suite (43 test files)
@@ -611,11 +611,11 @@ The repository maintains three concurrent codebases at different maturity levels
 | Path | Role | Policy |
 |------|------|--------|
 | `src/openfreqbench/` | Canonical — all new work goes here | Read/write |
-| `v1/PMU/pfebench/` | Scientific reference — real Q1 results | **Read-only; never modify** |
+| `src/openfreqbench | Scientific reference — real Q1 results | **Read-only; never modify** |
 | `v1/PMU/artifacts/` | Benchmark artifacts — measured results | **Never delete or regenerate** |
 | `legacy/` | Archived skeletons | Read-only; do not resurrect |
 
-**When porting from `v1/PMU/pfebench/`:**
+**When porting from `src/openfreqbench
 1. Port algorithm logic to new `BaseEstimator` API
 2. Write parity regression test vs. `v1/PMU/artifacts/` reference values
 3. Do NOT modify the reference files
@@ -636,13 +636,13 @@ These root-level directories no longer exist. All functionality is in `src/openf
 
 ## 17. Compat Layer
 
-`src/openfreqbench/compat/` provides read-side bridges to `v1/PMU/pfebench/` artifacts:
+`src/openfreqbench/compat/` provides read-side bridges to `src/openfreqbench artifacts:
 
 ```
-compat/adapters.py          — Load pfebench results into canonical types
-compat/pfebench_ids.py      — ID mapping: pfebench names → canonical IDs
-compat/pfebench_metrics.py  — pfebench metric names → canonical metric keys
-compat/pfebench_scenarios.py — pfebench scenario names → canonical scenario IDs
+compat/adapters.py          — Load openfreqbench results into canonical types
+compat/openfreqbench_ids.py      — ID mapping: openfreqbench names → canonical IDs
+compat/openfreqbench_metrics.py  — openfreqbench metric names → canonical metric keys
+compat/openfreqbench_scenarios.py — openfreqbench scenario names → canonical scenario IDs
 ```
 
 This layer is complete but not yet wired into the CLI. Intended use: load `v1/PMU/artifacts/`

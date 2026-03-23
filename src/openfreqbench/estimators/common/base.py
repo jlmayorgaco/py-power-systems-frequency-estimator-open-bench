@@ -237,10 +237,11 @@ class BaseEstimator(ABC):
         """Backward-compat alias for ``_config`` used by legacy runner code."""
         return self._config
 
-    def step(self, v_sample: float) -> float:
+    def step(self, v_sample: float | np.ndarray) -> float:
         """Single-sample step returning a raw float (backward-compat)."""
         try:
-            result = self.update(float(v_sample), timestamp=0.0)
+            sample = float(v_sample) if np.isscalar(v_sample) else v_sample
+            result = self.update(sample, timestamp=0.0)
             f = result.frequency_hz
         except Exception:
             return float("nan")

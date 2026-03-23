@@ -152,7 +152,7 @@ Distribution:
     core/        ~5          run_identity hashing
     checkpoint   ~26         session lifecycle, atomic write
   integration/   ~30 tests   < 5min   cross-layer pipelines
-  regression/    ~30 tests   ~10min   parity vs. v1/PMU/pfebench reference
+  regression/    ~30 tests   ~10min   parity vs. src/openfreqbench reference
 ```
 
 ---

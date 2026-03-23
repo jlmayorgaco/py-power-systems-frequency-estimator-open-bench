@@ -4,7 +4,7 @@ This directory preserves the previous benchmark implementations for reference.
 
 | Directory | Description |
 |-----------|-------------|
-| `pfebench/` | Original scientific benchmark code (read-only reference) |
+| `openfreqbench/` | Original scientific benchmark code (read-only reference) |
 | `estimators_old/` | Old estimator implementations before refactor |
 | `scenarios_old/` | Old scenario definitions before refactor |
 | `scripts_old/` | Old shell scripts before restructuring |

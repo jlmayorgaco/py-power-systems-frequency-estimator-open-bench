@@ -180,7 +180,7 @@ class SRFPLLEstimator(BaseEstimator):
 
     def update(self, voltage: float, timestamp: float = 0.0) -> EstimatorOutput:
         self._n_samples += 1
-        v = float(voltage)
+        v = float(np.atleast_1d(voltage)[0])
 
         Ts = self._Ts
         omega = self._omega

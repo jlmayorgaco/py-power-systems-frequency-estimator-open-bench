@@ -1,7 +1,7 @@
 """
-estimators/monophasic/f3_recursive/rls.py
+estimators/monophasic/f3_recursive/vff_rls.py
 
-Recursive Least Squares (RLS) AR(2) Decimated Estimator
+Variable Forgetting Factor RLS (VFF-RLS)
 Ported from legacy_sgsma/estimators.py
 """
 
@@ -20,9 +20,9 @@ from openfreqbench.estimators.common.types import (
     TuningSpec,
 )
 
-class RLSEstimator(BaseEstimator):
+class VFFRLSEstimator(BaseEstimator):
     SPEC = EstimatorSpec(
-        name="RLS",
+        name="VFF_RLS",
         family="Recursive",
         family_path="monophasic/f3_recursive",
         complexity="O(1)",
@@ -37,24 +37,28 @@ class RLSEstimator(BaseEstimator):
     def default_config(cls) -> dict[str, Any]:
         return {
             "fs": 10000.0,
-            "lam": 0.99,
-            "win_smooth": 20,
+            "lam_min": 0.98,
+            "lam_max": 0.9995,
+            "ka": 3.0,
             "decim": 50,
+            "win_smooth": 20,
         }
 
     @classmethod
     def tuning_spec(cls) -> TuningSpec:
         return TuningSpec(
             params=[
-                TuningParam(name="lam", default=0.99, type="float", values=[0.98, 0.99, 0.995, 0.999], description="Forgetting factor lambda."),
-                TuningParam(name="win_smooth", default=20, type="int", values=[5, 20, 50], description="Smoothing MA window size."),
+                TuningParam(name="lam_min", default=0.98, type="float", values=[0.95, 0.98, 0.99], description="VFF lower bound."),
+                TuningParam(name="ka", default=3.0, type="float", values=[1.0, 3.0, 5.0, 10.0], description="VFF dynamic response gain."),
             ],
             objective="RMSE_HZ",
         )
 
     def reset(self) -> None:
         fs = float(self._config.get("fs", 10_000.0))
-        self.lam = float(self._config.get("lam", 0.99))
+        self.lam_min = float(self._config.get("lam_min", 0.98))
+        self.lam_max = float(self._config.get("lam_max", 0.9995))
+        self.ka = float(self._config.get("ka", 3.0))
         self.decim = int(self._config.get("decim", 50))
         if self.decim < 1: self.decim = 1
         
@@ -72,6 +76,9 @@ class RLSEstimator(BaseEstimator):
         self.smooth_win = int(self._config.get("win_smooth", 20))
         self.f_buf = deque(maxlen=self.smooth_win)
         self._last_f = self.NOMINAL_FREQ_HZ
+
+        self._e_pow = 0.0
+        self._v_pow = 0.01
 
     def structural_latency_samples(self) -> int:
         return self.smooth_win * self.decim
@@ -95,13 +102,21 @@ class RLSEstimator(BaseEstimator):
         y_pred = float(self.theta @ phi)
         e = d - y_pred
 
+        alpha_f = 1.0 / self.ka
+        self._e_pow = (1 - alpha_f) * self._e_pow + alpha_f * (e**2)
+        self._v_pow = (1 - alpha_f) * self._v_pow + alpha_f * (d**2)
+        
+        ratio = min(1.0, self._e_pow / (self._v_pow + 1e-9))
+        lam = self.lam_max - (self.lam_max - self.lam_min) * ratio
+        lam = np.clip(lam, self.lam_min, self.lam_max)
+
         Pphi = self.P @ phi
-        denom = self.lam + float(phi @ Pphi)
+        denom = lam + float(phi @ Pphi)
         if denom <= 0.0: denom = 1e-9
         
         K = Pphi / denom
         self.theta = self.theta + K * e
-        self.P = (self.P - np.outer(K, Pphi)) / self.lam
+        self.P = (self.P - np.outer(K, Pphi)) / lam
         self.P = 0.5 * (self.P + self.P.T)
 
         a1 = float(np.clip(self.theta[0], -1.9999, 1.9999))

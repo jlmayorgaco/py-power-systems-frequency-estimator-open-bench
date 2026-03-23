@@ -45,12 +45,12 @@ The repository currently contains three coexisting architectural worlds that wer
 | World | Location | State |
 |---|---|---|
 | Old legacy | `estimators/`, `scenarios/`, `evaluation/` | Functional but uses a PMU phasor contract; not packaged |
-| **Working research system** | `v1/PMU/pfebench/` | The real scientific core. Real results, working Monte Carlo, 10+ estimators, 18 scenarios, full test suite. |
+| **Working research system** | `src/openfreqbench | The real scientific core. Real results, working Monte Carlo, 10+ estimators, 18 scenarios, full test suite. |
 | Modern framework skeleton | `ofb/` | Pydantic + Typer + Registry. Clean design, but the benchmark runner is a stub returning `TVE_mean: 0.0`. |
 
-**The single most critical finding:** `ofb/benchmarks/runner.py` silently returns zeroed results. The CLI `ofb bench run` produces no scientific output. The real benchmark logic lives in `v1/PMU/pfebench/runners/validate_estimator.py`, which is not wired to the CLI.
+**The single most critical finding:** `ofb/benchmarks/runner.py` silently returns zeroed results. The CLI `ofb bench run` produces no scientific output. The real benchmark logic lives in `src/openfreqbench which is not wired to the CLI.
 
-**The consolidation path is clear:** promote `v1/PMU/pfebench/` as the canonical domain logic, refactor it into a `src/openfreqbench/` layout, wire the existing `ofb/` CLI and Registry on top of it, and archive the rest. This is an engineering consolidation, not a scientific rewrite.
+**The consolidation path is clear:** promote `src/openfreqbench as the canonical domain logic, refactor it into a `src/openfreqbench/` layout, wire the existing `ofb/` CLI and Registry on top of it, and archive the rest. This is an engineering consolidation, not a scientific rewrite.
 
 ### 30-Second Decision Summary
 
@@ -58,9 +58,9 @@ The repository currently contains three coexisting architectural worlds that wer
 |---|---|---|
 | Canonical Python package | `src/openfreqbench/` | Matches pip name; eliminates `ofb/`-import mismatch |
 | CLI command | `ofb` | Short, memorable, Angular-CLI-like |
-| Domain logic source of truth | `v1/PMU/pfebench/` | Only location with working science and real results |
+| Domain logic source of truth | `src/openfreqbench | Only location with working science and real results |
 | `ofb/benchmarks/runner.py` | Replace immediately | Returns fake zeros — silent correctness failure |
-| `v1/PMU/pfebench/` fate | Archive to `legacy/` after porting | Keep until numerical parity is verified |
+| `src/openfreqbench fate | Archive to `legacy/` after porting | Keep until numerical parity is verified |
 | Worker strategy | `ProcessPoolExecutor` per `(scenario × method)` | Natural granularity; no shared state |
 | Benchmark configuration | YAML-driven | Readable, versionable, no Python editing required |
 | Plugin discovery | Auto-scan + entry points | Built-in estimators auto-discovered; external plugins via entry points |
@@ -72,21 +72,21 @@ The repository currently contains three coexisting architectural worlds that wer
 ### 2.1 Package Identity and Import Confusion
 
 - `pyproject.toml` declares `name = "openfreqbench"` (pip install name), but `setuptools.packages.find` includes only `ofb*`, so the import is `import ofb`. These two names do not match.
-- A third name, `pfebench`, exists in `v1/PMU/pyproject.toml` as a separate installable package.
-- Three package identities (`openfreqbench`, `ofb`, `pfebench`) for one project. Contributors cannot determine the canonical import path.
+- A third name, `openfreqbench`, exists in `v1/PMU/pyproject.toml` as a separate installable package.
+- Three package identities (`openfreqbench`, `ofb`, `openfreqbench`) for one project. Contributors cannot determine the canonical import path.
 
 ### 2.2 Runner Architecture
 
 - **`ofb/benchmarks/runner.py` is a stub.** The `run_benchmark()` function returns hardcoded zero values for all metrics. Running `ofb bench run` produces no scientific output and gives no error.
-- The real Monte Carlo pipeline (`run_mini_mc`, `run_statistical_analysis`, `save_artifacts`, `compare_methods`) lives in `v1/PMU/pfebench/runners/validate_estimator.py` and is inaccessible from the CLI.
-- Estimator and scenario lists are hardcoded in `v1/PMU/pfebench/runners/run_basic.py`. Adding a new estimator requires editing the runner script.
+- The real Monte Carlo pipeline (`run_mini_mc`, `run_statistical_analysis`, `save_artifacts`, `compare_methods`) lives in `src/openfreqbench and is inaccessible from the CLI.
+- Estimator and scenario lists are hardcoded in `src/openfreqbench Adding a new estimator requires editing the runner script.
 - No cache or resume mechanism. Every run starts from scratch. The artifact path uses `ts_now()` (a wall-clock timestamp), so each run creates a new directory instead of reusing or skipping existing results.
 - No parallelism. All `scenario × method × repetition` loops are sequential.
 
 ### 2.3 Testing
 
 - `tests/` at the repo root contains 3 files, 2 of which are empty stubs.
-- The real test suite (13 estimator tests, 18 scenario tests, metrics tests) lives in `v1/PMU/pfebench/tests/` and is not discovered by `pytest` when run from the repo root.
+- The real test suite (13 estimator tests, 18 scenario tests, metrics tests) lives in `src/openfreqbench and is not discovered by `pytest` when run from the repo root.
 - No smoke-test subset. A contributor cannot run a quick validation in under a minute.
 
 ### 2.4 Repo Hygiene
@@ -99,12 +99,12 @@ The repository currently contains three coexisting architectural worlds that wer
 
 ### 2.5 Coupling and Responsibility Problems
 
-- **Estimator self-times its own execution.** In `pfebench/estimators/base.py`, `step()` wraps `_step()` with `perf_counter_ns`. Timing is a framework responsibility, not an estimator responsibility.
+- **Estimator self-times its own execution.** In `openfreqbench/estimators/base.py`, `step()` wraps `_step()` with `perf_counter_ns`. Timing is a framework responsibility, not an estimator responsibility.
 - **Tuning (GSO) lives inside `BaseEstimator.optimize()`.** An estimator should not own its own tuning logic. This violates the Single Responsibility Principle.
 - **Plotting is mixed with orchestration.** `validate_estimator.py` calls `matplotlib` directly. Plots should be generated in an isolated `plotting/` layer.
 - **Three incompatible estimator contracts coexist:**
   - `estimators/base.py`: `update(measures: PMU_Input) → PMU_Output` (phasor contract)
-  - `v1/PMU/pfebench/estimators/base.py`: `_step(v_sample: float) → float` (the correct one)
+  - `src/openfreqbench `_step(v_sample: float) → float` (the correct one)
   - `ofb/core/estimators_api.py`: `update(t, x) → dict{t, seq, fhat, meta}` (decorator-based)
 
 ### 2.6 Documentation and Open-Source Readiness
@@ -251,7 +251,7 @@ The following tables define the conceptual entities the framework needs, their r
 | **Python import namespace** | `from openfreqbench import ...` (replaces `import ofb`) |
 | **CLI command** | `ofb` (exposed via console script entry point) |
 | **Separate `ofb` Python package** | No — `ofb/` is renamed to `openfreqbench/`, no separate package needed |
-| **`pfebench` package** | Archived to `legacy/`, not distributed |
+| **`openfreqbench` package** | Archived to `legacy/`, not distributed |
 
 ### Justification
 
@@ -288,21 +288,21 @@ warnings.warn(
 
 | Legacy Concept | Decision | Why | Migration Note |
 |---|---|---|---|
-| `pfebench/estimators/base.py` — `BaseEstimator` with `_step()`, `reset()`, `step()` | **Preserve with refactor** | Best API. Clean single-input interface. Used by 10+ implementations. | Remove self-timing from `step()`; remove `optimize()` method |
-| `pfebench/scenarios/base.py` — `ScenarioBase`, `ScenarioState`, `ScenarioOutput`, `ScenarioModifiersMixin` | **Preserve** | Production-quality. Rich schema, noise mixin, `tuning_map` for MC. | Fix imports only |
-| `pfebench/scenarios/G*.py` — all 18 scenarios | **Preserve** | Real science. Working physics and noise models. | Port to `src/openfreqbench/scenarios/gN/` |
-| `pfebench/estimators/e1_zc.py` through `e10_nr.py` | **Preserve** | 10 working estimators with real implementations. | Port to `src/openfreqbench/estimators/` |
-| `pfebench/runners/validate_estimator.py` — `run_mini_mc()`, `run_statistical_analysis()`, `save_artifacts()`, `compare_methods()` | **Preserve with refactor** | The real orchestration logic. | Extract into `runners/`, `stats/`, `io/` modules |
-| `pfebench/tests/` — all 13+ estimator tests and 18+ scenario tests | **Preserve** | Port as migration anchors and regression tests. | Move to `tests/unit/` |
-| `pfebench/metrics/metrics.py` — `compute_metrics()`, `aggregate_monte_carlo()` | **Preserve** | Solid. | Move to `src/openfreqbench/metrics/` |
+| `openfreqbench/estimators/base.py` — `BaseEstimator` with `_step()`, `reset()`, `step()` | **Preserve with refactor** | Best API. Clean single-input interface. Used by 10+ implementations. | Remove self-timing from `step()`; remove `optimize()` method |
+| `openfreqbench/scenarios/base.py` — `ScenarioBase`, `ScenarioState`, `ScenarioOutput`, `ScenarioModifiersMixin` | **Preserve** | Production-quality. Rich schema, noise mixin, `tuning_map` for MC. | Fix imports only |
+| `openfreqbench/scenarios/G*.py` — all 18 scenarios | **Preserve** | Real science. Working physics and noise models. | Port to `src/openfreqbench/scenarios/gN/` |
+| `openfreqbench/estimators/e1_zc.py` through `e10_nr.py` | **Preserve** | 10 working estimators with real implementations. | Port to `src/openfreqbench/estimators/` |
+| `openfreqbench/runners/validate_estimator.py` — `run_mini_mc()`, `run_statistical_analysis()`, `save_artifacts()`, `compare_methods()` | **Preserve with refactor** | The real orchestration logic. | Extract into `runners/`, `stats/`, `io/` modules |
+| `openfreqbench/tests/` — all 13+ estimator tests and 18+ scenario tests | **Preserve** | Port as migration anchors and regression tests. | Move to `tests/unit/` |
+| `openfreqbench/metrics/metrics.py` — `compute_metrics()`, `aggregate_monte_carlo()` | **Preserve** | Solid. | Move to `src/openfreqbench/metrics/` |
 | `BaseEstimator.optimize()` (GSO embedded in estimator) | **Preserve with refactor** | Correct algorithm; wrong location. | Extract to `tuning/grid_search.py:TuningRunner` |
 | `BaseEstimator.step()` timing via `perf_counter_ns` | **Preserve with refactor** | Correct mechanism; wrong owner. | Move to `profiling/timing.py:TimingHarness` |
 | `ofb/core/registry.py` | **Preserve** | Clean registry pattern. | Keep, wire to real estimators |
 | `ofb/config/models.py` — Pydantic config models | **Preserve with refactor** | Clean structure. | Extend with `MonteCarloConfig`, `TuningConfig`, `ProfilingConfig` |
 | `ofb/runtime/profiling.py` — `MemoryMeter` | **Preserve** | Well-designed RSS/PSS/tracemalloc measurement. | Move to `profiling/memory.py`; wire into `TraceRunner` |
 | `ofb/cli/` — Typer CLI structure | **Preserve** | Correct architecture. | Wire commands to real logic |
-| `estimators/base.py` — PMU phasor contract | **Archive** | Superseded by pfebench base. | Move to `legacy/` |
-| `estimators/basic/ipdft.py`, `estimators/basic/zcd/` | **Archive** | Superseded by pfebench implementations. | Move to `legacy/`; port algorithm if needed |
+| `estimators/base.py` — PMU phasor contract | **Archive** | Superseded by openfreqbench base. | Move to `legacy/` |
+| `estimators/basic/ipdft.py`, `estimators/basic/zcd/` | **Archive** | Superseded by openfreqbench implementations. | Move to `legacy/`; port algorithm if needed |
 | `scenarios/s0_sin_wave/`, `scenarios/s1_synthetic/` | **Archive** | Raw-tuple-returning generators; superseded by `ScenarioBase`. | Port physics to proper `ScenarioBase` subclasses |
 | `scenarios/s2_ieee13/` through `s6_real_csv/` | **Archive** | Stub files without implementations. | Move to `legacy/`; implement properly in future |
 | `pipelines/run_benchmark.py` | **Archive** | Legacy script runner. | Move to `legacy/` |
@@ -410,7 +410,7 @@ src/
     │   └── artifact_store.py  # ArtifactStore with identity-based paths
     │
     └── compat/                # Backward compatibility shims (temporary)
-        └── pfebench.py        # import pfebench.X → openfreqbench.X + DeprecationWarning
+        └── openfreqbench.py        # import openfreqbench.X → openfreqbench.X + DeprecationWarning
 ```
 
 ### 7.2 Dependency Direction Rules
@@ -508,7 +508,7 @@ class MyEKF(BaseEstimator):
 
 ### 8.3 Timing Responsibility
 
-In the current pfebench codebase, `BaseEstimator.step()` wraps `_step()` with `perf_counter_ns`. This must move to the framework:
+In the current openfreqbench codebase, `BaseEstimator.step()` wraps `_step()` with `perf_counter_ns`. This must move to the framework:
 
 ```python
 # profiling/timing.py
@@ -780,9 +780,9 @@ ofb analyze suite baseline_freq_v1
 
 | Violation | Location | Severity |
 |---|---|---|
-| Estimator self-times its own `step()` | `pfebench/estimators/base.py:256–264` | High — estimator should not own timing |
-| Tuning (GSO) embedded in `BaseEstimator.optimize()` | `pfebench/estimators/base.py:162–227` | Medium — Single Responsibility Principle violation |
-| Matplotlib plot generation inside `validate_estimator.py` | `pfebench/runners/validate_estimator.py` | Medium — plotting mixed with orchestration |
+| Estimator self-times its own `step()` | `openfreqbench/estimators/base.py:256–264` | High — estimator should not own timing |
+| Tuning (GSO) embedded in `BaseEstimator.optimize()` | `openfreqbench/estimators/base.py:162–227` | Medium — Single Responsibility Principle violation |
+| Matplotlib plot generation inside `validate_estimator.py` | `openfreqbench/runners/validate_estimator.py` | Medium — plotting mixed with orchestration |
 | Bootstrap CI computed inside `validate_estimator.py` | Same file | Low — should live in `stats/` |
 | `save_artifacts()` handles both JSON building and file I/O | Same file | Low — minor SRP violation |
 
@@ -930,7 +930,7 @@ stat, pval = wilcoxon(rmse_per_seed_A, rmse_per_seed_B)
 | Gap | Detail |
 |---|---|
 | `ofb/benchmarks/runner.py` returns fake zeros | `run_benchmark()` produces `TVE_mean: 0.0` for all methods. Silent correctness failure. |
-| `tests/` is effectively empty | 3 files; 2 are empty. Real tests are in `v1/PMU/pfebench/tests/` and not discovered by root-level pytest. |
+| `tests/` is effectively empty | 3 files; 2 are empty. Real tests are in `src/openfreqbench and not discovered by root-level pytest. |
 | Package name / import name mismatch | `pip install openfreqbench` → `import ofb` is wrong. |
 | No CI/CD | Deleted in `q1-arch-final` branch. No automated quality gate. |
 | Artifacts tracked in git | `v1/PMU/artifacts/` and `openfreqbench.egg-info/` in version control. |
@@ -1098,7 +1098,7 @@ git rm --cached -r v1/PMU/artifacts/
 - Scientific invariant tests: pure sine → RMSE < 0.01 Hz for baseline estimators
 - Regression tests: lock RMSE of reference estimators on reference scenarios within tolerance
 - CLI tests: `ofb run`, `ofb status`, `ofb new estimator` produce expected outputs
-- Legacy parity tests: ported estimators match pfebench numerically on same inputs
+- Legacy parity tests: ported estimators match openfreqbench numerically on same inputs
 - How to run categories: `pytest -m smoke`, `pytest -m unit`, `pytest -m slow`
 
 ---
@@ -1164,7 +1164,7 @@ open-freq-bench/                      # repo root
 │
 ├── legacy/                           # archived, not packaged, not on sys.path
 │   ├── README.md                     # "Archived. Do not import directly."
-│   ├── pfebench/                     # v1/PMU/pfebench/ moved here post-migration
+│   ├── openfreqbench/                     # src/openfreqbench moved here post-migration
 │   ├── estimators_old/               # old PMU phasor contract estimators
 │   └── scenarios_old/               # old tuple-returning scenario generators
 │
@@ -1218,7 +1218,7 @@ open-freq-bench/                      # repo root
 | `src/` | All installable Python source. `pyproject.toml` configures `package-dir = {"" = "src"}`. |
 | `tests/` | Root-level; `pytest` discovers from here. Never under `src/`. |
 | `examples/` | Runnable YAML configs, notebooks, scripts. Not imported by `openfreqbench`. |
-| `legacy/` | Not on `sys.path`. Not packaged. Contains archived pfebench and old estimators. |
+| `legacy/` | Not on `sys.path`. Not packaged. Contains archived openfreqbench and old estimators. |
 | `artifacts/` | Gitignored. Generated benchmark outputs. Never committed. |
 | `paper/` | Paper assets separate from source code. Final figures can be committed; raw data cannot. |
 | `docs/` | Documentation source. Built by MkDocs or Sphinx during CI. |
@@ -1246,7 +1246,7 @@ v1/PMU/artifacts/
 
 ### 15.1 Guiding Principle
 
-Migrate one vertical slice at a time. Each slice covers one estimator + one scenario + matching tests, end-to-end from raw signal to persisted artifact. Verify parity numerically before moving on. The pfebench test suite serves as the regression anchor throughout the migration.
+Migrate one vertical slice at a time. Each slice covers one estimator + one scenario + matching tests, end-to-end from raw signal to persisted artifact. Verify parity numerically before moving on. The openfreqbench test suite serves as the regression anchor throughout the migration.
 
 ### 15.2 Phase 0 — Immediate Hygiene (1–2 days)
 
@@ -1265,19 +1265,19 @@ Migrate one vertical slice at a time. Each slice covers one estimator + one scen
 **Goal:** One estimator + one scenario + one test passing end-to-end under new package.
 
 **Actions (in order):**
-1. Port `pfebench/estimators/base.py` → `src/openfreqbench/estimators/_base.py`
+1. Port `openfreqbench/estimators/base.py` → `src/openfreqbench/estimators/_base.py`
    - Remove `step()` self-timing
    - Remove `optimize()` method
    - Fix imports
-2. Port `pfebench/scenarios/base.py` → `src/openfreqbench/scenarios/_base.py`
+2. Port `openfreqbench/scenarios/base.py` → `src/openfreqbench/scenarios/_base.py`
    - Fix imports only
 3. Port `e1_zc.py` → `src/openfreqbench/estimators/zc.py`
 4. Port `G1_E1_Pure_60Hz.py` → `src/openfreqbench/scenarios/g1/e1_pure_60hz.py`
 5. Port matching tests to `tests/unit/estimators/test_zc.py` and `tests/unit/scenarios/test_g1_e1.py`
-6. Add numerical parity test against pfebench original
+6. Add numerical parity test against openfreqbench original
 7. Verify: `pytest tests/unit/estimators/test_zc.py tests/unit/scenarios/test_g1_e1.py -v`
 
-**Expected outcome:** First vertical slice passes all tests with numerical parity to pfebench.
+**Expected outcome:** First vertical slice passes all tests with numerical parity to openfreqbench.
 
 ### 15.4 Phase 2 — Wire Real Runner (3–5 days)
 
@@ -1302,7 +1302,7 @@ Migrate one vertical slice at a time. Each slice covers one estimator + one scen
 - Port estimators e2 through e10 one at a time, with unit test each
 - Port scenarios G2–G4 one at a time, with unit test each
 - After each port: verify `ofb list estimators` and `ofb list scenarios` show the new entry
-- Run full pfebench parity test for each ported estimator on matching scenario
+- Run full openfreqbench parity test for each ported estimator on matching scenario
 
 **Expected outcome:** `ofb list estimators` shows 10+ methods; `ofb list scenarios` shows 18 scenarios; all parity tests pass.
 
@@ -1348,7 +1348,7 @@ Migrate one vertical slice at a time. Each slice covers one estimator + one scen
 **Goal:** Repository ready for public announcement.
 
 - Write all documentation files (`CLAUDE.md`, `ARCHITECTURE.md`, `BENCHMARK_SPEC.md`, `CONTRIBUTING.md`, `ROADMAP.md`, `RESULT_SCHEMA.md`, `TESTING.md`)
-- Move pfebench to `legacy/` (after Phase 3 parity is verified)
+- Move openfreqbench to `legacy/` (after Phase 3 parity is verified)
 - Restore full CI/CD: lint, type check, smoke, unit, regression
 - Rename all internal imports from `ofb.*` to `openfreqbench.*`
 - Write `CITATION.cff`
@@ -1361,16 +1361,16 @@ Migrate one vertical slice at a time. Each slice covers one estimator + one scen
 **Numerical parity as anchor:**
 
 ```python
-# tests/regression/test_pfebench_parity.py
+# tests/regression/test_openfreqbench_parity.py
 def test_zc_numerical_parity():
-    """Ported ZeroCrossing must match pfebench numerically on same input."""
+    """Ported ZeroCrossing must match openfreqbench numerically on same input."""
     signal = np.sin(2 * np.pi * 60.0 * np.arange(1000) / 10000.0)
     new_result = ZeroCrossing({}).run(signal)
     old_result = ZeroCrossingEstimator().run(signal)
     np.testing.assert_allclose(new_result, old_result, rtol=1e-10)
 ```
 
-**Parallel operation:** pfebench continues to work throughout migration. Researchers can use `v1/PMU/pfebench/runners/run_basic.py` while the new framework is being built. Archive to `legacy/` only after Phase 3 parity tests pass.
+**Parallel operation:** openfreqbench continues to work throughout migration. Researchers can use `src/openfreqbench while the new framework is being built. Archive to `legacy/` only after Phase 3 parity tests pass.
 
 ---
 
@@ -1387,30 +1387,30 @@ def test_zc_numerical_parity():
 | **Why it matters** | `ofb/benchmarks/runner.py` returns `TVE_mean: 0.0` for all runs. Silent correctness failure that discredits the project publicly. |
 | **Affected modules** | `runners/`, `ofb/benchmarks/runner.py` |
 | **Expected output** | `ofb run --config examples/quick_smoke.yaml` produces real RMSE values in `artifacts/` |
-| **Acceptance criteria** | RMSE for G1×ZC is non-zero and matches pfebench output within 1% |
+| **Acceptance criteria** | RMSE for G1×ZC is non-zero and matches openfreqbench output within 1% |
 | **Migration risk** | Low — purely additive |
 | **Blocks** | P0-02, P0-03, every other runner ticket |
 
 ---
 
-#### P0-02 — Port all pfebench estimators to `src/openfreqbench/estimators/`
+#### P0-02 — Port all openfreqbench estimators to `src/openfreqbench/estimators/`
 
 | Field | Value |
 |---|---|
-| **Why it matters** | 10 working estimators exist in pfebench but are not accessible via the CLI. |
+| **Why it matters** | 10 working estimators exist in openfreqbench but are not accessible via the CLI. |
 | **Affected modules** | `estimators/`, `tests/unit/estimators/` |
 | **Expected output** | `ofb list estimators` shows ZC, IZC, PM, IF_DPHI, ZC_MA, MWLS, RLS, WLS, AR, Prony, NR |
-| **Acceptance criteria** | Each estimator passes its ported unit test from pfebench; numerical parity verified |
+| **Acceptance criteria** | Each estimator passes its ported unit test from openfreqbench; numerical parity verified |
 | **Migration risk** | Low — algorithm code unchanged; only imports and class names adjusted |
 | **Blocks** | P0-01 |
 
 ---
 
-#### P0-03 — Port all 18 pfebench scenarios to `src/openfreqbench/scenarios/`
+#### P0-03 — Port all 18 openfreqbench scenarios to `src/openfreqbench/scenarios/`
 
 | Field | Value |
 |---|---|
-| **Why it matters** | 18 working scenarios exist in pfebench but are not accessible via the CLI. |
+| **Why it matters** | 18 working scenarios exist in openfreqbench but are not accessible via the CLI. |
 | **Affected modules** | `scenarios/`, `tests/unit/scenarios/` |
 | **Expected output** | `ofb list scenarios` shows G1–G4 groups |
 | **Acceptance criteria** | Each scenario passes its ported unit test; `build(42).v.shape` and `build(42).f_true` are correct |
@@ -1419,7 +1419,7 @@ def test_zc_numerical_parity():
 
 ---
 
-#### P0-04 — Port all pfebench tests to root-level `tests/`
+#### P0-04 — Port all openfreqbench tests to root-level `tests/`
 
 | Field | Value |
 |---|---|
@@ -1534,7 +1534,7 @@ def test_zc_numerical_parity():
 | **Why it matters** | `BaseEstimator.optimize()` violates SRP. Estimators should not own tuning logic. |
 | **Affected modules** | `tuning/grid_search.py`, `estimators/_base.py` |
 | **Expected output** | `TuningRunner(config).run(estimator_cls, v_cal, f_cal)` → `TuningResult` |
-| **Acceptance criteria** | pfebench numerical parity test passes; `BaseEstimator` has no `optimize()` method |
+| **Acceptance criteria** | openfreqbench numerical parity test passes; `BaseEstimator` has no `optimize()` method |
 | **Migration risk** | Medium — changes estimator base class |
 | **Blocks** | P1-03 |
 
@@ -1767,18 +1767,18 @@ def test_zc_numerical_parity():
 
 ## 17. Conclusion
 
-The scientific foundations of this project are sound and substantially complete. Eighteen scenario implementations, ten-plus estimator implementations, a full Monte Carlo runner, and a real statistical analysis pipeline already exist in `v1/PMU/pfebench/`. The test suite is comprehensive. Real benchmark artifacts with non-trivial results have been produced.
+The scientific foundations of this project are sound and substantially complete. Eighteen scenario implementations, ten-plus estimator implementations, a full Monte Carlo runner, and a real statistical analysis pipeline already exist in `src/openfreqbench The test suite is comprehensive. Real benchmark artifacts with non-trivial results have been produced.
 
-The primary gap is not scientific: it is engineering consolidation. The working scientific core in `pfebench` has not been promoted into the canonical `openfreqbench` package, the CLI is wired to stub code, and the test suite is invisible to standard tooling. These are correctable, incremental problems.
+The primary gap is not scientific: it is engineering consolidation. The working scientific core in `openfreqbench` has not been promoted into the canonical `openfreqbench` package, the CLI is wired to stub code, and the test suite is invisible to standard tooling. These are correctable, incremental problems.
 
 **The migration path does not require a reckless rewrite.** It requires:
-1. Promoting `pfebench` domain logic into `src/openfreqbench/` while verifying numerical parity
+1. Promoting `openfreqbench` domain logic into `src/openfreqbench/` while verifying numerical parity
 2. Replacing the runner stub with the real orchestration logic
 3. Wiring the existing CLI to the real runners
 4. Establishing the cache/resume mechanism as a first-class concern
 5. Restoring CI and writing the missing documentation
 
-Each of these steps can be done independently without breaking the others. The pfebench codebase continues to function as a reference and regression anchor throughout the migration.
+Each of these steps can be done independently without breaking the others. The openfreqbench codebase continues to function as a reference and regression anchor throughout the migration.
 
 When the migration is complete, `openfreqbench` will be a serious, modular, contributor-friendly benchmark platform: a single `ofb run --config benchmark.yaml` command will produce statistically rigorous, reproducible, publication-grade comparisons across the full scenario and estimator matrix, with support for incremental execution, caching, parallelism, and extensibility.
 
