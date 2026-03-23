@@ -2,17 +2,25 @@
 openfreqbench/scenarios/g2/e15_ibr_nightmare.py
 
 IBR_Nightmare: Phase Jump (+60 deg) + 5th Harmonic + Inter-harmonic
-Ported from legacy_sgsma/scenarios.py
 """
 
 from __future__ import annotations
 
 import math
 import numpy as np
+from dataclasses import dataclass
+from typing import ClassVar
 
-from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput
+from openfreqbench.scenarios._base import ScenarioBase, ScenarioOutput, ScenarioState
 
+@dataclass
 class IbrNightmareScenario(ScenarioBase):
+    scenario_id: ClassVar[str] = "IBR_Nightmare"
+    fs_hz: float = 10000.0
+    duration_s: float = 5.0
+    seed: int = 42
+    tuning_map: ClassVar[dict[str, str]] = {"seed": "seed"}
+
     def build(self) -> ScenarioOutput:
         n = int(self.fs_hz * self.duration_s)
         t = np.arange(n) / self.fs_hz
@@ -31,14 +39,13 @@ class IbrNightmareScenario(ScenarioBase):
         v_d = np.sin(phase_accum)
         v_d += 0.05 * np.sin(5 * phase_accum)           
         v_d += 0.02 * np.sin(2 * math.pi * 32.5 * t)      
-        v_d += np.random.normal(0, 0.005, n)            
+        v_d += np.random.RandomState(self.seed).normal(0, 0.005, n)            
 
         rocof = np.zeros_like(t)
         
-        return ScenarioOutput(
-            time_s=t,
-            voltage_pu=v_d,
-            frequency_hz=f_d,
-            rocof_hz_s=rocof,
-            metadata={"description": "Instantaneous Phase Jump +60 deg", "harmonics": "5th (5%), Inter-harmonic 32.5Hz (2%)"}
+        state = ScenarioState(
+            t=t, fs_hz=self.fs_hz, f_nom_hz=60.0, seed=self.seed,
+            f_true=f_d, phi=phase_accum, A=np.ones(n), v=v_d.reshape(-1, 1),
+            roco_f_true=rocof, schema={"scenario_id": self.scenario_id, "seed": self.seed}
         )
+        return ScenarioOutput(scenario_id=self.scenario_id, state=state)

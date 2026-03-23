@@ -21,6 +21,7 @@ class SuiteRunner:
     """
     parallel: bool = True
     max_workers: int | None = None
+    n_runs: int = 1  # For Monte Carlo seeding
 
     def run_tuning_suite(self) -> list[TraceResult]:
         scenarios = ScenarioRegistry.list_tuning_names()
@@ -36,7 +37,8 @@ class SuiteRunner:
         tasks = []
         for s_id in scenarios:
             for e_id in estimators:
-                tasks.append((s_id, e_id))
+                for seed in range(42, 42 + self.n_runs):
+                    tasks.append((s_id, e_id, seed))
 
         if not self.parallel:
             return [self._run_single_task(t) for t in tasks]
@@ -50,21 +52,18 @@ class SuiteRunner:
                     if res is not None:
                         results.append(res)
                 except Exception as e:
-                    # Logging could be injected here
                     pass
         return results
 
     @staticmethod
-    def _run_single_task(task: tuple[str, str]) -> TraceResult | None:
-        s_id, e_id = task
+    def _run_single_task(task: tuple[str, str, int]) -> TraceResult | None:
+        s_id, e_id, seed = task
         try:
             scenario_cls = ScenarioRegistry.get(s_id)
             estimator_cls = EstimatorRegistry.get(e_id)
             runner = TraceRunner()
-            return runner.run(scenario=scenario_cls(), estimator=estimator_cls(), seed=42)
+            return runner.run(scenario=scenario_cls(), estimator=estimator_cls(), seed=seed)
         except NotImplementedError:
-            # Skip scaffolding or unimplemented elements
             return None
         except Exception:
-            # Other errors generally should be logged or bubbled, we suppress for parallel resiliency
             return None

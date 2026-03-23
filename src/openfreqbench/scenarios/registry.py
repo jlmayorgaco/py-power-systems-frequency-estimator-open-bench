@@ -44,7 +44,11 @@ from openfreqbench.scenarios.g4.e16_composite_islanding import (
 from openfreqbench.scenarios.g4.e17_multi_event_profile import (
     G4_E17_Multi_Event_Profile,
 )
-from openfreqbench.scenarios.g4.e18_chamorro_event import G4_E18_Chamorro_Event
+from openfreqbench.scenarios.g4.e18_chamorro_event import ChamorroFaultScenario
+from openfreqbench.scenarios.g2.e15_ibr_nightmare import IbrNightmareScenario
+from openfreqbench.scenarios.g4.e19_ibr_multievent import IbrMultiEventScenario
+from openfreqbench.scenarios.g3.e20_unbalanced_sags import UnbalancedSagScenario
+from openfreqbench.scenarios.g2.e21_oobi_interference import OOBIInterferenceScenario
 from openfreqbench.scenarios.g5.e19_phase_jump_sweep import G5_E19_Phase_Jump_Sweep
 from openfreqbench.scenarios.g5.e20_snr_sweep import G5_E20_SNR_Sweep
 
@@ -116,6 +120,10 @@ ScenarioRegistry.register(G3_E14_Noise_Harmonics)
 ScenarioRegistry.register(G3_E15_Noise_Interharmonics)
 ScenarioRegistry.register(G4_E16_Composite_Islanding)
 ScenarioRegistry.register(G4_E17_Multi_Event_Profile)
-ScenarioRegistry.register(G4_E18_Chamorro_Event)
+ScenarioRegistry.register(ChamorroFaultScenario)
+ScenarioRegistry.register(IbrNightmareScenario)
+ScenarioRegistry.register(IbrMultiEventScenario)
+ScenarioRegistry.register(UnbalancedSagScenario)
+ScenarioRegistry.register(OOBIInterferenceScenario)
 ScenarioRegistry.register(G5_E19_Phase_Jump_Sweep)
 ScenarioRegistry.register(G5_E20_SNR_Sweep)

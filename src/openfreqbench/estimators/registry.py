@@ -138,6 +138,7 @@ from openfreqbench.estimators.monophasic.f5_parametric.prony import PronyEstimat
 from openfreqbench.estimators.monophasic.f6_time_frequency.hilbert_freq import (
     HilbertFrequencyEstimator,
 )
+from openfreqbench.estimators.monophasic.f6_time_frequency.teager_kaiser import TeagerKaiserEstimator
 
 
 class EstimatorRegistry:
@@ -200,6 +201,7 @@ EstimatorRegistry.register(FFTPeakEstimator)
 EstimatorRegistry.register(IpDFTEstimator)
 EstimatorRegistry.register(ZeroCrossingEstimator)
 EstimatorRegistry.register(RDFTEstimator)
+EstimatorRegistry.register(TeagerKaiserEstimator)
 
 # ── Stub registrations (algorithm skeletons -- output valid=False) ──────────────
 EstimatorRegistry.register(UKFEstimator)

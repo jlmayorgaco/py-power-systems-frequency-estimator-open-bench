@@ -1,52 +1,65 @@
-import numpy as np
+"""
+openfreqbench/metrics/tve.py
 
-def compute_tve(
-    a_est: np.ndarray, p_est: np.ndarray, a_true: np.ndarray, p_true: np.ndarray
+Total Vector Error (TVE) module for IEEE C37.118.1 compliance.
+Calculates the vectorial distance between the theoretical phasor and estimated phasor.
+"""
+
+from __future__ import annotations
+
+import math
+import numpy as np
+from typing import Any
+
+from openfreqbench.metrics.frequency import _to_1d, _finite_1d, rmse
+
+def compute_tve_array(
+    mag_est: Any,
+    phase_est_rad: Any,
+    mag_true: Any,
+    phase_true_rad: Any
 ) -> np.ndarray:
-    \"\"\"
-    Compute the Total Vector Error (TVE) percentage elementwise
-    given amplitude (a) and phase (p) of the estimated and true phasors.
+    """
+    Computes TVE line trace per IEEE C37.118.
+    TVE = sqrt( (X_r - X_r_t)^2 + (X_i - X_i_t)^2 ) / |X_t|
+    """
+    me = _to_1d(mag_est)
+    pe = _to_1d(phase_est_rad)
+    mt = _to_1d(mag_true)
+    pt = _to_1d(phase_true_rad)
     
-    IEEE C37.118-compliant formula:
-    TVE_n = sqrt( (Xr_est - Xr_true)^2 + (Xi_est - Xi_true)^2 ) / sqrt(Xr_true^2 + Xi_true^2) * 100
-    \"\"\"
-    ae = np.asarray(a_est, dtype=float)
-    pe = np.asarray(p_est, dtype=float)
-    at = np.asarray(a_true, dtype=float)
-    pt = np.asarray(p_true, dtype=float)
-    
-    # Check boundaries
-    n = min(ae.size, pe.size, at.size, pt.size)
-    if n <= 0:
+    n = min(len(me), len(pe), len(mt), len(pt))
+    if n == 0:
         return np.array([])
         
-    ae, pe, at, pt = ae[:n], pe[:n], at[:n], pt[:n]
+    me, pe, mt, pt = me[:n], pe[:n], mt[:n], pt[:n]
     
-    # Compute Re and Im directly
-    xr_est, xi_est = ae * np.cos(pe), ae * np.sin(pe)
-    xr_true, xi_true = at * np.cos(pt), at * np.sin(pt)
+    # Avoid div by zero
+    mt_safe = np.where(mt < 1e-9, 1e-9, mt)
     
-    err_sq = (xr_est - xr_true)**2 + (xi_est - xi_true)**2
-    true_sq = xr_true**2 + xi_true**2
+    # Real and Imag parts
+    Xr_e = me * np.cos(pe)
+    Xi_e = me * np.sin(pe)
     
-    # Avoid zero division
-    valid_sq = np.clip(true_sq, 1e-12, None)
+    Xr_t = mt * np.cos(pt)
+    Xi_t = mt * np.sin(pt)
     
-    tve_pct = np.sqrt(err_sq / valid_sq) * 100.0
+    num2 = (Xr_e - Xr_t)**2 + (Xi_e - Xi_t)**2
+    den2 = Xr_t**2 + Xi_t**2
+    den2 = np.where(den2 < 1e-18, 1e-18, den2)
+    
+    tve_pct = np.sqrt(num2 / den2) * 100.0
     return tve_pct
 
-def compute_tve_complex(v_est: np.ndarray, v_true: np.ndarray) -> np.ndarray:
-    \"\"\"
-    Compute the Total Vector Error (TVE) on complex phasor arrays directly.
-    \"\"\"
-    ve = np.asarray(v_est, dtype=complex)
-    vt = np.asarray(v_true, dtype=complex)
-    n = min(ve.size, vt.size)
-    if n <= 0:
-        return np.array([])
-    ve, vt = ve[:n], vt[:n]
-    
-    err_mag = np.abs(ve - vt)
-    true_mag = np.clip(np.abs(vt), 1e-12, None)
-    
-    return (err_mag / true_mag) * 100.0
+def tve_max(tve_array: Any) -> float:
+    t = _finite_1d(tve_array)
+    return float(np.max(t)) if len(t) > 0 else float("nan")
+
+def tve_rmse(tve_array: Any) -> float:
+    return rmse(tve_array)
+
+def tve_outlier_rate(tve_array: Any, threshold_pct: float = 1.0) -> float:
+    t = _finite_1d(tve_array)
+    if len(t) == 0:
+        return float("nan")
+    return float(np.mean(t > threshold_pct))

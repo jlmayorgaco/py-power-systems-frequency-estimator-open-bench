@@ -1,0 +1,229 @@
+{
+  "schema_version": "1.0",
+  "session_id": "dc218fef-673c-459b-958c-b71939358d5b",
+  "started_at": "2026-03-23T02:38:15.221065+00:00",
+  "last_updated": "2026-03-23T02:45:50.953993+00:00",
+  "config_hash": "dff25988293e6989",
+  "completed": {
+    "SRF_PLL::G1_E1_Pure_60Hz": {
+      "completed_at": "2026-03-23T02:38:39.836164+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\G1_E1_Pure_60Hz\\SRF_PLL\\SRF_PLL_20260323_023824_report.json"
+    },
+    "SOGI_FLL::G1_E1_Pure_60Hz": {
+      "completed_at": "2026-03-23T02:39:17.192172+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\G1_E1_Pure_60Hz\\SOGI_FLL\\SOGI_FLL_20260323_023901_report.json"
+    },
+    "TKEO_DESA2::G1_E1_Pure_60Hz": {
+      "completed_at": "2026-03-23T02:39:37.550552+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\G1_E1_Pure_60Hz\\TKEO_DESA2\\TKEO_DESA2_20260323_023925_report.json"
+    },
+    "TFT::G1_E1_Pure_60Hz": {
+      "completed_at": "2026-03-23T02:39:47.604714+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\G1_E1_Pure_60Hz\\TFT\\TFT_20260323_023938_report.json"
+    },
+    "RLS::G1_E1_Pure_60Hz": {
+      "completed_at": "2026-03-23T02:39:59.780887+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\G1_E1_Pure_60Hz\\RLS\\RLS_20260323_023950_report.json"
+    },
+    "SRF_PLL::IBR_Nightmare": {
+      "completed_at": "2026-03-23T02:40:18.702940+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\IBR_Nightmare\\SRF_PLL\\SRF_PLL_20260323_024008_report.json"
+    },
+    "SOGI_FLL::IBR_Nightmare": {
+      "completed_at": "2026-03-23T02:40:49.522602+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\IBR_Nightmare\\SOGI_FLL\\SOGI_FLL_20260323_024035_report.json"
+    },
+    "TKEO_DESA2::IBR_Nightmare": {
+      "completed_at": "2026-03-23T02:41:06.059730+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\IBR_Nightmare\\TKEO_DESA2\\TKEO_DESA2_20260323_024056_report.json"
+    },
+    "TFT::IBR_Nightmare": {
+      "completed_at": "2026-03-23T02:41:15.930832+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\IBR_Nightmare\\TFT\\TFT_20260323_024107_report.json"
+    },
+    "RLS::IBR_Nightmare": {
+      "completed_at": "2026-03-23T02:41:26.762139+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\IBR_Nightmare\\RLS\\RLS_20260323_024118_report.json"
+    },
+    "SRF_PLL::IBR_MultiEvent": {
+      "completed_at": "2026-03-23T02:41:43.996430+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\IBR_MultiEvent\\SRF_PLL\\SRF_PLL_20260323_024134_report.json"
+    },
+    "SOGI_FLL::IBR_MultiEvent": {
+      "completed_at": "2026-03-23T02:42:11.447487+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\IBR_MultiEvent\\SOGI_FLL\\SOGI_FLL_20260323_024158_report.json"
+    },
+    "TKEO_DESA2::IBR_MultiEvent": {
+      "completed_at": "2026-03-23T02:42:29.254008+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\IBR_MultiEvent\\TKEO_DESA2\\TKEO_DESA2_20260323_024218_report.json"
+    },
+    "TFT::IBR_MultiEvent": {
+      "completed_at": "2026-03-23T02:42:39.258810+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\IBR_MultiEvent\\TFT\\TFT_20260323_024230_report.json"
+    },
+    "RLS::IBR_MultiEvent": {
+      "completed_at": "2026-03-23T02:42:52.235637+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\IBR_MultiEvent\\RLS\\RLS_20260323_024241_report.json"
+    },
+    "SRF_PLL::UnbalancedSag": {
+      "completed_at": "2026-03-23T02:43:11.566578+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\UnbalancedSag\\SRF_PLL\\SRF_PLL_20260323_024300_report.json"
+    },
+    "SOGI_FLL::UnbalancedSag": {
+      "completed_at": "2026-03-23T02:43:39.414073+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\UnbalancedSag\\SOGI_FLL\\SOGI_FLL_20260323_024326_report.json"
+    },
+    "TKEO_DESA2::UnbalancedSag": {
+      "completed_at": "2026-03-23T02:43:56.861179+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\UnbalancedSag\\TKEO_DESA2\\TKEO_DESA2_20260323_024346_report.json"
+    },
+    "TFT::UnbalancedSag": {
+      "completed_at": "2026-03-23T02:44:06.970831+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\UnbalancedSag\\TFT\\TFT_20260323_024358_report.json"
+    },
+    "RLS::UnbalancedSag": {
+      "completed_at": "2026-03-23T02:44:18.087174+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\UnbalancedSag\\RLS\\RLS_20260323_024408_report.json"
+    },
+    "SRF_PLL::OOBIInterference": {
+      "completed_at": "2026-03-23T02:44:38.469126+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\OOBIInterference\\SRF_PLL\\SRF_PLL_20260323_024426_report.json"
+    },
+    "SOGI_FLL::OOBIInterference": {
+      "completed_at": "2026-03-23T02:45:09.705440+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\OOBIInterference\\SOGI_FLL\\SOGI_FLL_20260323_024455_report.json"
+    },
+    "TKEO_DESA2::OOBIInterference": {
+      "completed_at": "2026-03-23T02:45:29.926628+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\OOBIInterference\\TKEO_DESA2\\TKEO_DESA2_20260323_024518_report.json"
+    },
+    "TFT::OOBIInterference": {
+      "completed_at": "2026-03-23T02:45:39.898175+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\OOBIInterference\\TFT\\TFT_20260323_024531_report.json"
+    },
+    "RLS::OOBIInterference": {
+      "completed_at": "2026-03-23T02:45:50.946557+00:00",
+      "n_mc": 3,
+      "result_file": "results\\q1_suite\\OOBIInterference\\RLS\\RLS_20260323_024542_report.json"
+    }
+  },
+  "in_progress": null,
+  "failed": {
+    "RA_EKF::G1_E1_Pure_60Hz": {
+      "failed_at": "2026-03-23T02:39:17.196963+00:00",
+      "error": "\"Estimator 'RA_EKF' not registered. Available: ['ANF', 'Adaptive_EKF', 'Baseline_Passthrough', 'BiLSTM_Regressor', 'CKF', 'DDSRF_PLL', 'DSOGI_FLL', 'DynamicPhasor', 'EKF_Freq', 'EPLL', 'ESPRIT', 'EchoState_Reservoir', 'FFTPeak', 'GRU_Regressor', 'Goertzel', 'Hilbert_IF', 'IZC', 'IpDFT', 'Koopman_RKDPMU', 'LKF', 'LSTM_Regressor', 'MLP_Window', 'MUSIC', 'PI_GRU', 'Prony', 'RAEKF', 'RDFT', 'RLS', 'RLS_VFF', 'SOGI_FLL', 'SRF_PLL', 'TCN_Freq', 'TFT', 'TKEO_DESA2', 'TemporalCNN', 'Transformer_Freq', '"
+    },
+    "IpDFT::G1_E1_Pure_60Hz": {
+      "failed_at": "2026-03-23T02:39:17.227037+00:00",
+      "error": "index 1543 is out of bounds for axis 0 with size 1024"
+    },
+    "VFF_RLS::G1_E1_Pure_60Hz": {
+      "failed_at": "2026-03-23T02:39:59.787886+00:00",
+      "error": "\"Estimator 'VFF_RLS' not registered. Available: ['ANF', 'Adaptive_EKF', 'Baseline_Passthrough', 'BiLSTM_Regressor', 'CKF', 'DDSRF_PLL', 'DSOGI_FLL', 'DynamicPhasor', 'EKF_Freq', 'EPLL', 'ESPRIT', 'EchoState_Reservoir', 'FFTPeak', 'GRU_Regressor', 'Goertzel', 'Hilbert_IF', 'IZC', 'IpDFT', 'Koopman_RKDPMU', 'LKF', 'LSTM_Regressor', 'MLP_Window', 'MUSIC', 'PI_GRU', 'Prony', 'RAEKF', 'RDFT', 'RLS', 'RLS_VFF', 'SOGI_FLL', 'SRF_PLL', 'TCN_Freq', 'TFT', 'TKEO_DESA2', 'TemporalCNN', 'Transformer_Freq', "
+    },
+    "SRF_PLL::G1_E2_Gaussian_Noise": {
+      "failed_at": "2026-03-23T02:39:59.795753+00:00",
+      "error": "\"Scenario 'G1_E2_Gaussian_Noise' not registered. Available: ['G1_E1_Pure_60Hz', 'G1_E2_Gaussian_Noise_1pct', 'G1_E3_Gaussian_Noise_5pct', 'G2_E1_FreqStep', 'G2_E2_FreqRamp', 'G2_E4_Voltage_Mag_Step_1pct', 'G2_E5_Voltage_Mag_Step_10pct', 'G2_E6_Freq_Step_60_to_59p5', 'G2_E7_Freq_Step_60_to_55', 'G2_E8_Fast_Ramp_plus5Hzs', 'G2_E9_Slow_Ramp_minus0p5Hzs', 'G3_E10_AM_Modulation', 'G3_E11_FM_Modulation', 'G3_E12_Phase_Jump', 'G3_E13_Impulsive_Outliers', 'G3_E14_Noise_Harmonics', 'G3_E15_Noise_Interhar"
+    },
+    "SOGI_FLL::G1_E2_Gaussian_Noise": {
+      "failed_at": "2026-03-23T02:39:59.802888+00:00",
+      "error": "\"Scenario 'G1_E2_Gaussian_Noise' not registered. Available: ['G1_E1_Pure_60Hz', 'G1_E2_Gaussian_Noise_1pct', 'G1_E3_Gaussian_Noise_5pct', 'G2_E1_FreqStep', 'G2_E2_FreqRamp', 'G2_E4_Voltage_Mag_Step_1pct', 'G2_E5_Voltage_Mag_Step_10pct', 'G2_E6_Freq_Step_60_to_59p5', 'G2_E7_Freq_Step_60_to_55', 'G2_E8_Fast_Ramp_plus5Hzs', 'G2_E9_Slow_Ramp_minus0p5Hzs', 'G3_E10_AM_Modulation', 'G3_E11_FM_Modulation', 'G3_E12_Phase_Jump', 'G3_E13_Impulsive_Outliers', 'G3_E14_Noise_Harmonics', 'G3_E15_Noise_Interhar"
+    },
+    "RA_EKF::G1_E2_Gaussian_Noise": {
+      "failed_at": "2026-03-23T02:39:59.810798+00:00",
+      "error": "\"Scenario 'G1_E2_Gaussian_Noise' not registered. Available: ['G1_E1_Pure_60Hz', 'G1_E2_Gaussian_Noise_1pct', 'G1_E3_Gaussian_Noise_5pct', 'G2_E1_FreqStep', 'G2_E2_FreqRamp', 'G2_E4_Voltage_Mag_Step_1pct', 'G2_E5_Voltage_Mag_Step_10pct', 'G2_E6_Freq_Step_60_to_59p5', 'G2_E7_Freq_Step_60_to_55', 'G2_E8_Fast_Ramp_plus5Hzs', 'G2_E9_Slow_Ramp_minus0p5Hzs', 'G3_E10_AM_Modulation', 'G3_E11_FM_Modulation', 'G3_E12_Phase_Jump', 'G3_E13_Impulsive_Outliers', 'G3_E14_Noise_Harmonics', 'G3_E15_Noise_Interhar"
+    },
+    "IpDFT::G1_E2_Gaussian_Noise": {
+      "failed_at": "2026-03-23T02:39:59.818762+00:00",
+      "error": "\"Scenario 'G1_E2_Gaussian_Noise' not registered. Available: ['G1_E1_Pure_60Hz', 'G1_E2_Gaussian_Noise_1pct', 'G1_E3_Gaussian_Noise_5pct', 'G2_E1_FreqStep', 'G2_E2_FreqRamp', 'G2_E4_Voltage_Mag_Step_1pct', 'G2_E5_Voltage_Mag_Step_10pct', 'G2_E6_Freq_Step_60_to_59p5', 'G2_E7_Freq_Step_60_to_55', 'G2_E8_Fast_Ramp_plus5Hzs', 'G2_E9_Slow_Ramp_minus0p5Hzs', 'G3_E10_AM_Modulation', 'G3_E11_FM_Modulation', 'G3_E12_Phase_Jump', 'G3_E13_Impulsive_Outliers', 'G3_E14_Noise_Harmonics', 'G3_E15_Noise_Interhar"
+    },
+    "TKEO_DESA2::G1_E2_Gaussian_Noise": {
+      "failed_at": "2026-03-23T02:39:59.826599+00:00",
+      "error": "\"Scenario 'G1_E2_Gaussian_Noise' not registered. Available: ['G1_E1_Pure_60Hz', 'G1_E2_Gaussian_Noise_1pct', 'G1_E3_Gaussian_Noise_5pct', 'G2_E1_FreqStep', 'G2_E2_FreqRamp', 'G2_E4_Voltage_Mag_Step_1pct', 'G2_E5_Voltage_Mag_Step_10pct', 'G2_E6_Freq_Step_60_to_59p5', 'G2_E7_Freq_Step_60_to_55', 'G2_E8_Fast_Ramp_plus5Hzs', 'G2_E9_Slow_Ramp_minus0p5Hzs', 'G3_E10_AM_Modulation', 'G3_E11_FM_Modulation', 'G3_E12_Phase_Jump', 'G3_E13_Impulsive_Outliers', 'G3_E14_Noise_Harmonics', 'G3_E15_Noise_Interhar"
+    },
+    "TFT::G1_E2_Gaussian_Noise": {
+      "failed_at": "2026-03-23T02:39:59.834613+00:00",
+      "error": "\"Scenario 'G1_E2_Gaussian_Noise' not registered. Available: ['G1_E1_Pure_60Hz', 'G1_E2_Gaussian_Noise_1pct', 'G1_E3_Gaussian_Noise_5pct', 'G2_E1_FreqStep', 'G2_E2_FreqRamp', 'G2_E4_Voltage_Mag_Step_1pct', 'G2_E5_Voltage_Mag_Step_10pct', 'G2_E6_Freq_Step_60_to_59p5', 'G2_E7_Freq_Step_60_to_55', 'G2_E8_Fast_Ramp_plus5Hzs', 'G2_E9_Slow_Ramp_minus0p5Hzs', 'G3_E10_AM_Modulation', 'G3_E11_FM_Modulation', 'G3_E12_Phase_Jump', 'G3_E13_Impulsive_Outliers', 'G3_E14_Noise_Harmonics', 'G3_E15_Noise_Interhar"
+    },
+    "RLS::G1_E2_Gaussian_Noise": {
+      "failed_at": "2026-03-23T02:39:59.842479+00:00",
+      "error": "\"Scenario 'G1_E2_Gaussian_Noise' not registered. Available: ['G1_E1_Pure_60Hz', 'G1_E2_Gaussian_Noise_1pct', 'G1_E3_Gaussian_Noise_5pct', 'G2_E1_FreqStep', 'G2_E2_FreqRamp', 'G2_E4_Voltage_Mag_Step_1pct', 'G2_E5_Voltage_Mag_Step_10pct', 'G2_E6_Freq_Step_60_to_59p5', 'G2_E7_Freq_Step_60_to_55', 'G2_E8_Fast_Ramp_plus5Hzs', 'G2_E9_Slow_Ramp_minus0p5Hzs', 'G3_E10_AM_Modulation', 'G3_E11_FM_Modulation', 'G3_E12_Phase_Jump', 'G3_E13_Impulsive_Outliers', 'G3_E14_Noise_Harmonics', 'G3_E15_Noise_Interhar"
+    },
+    "VFF_RLS::G1_E2_Gaussian_Noise": {
+      "failed_at": "2026-03-23T02:39:59.851417+00:00",
+      "error": "\"Scenario 'G1_E2_Gaussian_Noise' not registered. Available: ['G1_E1_Pure_60Hz', 'G1_E2_Gaussian_Noise_1pct', 'G1_E3_Gaussian_Noise_5pct', 'G2_E1_FreqStep', 'G2_E2_FreqRamp', 'G2_E4_Voltage_Mag_Step_1pct', 'G2_E5_Voltage_Mag_Step_10pct', 'G2_E6_Freq_Step_60_to_59p5', 'G2_E7_Freq_Step_60_to_55', 'G2_E8_Fast_Ramp_plus5Hzs', 'G2_E9_Slow_Ramp_minus0p5Hzs', 'G3_E10_AM_Modulation', 'G3_E11_FM_Modulation', 'G3_E12_Phase_Jump', 'G3_E13_Impulsive_Outliers', 'G3_E14_Noise_Harmonics', 'G3_E15_Noise_Interhar"
+    },
+    "RA_EKF::IBR_Nightmare": {
+      "failed_at": "2026-03-23T02:40:49.527108+00:00",
+      "error": "\"Estimator 'RA_EKF' not registered. Available: ['ANF', 'Adaptive_EKF', 'Baseline_Passthrough', 'BiLSTM_Regressor', 'CKF', 'DDSRF_PLL', 'DSOGI_FLL', 'DynamicPhasor', 'EKF_Freq', 'EPLL', 'ESPRIT', 'EchoState_Reservoir', 'FFTPeak', 'GRU_Regressor', 'Goertzel', 'Hilbert_IF', 'IZC', 'IpDFT', 'Koopman_RKDPMU', 'LKF', 'LSTM_Regressor', 'MLP_Window', 'MUSIC', 'PI_GRU', 'Prony', 'RAEKF', 'RDFT', 'RLS', 'RLS_VFF', 'SOGI_FLL', 'SRF_PLL', 'TCN_Freq', 'TFT', 'TKEO_DESA2', 'TemporalCNN', 'Transformer_Freq', '"
+    },
+    "IpDFT::IBR_Nightmare": {
+      "failed_at": "2026-03-23T02:40:49.556885+00:00",
+      "error": "index 1543 is out of bounds for axis 0 with size 1024"
+    },
+    "VFF_RLS::IBR_Nightmare": {
+      "failed_at": "2026-03-23T02:41:26.766715+00:00",
+      "error": "\"Estimator 'VFF_RLS' not registered. Available: ['ANF', 'Adaptive_EKF', 'Baseline_Passthrough', 'BiLSTM_Regressor', 'CKF', 'DDSRF_PLL', 'DSOGI_FLL', 'DynamicPhasor', 'EKF_Freq', 'EPLL', 'ESPRIT', 'EchoState_Reservoir', 'FFTPeak', 'GRU_Regressor', 'Goertzel', 'Hilbert_IF', 'IZC', 'IpDFT', 'Koopman_RKDPMU', 'LKF', 'LSTM_Regressor', 'MLP_Window', 'MUSIC', 'PI_GRU', 'Prony', 'RAEKF', 'RDFT', 'RLS', 'RLS_VFF', 'SOGI_FLL', 'SRF_PLL', 'TCN_Freq', 'TFT', 'TKEO_DESA2', 'TemporalCNN', 'Transformer_Freq', "
+    },
+    "RA_EKF::IBR_MultiEvent": {
+      "failed_at": "2026-03-23T02:42:11.452635+00:00",
+      "error": "\"Estimator 'RA_EKF' not registered. Available: ['ANF', 'Adaptive_EKF', 'Baseline_Passthrough', 'BiLSTM_Regressor', 'CKF', 'DDSRF_PLL', 'DSOGI_FLL', 'DynamicPhasor', 'EKF_Freq', 'EPLL', 'ESPRIT', 'EchoState_Reservoir', 'FFTPeak', 'GRU_Regressor', 'Goertzel', 'Hilbert_IF', 'IZC', 'IpDFT', 'Koopman_RKDPMU', 'LKF', 'LSTM_Regressor', 'MLP_Window', 'MUSIC', 'PI_GRU', 'Prony', 'RAEKF', 'RDFT', 'RLS', 'RLS_VFF', 'SOGI_FLL', 'SRF_PLL', 'TCN_Freq', 'TFT', 'TKEO_DESA2', 'TemporalCNN', 'Transformer_Freq', '"
+    },
+    "IpDFT::IBR_MultiEvent": {
+      "failed_at": "2026-03-23T02:42:11.495081+00:00",
+      "error": "index 1543 is out of bounds for axis 0 with size 1024"
+    },
+    "VFF_RLS::IBR_MultiEvent": {
+      "failed_at": "2026-03-23T02:42:52.241519+00:00",
+      "error": "\"Estimator 'VFF_RLS' not registered. Available: ['ANF', 'Adaptive_EKF', 'Baseline_Passthrough', 'BiLSTM_Regressor', 'CKF', 'DDSRF_PLL', 'DSOGI_FLL', 'DynamicPhasor', 'EKF_Freq', 'EPLL', 'ESPRIT', 'EchoState_Reservoir', 'FFTPeak', 'GRU_Regressor', 'Goertzel', 'Hilbert_IF', 'IZC', 'IpDFT', 'Koopman_RKDPMU', 'LKF', 'LSTM_Regressor', 'MLP_Window', 'MUSIC', 'PI_GRU', 'Prony', 'RAEKF', 'RDFT', 'RLS', 'RLS_VFF', 'SOGI_FLL', 'SRF_PLL', 'TCN_Freq', 'TFT', 'TKEO_DESA2', 'TemporalCNN', 'Transformer_Freq', "
+    },
+    "RA_EKF::UnbalancedSag": {
+      "failed_at": "2026-03-23T02:43:39.419043+00:00",
+      "error": "\"Estimator 'RA_EKF' not registered. Available: ['ANF', 'Adaptive_EKF', 'Baseline_Passthrough', 'BiLSTM_Regressor', 'CKF', 'DDSRF_PLL', 'DSOGI_FLL', 'DynamicPhasor', 'EKF_Freq', 'EPLL', 'ESPRIT', 'EchoState_Reservoir', 'FFTPeak', 'GRU_Regressor', 'Goertzel', 'Hilbert_IF', 'IZC', 'IpDFT', 'Koopman_RKDPMU', 'LKF', 'LSTM_Regressor', 'MLP_Window', 'MUSIC', 'PI_GRU', 'Prony', 'RAEKF', 'RDFT', 'RLS', 'RLS_VFF', 'SOGI_FLL', 'SRF_PLL', 'TCN_Freq', 'TFT', 'TKEO_DESA2', 'TemporalCNN', 'Transformer_Freq', '"
+    },
+    "IpDFT::UnbalancedSag": {
+      "failed_at": "2026-03-23T02:43:39.432432+00:00",
+      "error": "operands could not be broadcast together with shapes (1024,3) (1024,) "
+    },
+    "VFF_RLS::UnbalancedSag": {
+      "failed_at": "2026-03-23T02:44:18.093414+00:00",
+      "error": "\"Estimator 'VFF_RLS' not registered. Available: ['ANF', 'Adaptive_EKF', 'Baseline_Passthrough', 'BiLSTM_Regressor', 'CKF', 'DDSRF_PLL', 'DSOGI_FLL', 'DynamicPhasor', 'EKF_Freq', 'EPLL', 'ESPRIT', 'EchoState_Reservoir', 'FFTPeak', 'GRU_Regressor', 'Goertzel', 'Hilbert_IF', 'IZC', 'IpDFT', 'Koopman_RKDPMU', 'LKF', 'LSTM_Regressor', 'MLP_Window', 'MUSIC', 'PI_GRU', 'Prony', 'RAEKF', 'RDFT', 'RLS', 'RLS_VFF', 'SOGI_FLL', 'SRF_PLL', 'TCN_Freq', 'TFT', 'TKEO_DESA2', 'TemporalCNN', 'Transformer_Freq', "
+    },
+    "RA_EKF::OOBIInterference": {
+      "failed_at": "2026-03-23T02:45:09.710960+00:00",
+      "error": "\"Estimator 'RA_EKF' not registered. Available: ['ANF', 'Adaptive_EKF', 'Baseline_Passthrough', 'BiLSTM_Regressor', 'CKF', 'DDSRF_PLL', 'DSOGI_FLL', 'DynamicPhasor', 'EKF_Freq', 'EPLL', 'ESPRIT', 'EchoState_Reservoir', 'FFTPeak', 'GRU_Regressor', 'Goertzel', 'Hilbert_IF', 'IZC', 'IpDFT', 'Koopman_RKDPMU', 'LKF', 'LSTM_Regressor', 'MLP_Window', 'MUSIC', 'PI_GRU', 'Prony', 'RAEKF', 'RDFT', 'RLS', 'RLS_VFF', 'SOGI_FLL', 'SRF_PLL', 'TCN_Freq', 'TFT', 'TKEO_DESA2', 'TemporalCNN', 'Transformer_Freq', '"
+    },
+    "IpDFT::OOBIInterference": {
+      "failed_at": "2026-03-23T02:45:09.728022+00:00",
+      "error": "index 1543 is out of bounds for axis 0 with size 1024"
+    },
+    "VFF_RLS::OOBIInterference": {
+      "failed_at": "2026-03-23T02:45:50.953982+00:00",
+      "error": "\"Estimator 'VFF_RLS' not registered. Available: ['ANF', 'Adaptive_EKF', 'Baseline_Passthrough', 'BiLSTM_Regressor', 'CKF', 'DDSRF_PLL', 'DSOGI_FLL', 'DynamicPhasor', 'EKF_Freq', 'EPLL', 'ESPRIT', 'EchoState_Reservoir', 'FFTPeak', 'GRU_Regressor', 'Goertzel', 'Hilbert_IF', 'IZC', 'IpDFT', 'Koopman_RKDPMU', 'LKF', 'LSTM_Regressor', 'MLP_Window', 'MUSIC', 'PI_GRU', 'Prony', 'RAEKF', 'RDFT', 'RLS', 'RLS_VFF', 'SOGI_FLL', 'SRF_PLL', 'TCN_Freq', 'TFT', 'TKEO_DESA2', 'TemporalCNN', 'Transformer_Freq', "
+    }
+  }
+}
